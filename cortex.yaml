@@ -1,0 +1,20 @@
+openapi: 3.0.1
+info:
+  title: xendit-components-ios
+  description: 
+  x-cortex-git:
+    github:
+      repository: xendit/xendit-components-ios
+  x-cortex-tag: xendit-components-ios
+  x-cortex-dependency: []
+  x-cortex-service-groups:
+    - P1
+    - cindy.harum@xendit.co
+  x-cortex-owners:
+    - type: EMAIL
+      email: cindy.harum@xendit.co
+    - type: SLACK
+      name: components-mobile-sdk
+    - type: GROUP
+      name: xendit-nex-android
+    
