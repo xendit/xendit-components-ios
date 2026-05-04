@@ -15,11 +15,7 @@ final class SDKStateStore: ObservableObject {
     @Published var channels: [SessionResponse.Channel] = []
     @Published var channelUiGroups: [SessionResponse.ChannelUIGroup] = []
     @Published var currentChannel: SessionResponse.Channel?
-    @Published var channelProperties: ChannelProperties = [:] {
-        didSet {
-            log.debug("channelProperties: \(channelProperties)")
-        }
-    }
+    @Published var channelProperties: ChannelProperties = [:]
     @Published var sdkStatus: SDKStatus = .idle
     @Published var isSubmitting: Bool = false
     @Published var savePaymentMethod: Bool = false
@@ -50,8 +46,6 @@ final class SDKStateStore: ObservableObject {
         )
     }
     
-    private let log = Logger("SDKStateStore")
-
     /// Detects the card network from the current `cardNumber` and updates `cardDetails.schemes`
     /// so the correct brand logo is shown immediately — before (or instead of) the BIN API response.
     private func updateDetectedScheme() {

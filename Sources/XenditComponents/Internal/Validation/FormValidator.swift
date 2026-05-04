@@ -202,8 +202,6 @@ struct FormValidator {
         showBillingDetails: Bool = false
     ) -> Bool {
         let filteredFields = filterFormFields(fields, sessionType: sessionType, showBillingDetails: showBillingDetails)
-        log.debug("[XenditSDK] [Validation] channelProperties: data \(channelProperties)")
-        log.debug("[XenditSDK] [Validation] channelPropertiesAreValid: checking \(filteredFields.count) field(s)")
         for field in filteredFields {
             log.debug("[XenditSDK] [Validation] checking field \(field.label)")
             let keys = field.channelProperty.keys
@@ -243,7 +241,6 @@ func filterFormFields(
     showBillingDetails: Bool
 ) -> [SessionResponse.Channel.FormField] {
     fields.filter { field in
-        Logger("filterFormField").info("\(field.type.name) " + field.channelProperty.primaryKey + " fieldFlag \(field.flags?.requireBillingInformation) showBillingDetails \(showBillingDetails)")
         if field.flags?.requireBillingInformation == true {
             if !showBillingDetails { return false }
         }
