@@ -84,9 +84,11 @@ struct XenditTextField: UIViewRepresentable {
             }
 
             if let max = parent.maxLength {
-                let currentRaw = rawCount(of: tf.text ?? "")
+                let current = tf.text ?? ""
+                let currentRaw = rawCount(of: current)
+                let replacedRaw = rawCount(of: (current as NSString).substring(with: range))
                 let incomingRaw = parent.characterFilter.map { string.filter($0).count } ?? string.count
-                return currentRaw + incomingRaw <= max
+                return currentRaw - replacedRaw + incomingRaw <= max
             }
 
             return true
