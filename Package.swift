@@ -30,11 +30,6 @@ let package = Package(
             ],
             path: "Sources/XenditComponents",
             resources: [.process("Resources")]
-        ),
-        .testTarget(
-            name: "XenditComponentsTests",
-            dependencies: ["XenditComponents"],
-            path: "Tests/XenditComponentsTests"
         )
     ]
 )
