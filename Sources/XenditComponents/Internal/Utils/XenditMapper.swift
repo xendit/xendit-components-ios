@@ -76,22 +76,24 @@ struct XenditMapper {
         var result = [String: Any]()
         for (key, value) in flatMap {
             let parts = key.components(separatedBy: ".")
-
-            // This is a simplified unflattening for demo.
-            // Real implementation might need more robust nested map handling.
-            if parts.count == 1 {
-                result[key] = value
-            } else {
-                var dict = result
-                var target = dict
-                for _ in 0..<parts.count - 1 {
-                    let part = parts[0]
-                    target = target[part] as? [String: Any] ?? [String: Any]()
-                }
-                target[parts.last!] = value
-                result[parts[0]] = target
-            }
+            result = inserting(value: value, at: parts[...], into: result)
         }
         return result
+    }
+
+    private static func inserting(
+        value: Any,
+        at parts: ArraySlice<String>,
+        into dict: [String: Any]
+    ) -> [String: Any] {
+        var dict = dict
+        guard let first = parts.first else { return dict }
+        if parts.count == 1 {
+            dict[first] = value
+        } else {
+            let nested = dict[first] as? [String: Any] ?? [:]
+            dict[first] = inserting(value: value, at: parts.dropFirst(), into: nested)
+        }
+        return dict
     }
 }
