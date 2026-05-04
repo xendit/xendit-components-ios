@@ -18,12 +18,17 @@ extension XenditComponents {
         parsedKey: ParsedSdkKey
     ) -> AnyPublisher<SubmissionResult, Error> {
         let channelCode = channel.channelCode
-        let properties = XenditMapper.mapFormValues(
-            formValues: stateStore.channelProperties,
-            fields: channel.form,
-            publicKey: parsedKey.publicKey,
-            sessionId: session.id
-        )
+        let properties: [String: Any]
+        do {
+            properties = try XenditMapper.mapFormValues(
+                formValues: stateStore.channelProperties,
+                fields: channel.form,
+                publicKey: parsedKey.publicKey,
+                sessionId: session.id
+            )
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
 
         switch session.sessionType {
         case .pay:

@@ -16,7 +16,7 @@ struct XenditMapper {
         fields: [SessionResponse.Channel.FormField],
         publicKey: String,
         sessionId: String
-    ) -> [String: Any] {
+    ) throws -> [String: Any] {
         var flatMap = [String: Any?]()
 
         for field in fields {
@@ -33,10 +33,10 @@ struct XenditMapper {
                 let year = rawYear.count == 2 ? "20\(rawYear)" : rawYear
 
                 flatMap[keys[0]] = isSensitive
-                    ? (try? XenditEncryption.encrypt(data: month, serverPublicKeyBase64: publicKey, sessionId: sessionId)) ?? month
+                    ? try XenditEncryption.encrypt(data: month, serverPublicKeyBase64: publicKey, sessionId: sessionId)
                     : month
                 flatMap[keys[1]] = isSensitive
-                    ? (try? XenditEncryption.encrypt(data: year, serverPublicKeyBase64: publicKey, sessionId: sessionId)) ?? year
+                    ? try XenditEncryption.encrypt(data: year, serverPublicKeyBase64: publicKey, sessionId: sessionId)
                     : year
                 continue
             }
@@ -46,10 +46,9 @@ struct XenditMapper {
             switch field.type {
             case .text(_, _, _, _), .email, .postalCode, .creditCardNumber, .creditCardCvn:
                 let key = keys.first ?? ""
-                let encryptedValue = isSensitive
-                    ? try? XenditEncryption.encrypt(data: value, serverPublicKeyBase64: publicKey, sessionId: sessionId)
+                flatMap[key] = isSensitive
+                    ? try XenditEncryption.encrypt(data: value, serverPublicKeyBase64: publicKey, sessionId: sessionId)
                     : value
-                flatMap[key] = encryptedValue ?? value
             case .installmentPlan:
                 guard keys.count >= 2 else { continue }
                 let term = formValues[keys[0]]
