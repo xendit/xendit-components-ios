@@ -1,0 +1,596 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		21790FA82FA6A1C800DD4407 /* XenditComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 21790FA72FA6A1C800DD4407 /* XenditComponents */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		21790E512FA69CB200DD4407 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 21790E2D2FA69CB000DD4407 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 21790E342FA69CB000DD4407;
+			remoteInfo = XenditExampleObjC;
+		};
+		21790E5B2FA69CB200DD4407 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 21790E2D2FA69CB000DD4407 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 21790E342FA69CB000DD4407;
+			remoteInfo = XenditExampleObjC;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		21790E352FA69CB000DD4407 /* XenditExampleObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XenditExampleObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		21790E502FA69CB200DD4407 /* XenditExampleObjCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XenditExampleObjCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		21790E5A2FA69CB200DD4407 /* XenditExampleObjCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XenditExampleObjCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		21790E622FA69CB200DD4407 /* Exceptions for "XenditExampleObjC" folder in "XenditExampleObjC" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 21790E342FA69CB000DD4407 /* XenditExampleObjC */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		21790E372FA69CB000DD4407 /* XenditExampleObjC */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				21790E622FA69CB200DD4407 /* Exceptions for "XenditExampleObjC" folder in "XenditExampleObjC" target */,
+			);
+			path = XenditExampleObjC;
+			sourceTree = "<group>";
+		};
+		21790E532FA69CB200DD4407 /* XenditExampleObjCTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = XenditExampleObjCTests;
+			sourceTree = "<group>";
+		};
+		21790E5D2FA69CB200DD4407 /* XenditExampleObjCUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = XenditExampleObjCUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		21790E322FA69CB000DD4407 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21790FA82FA6A1C800DD4407 /* XenditComponents in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E4D2FA69CB200DD4407 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E572FA69CB200DD4407 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		21790E2C2FA69CB000DD4407 = {
+			isa = PBXGroup;
+			children = (
+				21790E372FA69CB000DD4407 /* XenditExampleObjC */,
+				21790E532FA69CB200DD4407 /* XenditExampleObjCTests */,
+				21790E5D2FA69CB200DD4407 /* XenditExampleObjCUITests */,
+				21790E362FA69CB000DD4407 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		21790E362FA69CB000DD4407 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				21790E352FA69CB000DD4407 /* XenditExampleObjC.app */,
+				21790E502FA69CB200DD4407 /* XenditExampleObjCTests.xctest */,
+				21790E5A2FA69CB200DD4407 /* XenditExampleObjCUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		21790E342FA69CB000DD4407 /* XenditExampleObjC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21790E632FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjC" */;
+			buildPhases = (
+				21790E312FA69CB000DD4407 /* Sources */,
+				21790E322FA69CB000DD4407 /* Frameworks */,
+				21790E332FA69CB000DD4407 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				21790E372FA69CB000DD4407 /* XenditExampleObjC */,
+			);
+			name = XenditExampleObjC;
+			packageProductDependencies = (
+				21790FA72FA6A1C800DD4407 /* XenditComponents */,
+			);
+			productName = XenditExampleObjC;
+			productReference = 21790E352FA69CB000DD4407 /* XenditExampleObjC.app */;
+			productType = "com.apple.product-type.application";
+		};
+		21790E4F2FA69CB200DD4407 /* XenditExampleObjCTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21790E682FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjCTests" */;
+			buildPhases = (
+				21790E4C2FA69CB200DD4407 /* Sources */,
+				21790E4D2FA69CB200DD4407 /* Frameworks */,
+				21790E4E2FA69CB200DD4407 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				21790E522FA69CB200DD4407 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				21790E532FA69CB200DD4407 /* XenditExampleObjCTests */,
+			);
+			name = XenditExampleObjCTests;
+			packageProductDependencies = (
+			);
+			productName = XenditExampleObjCTests;
+			productReference = 21790E502FA69CB200DD4407 /* XenditExampleObjCTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		21790E592FA69CB200DD4407 /* XenditExampleObjCUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21790E6B2FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjCUITests" */;
+			buildPhases = (
+				21790E562FA69CB200DD4407 /* Sources */,
+				21790E572FA69CB200DD4407 /* Frameworks */,
+				21790E582FA69CB200DD4407 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				21790E5C2FA69CB200DD4407 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				21790E5D2FA69CB200DD4407 /* XenditExampleObjCUITests */,
+			);
+			name = XenditExampleObjCUITests;
+			packageProductDependencies = (
+			);
+			productName = XenditExampleObjCUITests;
+			productReference = 21790E5A2FA69CB200DD4407 /* XenditExampleObjCUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		21790E2D2FA69CB000DD4407 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					21790E342FA69CB000DD4407 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					21790E4F2FA69CB200DD4407 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 21790E342FA69CB000DD4407;
+					};
+					21790E592FA69CB200DD4407 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 21790E342FA69CB000DD4407;
+					};
+				};
+			};
+			buildConfigurationList = 21790E302FA69CB000DD4407 /* Build configuration list for PBXProject "XenditExampleObjC" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 21790E2C2FA69CB000DD4407;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				21790FA92FA6A28700DD4407 /* XCLocalSwiftPackageReference "../../../xendit-components-ios" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 21790E362FA69CB000DD4407 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				21790E342FA69CB000DD4407 /* XenditExampleObjC */,
+				21790E4F2FA69CB200DD4407 /* XenditExampleObjCTests */,
+				21790E592FA69CB200DD4407 /* XenditExampleObjCUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		21790E332FA69CB000DD4407 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E4E2FA69CB200DD4407 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E582FA69CB200DD4407 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		21790E312FA69CB000DD4407 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E4C2FA69CB200DD4407 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21790E562FA69CB200DD4407 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		21790E522FA69CB200DD4407 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 21790E342FA69CB000DD4407 /* XenditExampleObjC */;
+			targetProxy = 21790E512FA69CB200DD4407 /* PBXContainerItemProxy */;
+		};
+		21790E5C2FA69CB200DD4407 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 21790E342FA69CB000DD4407 /* XenditExampleObjC */;
+			targetProxy = 21790E5B2FA69CB200DD4407 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		21790E642FA69CB200DD4407 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XenditExampleObjC/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		21790E652FA69CB200DD4407 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XenditExampleObjC/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		21790E662FA69CB200DD4407 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		21790E672FA69CB200DD4407 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		21790E692FA69CB200DD4407 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjCTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XenditExampleObjC.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/XenditExampleObjC";
+			};
+			name = Debug;
+		};
+		21790E6A2FA69CB200DD4407 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjCTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XenditExampleObjC.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/XenditExampleObjC";
+			};
+			name = Release;
+		};
+		21790E6C2FA69CB200DD4407 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjCUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = XenditExampleObjC;
+			};
+			name = Debug;
+		};
+		21790E6D2FA69CB200DD4407 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExampleObjCUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = XenditExampleObjC;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		21790E302FA69CB000DD4407 /* Build configuration list for PBXProject "XenditExampleObjC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21790E662FA69CB200DD4407 /* Debug */,
+				21790E672FA69CB200DD4407 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		21790E632FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21790E642FA69CB200DD4407 /* Debug */,
+				21790E652FA69CB200DD4407 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		21790E682FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjCTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21790E692FA69CB200DD4407 /* Debug */,
+				21790E6A2FA69CB200DD4407 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		21790E6B2FA69CB200DD4407 /* Build configuration list for PBXNativeTarget "XenditExampleObjCUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21790E6C2FA69CB200DD4407 /* Debug */,
+				21790E6D2FA69CB200DD4407 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		21790FA92FA6A28700DD4407 /* XCLocalSwiftPackageReference "../../../xendit-components-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../xendit-components-ios";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		21790FA72FA6A1C800DD4407 /* XenditComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 21790FA92FA6A28700DD4407 /* XCLocalSwiftPackageReference "../../../xendit-components-ios" */;
+			productName = XenditComponents;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 21790E2D2FA69CB000DD4407 /* Project object */;
+}
