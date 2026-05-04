@@ -17,7 +17,7 @@ final class SDKStateStore: ObservableObject {
     @Published var currentChannel: SessionResponse.Channel?
     @Published var channelProperties: ChannelProperties = [:] {
         didSet {
-            print("channelProperties: \(channelProperties)")
+            log.debug("channelProperties: \(channelProperties)")
         }
     }
     @Published var sdkStatus: SDKStatus = .idle
@@ -49,6 +49,8 @@ final class SDKStateStore: ObservableObject {
             showBillingDetails: cardDetails?.requireBillingInformation ?? false
         )
     }
+    
+    private let log = Logger("SDKStateStore")
 
     /// Detects the card network from the current `cardNumber` and updates `cardDetails.schemes`
     /// so the correct brand logo is shown immediately — before (or instead of) the BIN API response.
