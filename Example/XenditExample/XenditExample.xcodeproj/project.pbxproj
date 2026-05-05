@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2137B12A2FA9D762008F1E6A /* NotoSerif-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1202FA9D762008F1E6A /* NotoSerif-Bold.ttf */; };
+		2137B12B2FA9D762008F1E6A /* OpenSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1252FA9D762008F1E6A /* OpenSans-Medium.ttf */; };
+		2137B12C2FA9D762008F1E6A /* OpenSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1272FA9D762008F1E6A /* OpenSans-SemiBold.ttf */; };
+		2137B12D2FA9D762008F1E6A /* NotoSerif-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1212FA9D762008F1E6A /* NotoSerif-Medium.ttf */; };
+		2137B12E2FA9D762008F1E6A /* NotoSerif-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1232FA9D762008F1E6A /* NotoSerif-SemiBold.ttf */; };
+		2137B12F2FA9D762008F1E6A /* SpaceMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1282FA9D762008F1E6A /* SpaceMono-Bold.ttf */; };
+		2137B1302FA9D762008F1E6A /* NotoSerif-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1222FA9D762008F1E6A /* NotoSerif-Regular.ttf */; };
+		2137B1312FA9D762008F1E6A /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1242FA9D762008F1E6A /* OpenSans-Bold.ttf */; };
+		2137B1322FA9D762008F1E6A /* SpaceMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1292FA9D762008F1E6A /* SpaceMono-Regular.ttf */; };
+		2137B1332FA9D762008F1E6A /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2137B1262FA9D762008F1E6A /* OpenSans-Regular.ttf */; };
+		2137B1382FA9D774008F1E6A /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2137B1342FA9D774008F1E6A /* AppTheme.swift */; };
+		2137B1392FA9D774008F1E6A /* NotoSerifFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2137B1352FA9D774008F1E6A /* NotoSerifFont.swift */; };
+		2137B13A2FA9D774008F1E6A /* OpenSansFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2137B1362FA9D774008F1E6A /* OpenSansFont.swift */; };
+		2137B13B2FA9D774008F1E6A /* SpaceMonoFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2137B1372FA9D774008F1E6A /* SpaceMonoFont.swift */; };
 		21790E272FA60E1C00DD4407 /* PlayfairDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 21790E232FA60E1C00DD4407 /* PlayfairDisplay-Regular.ttf */; };
 		21790E282FA60E1C00DD4407 /* PlayfairDisplay-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 21790E212FA60E1C00DD4407 /* PlayfairDisplay-Bold.ttf */; };
 		21790E292FA60E1C00DD4407 /* PlayfairDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 21790E222FA60E1C00DD4407 /* PlayfairDisplay-Medium.ttf */; };
@@ -19,6 +33,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2137B1202FA9D762008F1E6A /* NotoSerif-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSerif-Bold.ttf"; sourceTree = "<group>"; };
+		2137B1212FA9D762008F1E6A /* NotoSerif-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSerif-Medium.ttf"; sourceTree = "<group>"; };
+		2137B1222FA9D762008F1E6A /* NotoSerif-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSerif-Regular.ttf"; sourceTree = "<group>"; };
+		2137B1232FA9D762008F1E6A /* NotoSerif-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSerif-SemiBold.ttf"; sourceTree = "<group>"; };
+		2137B1242FA9D762008F1E6A /* OpenSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Bold.ttf"; sourceTree = "<group>"; };
+		2137B1252FA9D762008F1E6A /* OpenSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Medium.ttf"; sourceTree = "<group>"; };
+		2137B1262FA9D762008F1E6A /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		2137B1272FA9D762008F1E6A /* OpenSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		2137B1282FA9D762008F1E6A /* SpaceMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Bold.ttf"; sourceTree = "<group>"; };
+		2137B1292FA9D762008F1E6A /* SpaceMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Regular.ttf"; sourceTree = "<group>"; };
+		2137B1342FA9D774008F1E6A /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		2137B1352FA9D774008F1E6A /* NotoSerifFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotoSerifFont.swift; sourceTree = "<group>"; };
+		2137B1362FA9D774008F1E6A /* OpenSansFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSansFont.swift; sourceTree = "<group>"; };
+		2137B1372FA9D774008F1E6A /* SpaceMonoFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceMonoFont.swift; sourceTree = "<group>"; };
 		21790E212FA60E1C00DD4407 /* PlayfairDisplay-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Bold.ttf"; sourceTree = "<group>"; };
 		21790E222FA60E1C00DD4407 /* PlayfairDisplay-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Medium.ttf"; sourceTree = "<group>"; };
 		21790E232FA60E1C00DD4407 /* PlayfairDisplay-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.ttf"; sourceTree = "<group>"; };
@@ -47,6 +75,16 @@
 			children = (
 				21790E212FA60E1C00DD4407 /* PlayfairDisplay-Bold.ttf */,
 				21790E222FA60E1C00DD4407 /* PlayfairDisplay-Medium.ttf */,
+				2137B1202FA9D762008F1E6A /* NotoSerif-Bold.ttf */,
+				2137B1212FA9D762008F1E6A /* NotoSerif-Medium.ttf */,
+				2137B1222FA9D762008F1E6A /* NotoSerif-Regular.ttf */,
+				2137B1232FA9D762008F1E6A /* NotoSerif-SemiBold.ttf */,
+				2137B1242FA9D762008F1E6A /* OpenSans-Bold.ttf */,
+				2137B1252FA9D762008F1E6A /* OpenSans-Medium.ttf */,
+				2137B1262FA9D762008F1E6A /* OpenSans-Regular.ttf */,
+				2137B1272FA9D762008F1E6A /* OpenSans-SemiBold.ttf */,
+				2137B1282FA9D762008F1E6A /* SpaceMono-Bold.ttf */,
+				2137B1292FA9D762008F1E6A /* SpaceMono-Regular.ttf */,
 				21790E232FA60E1C00DD4407 /* PlayfairDisplay-Regular.ttf */,
 				21790E242FA60E1C00DD4407 /* PlayfairDisplay-SemiBold.ttf */,
 			);
@@ -67,6 +105,10 @@
 				B30200000000000000000001 /* XenditExampleApp.swift */,
 				21790E252FA60E1C00DD4407 /* Fonts */,
 				21790E262FA60E1C00DD4407 /* PlayfairFont.swift */,
+				2137B1342FA9D774008F1E6A /* AppTheme.swift */,
+				2137B1352FA9D774008F1E6A /* NotoSerifFont.swift */,
+				2137B1362FA9D774008F1E6A /* OpenSansFont.swift */,
+				2137B1372FA9D774008F1E6A /* SpaceMonoFont.swift */,
 				B30200000000000000000002 /* ContentView.swift */,
 				B30200000000000000000003 /* Assets.xcassets */,
 			);
@@ -149,6 +191,16 @@
 				21790E282FA60E1C00DD4407 /* PlayfairDisplay-Bold.ttf in Resources */,
 				21790E292FA60E1C00DD4407 /* PlayfairDisplay-Medium.ttf in Resources */,
 				21790E2A2FA60E1C00DD4407 /* PlayfairDisplay-SemiBold.ttf in Resources */,
+				2137B12A2FA9D762008F1E6A /* NotoSerif-Bold.ttf in Resources */,
+				2137B12B2FA9D762008F1E6A /* OpenSans-Medium.ttf in Resources */,
+				2137B12C2FA9D762008F1E6A /* OpenSans-SemiBold.ttf in Resources */,
+				2137B12D2FA9D762008F1E6A /* NotoSerif-Medium.ttf in Resources */,
+				2137B12E2FA9D762008F1E6A /* NotoSerif-SemiBold.ttf in Resources */,
+				2137B12F2FA9D762008F1E6A /* SpaceMono-Bold.ttf in Resources */,
+				2137B1302FA9D762008F1E6A /* NotoSerif-Regular.ttf in Resources */,
+				2137B1312FA9D762008F1E6A /* OpenSans-Bold.ttf in Resources */,
+				2137B1322FA9D762008F1E6A /* SpaceMono-Regular.ttf in Resources */,
+				2137B1332FA9D762008F1E6A /* OpenSans-Regular.ttf in Resources */,
 				B30100000000000000000003 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,6 +212,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2137B1382FA9D774008F1E6A /* AppTheme.swift in Sources */,
+				2137B1392FA9D774008F1E6A /* NotoSerifFont.swift in Sources */,
+				2137B13A2FA9D774008F1E6A /* OpenSansFont.swift in Sources */,
+				2137B13B2FA9D774008F1E6A /* SpaceMonoFont.swift in Sources */,
 				B30100000000000000000001 /* XenditExampleApp.swift in Sources */,
 				21790E2B2FA60E1C00DD4407 /* PlayfairFont.swift in Sources */,
 				B30100000000000000000002 /* ContentView.swift in Sources */,

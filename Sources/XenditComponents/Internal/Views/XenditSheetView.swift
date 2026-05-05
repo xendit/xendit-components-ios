@@ -48,6 +48,7 @@ struct XenditSheetView: View {
                 submitLoadingOverlay
             }
         }
+        .background(XenditComponents.appearance.resolvedBackground)
         .alert(item: $submissionAlert) { alert in
             Alert(
                 title: Text(alert.title),
@@ -71,7 +72,6 @@ struct XenditSheetView: View {
             Spacer()
         }
         .padding(Spacing.s4)
-        .background(XenditComponents.appearance.resolvedBackground)
     }
 
     private var submitLoadingOverlay: some View {
@@ -141,7 +141,6 @@ struct XenditSheetView: View {
             .padding(.bottom, 8)
         }
         .padding(.top, 12)
-        .background(XenditComponents.appearance.resolvedBackground)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: -5)
     }
 

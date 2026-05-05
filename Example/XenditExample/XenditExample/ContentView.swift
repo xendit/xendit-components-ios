@@ -1,10 +1,9 @@
 import SwiftUI
 import XenditComponents
 
-// MARK: - Root View
-
 struct ContentView: View {
-    @State private var sdkKey = ""
+    @State private var sdkKey = "session-fe2db62a6a2cb7af67eebccc18d0de6e-pd-MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEGR0SZ7ECwXh771mgXBJCuDbg+b269bEb671TYwbqEQizagfmT3IRxg/YdcoE7OAAAbHGe/foQ+wPLn1zH4wgOXX5wVQTVk6Pm++5xwZTaa3uab3FxLgd0WXXH0tUCc6X-oMB9/OIW+aWbY1++cK9OLMXtpt+WFODDKRwFuFuwzvnEdp9QHw7tFowb1gD9orQoUB+R6DZQCeaW7rGv6kMyX6PEFJHoSiy0CSDz9lxgXdA843ACcb1YP1IlUcC84IRB"
+    @State private var selectedTheme: AppTheme = .default
     @State private var resultMessage: String?
     @State private var showingResult = false
 
@@ -15,12 +14,21 @@ struct ContentView: View {
                     Text("Paste your `components_sdk_key` from the Create Session response.")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
+
                     TextEditor(text: $sdkKey)
                         .font(.system(.body, design: .monospaced))
                         .frame(minHeight: 120)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                }
+
+                Section(header: Text("Theme")) {
+                    Picker("Theme", selection: $selectedTheme) {
+                        ForEach(AppTheme.allCases, id: \.self) { theme in
+                            Text(theme.rawValue).tag(theme)
+                        }
+                    }
+                    .pickerStyle(.menu)
                 }
 
                 Section {
@@ -53,6 +61,7 @@ struct ContentView: View {
             return
         }
 
+        XenditComponents.initialize(appearance: selectedTheme.appearance)
         XenditComponents.present(
             from: rootViewController,
             componentsSdkKey: sdkKey.trimmingCharacters(in: .whitespacesAndNewlines)

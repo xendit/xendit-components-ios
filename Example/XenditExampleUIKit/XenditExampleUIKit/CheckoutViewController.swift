@@ -3,6 +3,10 @@ import XenditComponents
 
 final class CheckoutViewController: UIViewController {
 
+    // MARK: - State
+
+    private var selectedTheme: AppTheme = .default
+
     // MARK: - UI
 
     private let scrollView = UIScrollView()
@@ -36,6 +40,14 @@ final class CheckoutViewController: UIViewController {
         return tv
     }()
 
+    private lazy var themeSegmentedControl: UISegmentedControl = {
+        let items = AppTheme.allCases.map { $0.rawValue }
+        let control = UISegmentedControl(items: items)
+        control.selectedSegmentIndex = 0
+        control.addTarget(self, action: #selector(themeTapped), for: .valueChanged)
+        return control
+    }()
+
     private lazy var checkoutButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "Checkout with Xendit"
@@ -63,7 +75,6 @@ final class CheckoutViewController: UIViewController {
         view.backgroundColor = .systemGroupedBackground
         setupLayout()
 
-        // Dismiss keyboard on tap
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
@@ -76,7 +87,15 @@ final class CheckoutViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
 
-        [instructionLabel, keyTextView, checkoutButton, resultLabel].forEach {
+        let themeLabel: UILabel = {
+            let label = UILabel()
+            label.text = "Theme"
+            label.font = .preferredFont(forTextStyle: .caption1)
+            label.textColor = .secondaryLabel
+            return label
+        }()
+
+        [instructionLabel, keyTextView, themeLabel, themeSegmentedControl, checkoutButton, resultLabel].forEach {
             contentStack.addArrangedSubview($0)
         }
 
@@ -98,12 +117,17 @@ final class CheckoutViewController: UIViewController {
 
     // MARK: - Actions
 
+    @objc private func themeTapped() {
+        let index = themeSegmentedControl.selectedSegmentIndex
+        selectedTheme = AppTheme.allCases[index]
+    }
+
     @objc private func checkoutTapped() {
         let key = keyTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { return }
 
         resultLabel.isHidden = true
-
+        XenditComponents.initialize(appearance: selectedTheme.appearance)
         XenditComponents.present(from: self, componentsSdkKey: key) { [weak self] result in
             self?.handleResult(result)
         }

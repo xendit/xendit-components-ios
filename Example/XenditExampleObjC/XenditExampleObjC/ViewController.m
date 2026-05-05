@@ -1,14 +1,27 @@
 #import "ViewController.h"
+#import "OpenSansFont.h"
+#import "SpaceMonoFont.h"
+#import "NotoSerifFont.h"
 @import XenditComponents;
+
+// Theme indices matching the segmented control order
+typedef NS_ENUM(NSInteger, AppThemeIndex) {
+    AppThemeIndexDefault    = 0,
+    AppThemeIndexDailyBrew  = 1,
+    AppThemeIndexFintechBlue = 2,
+    AppThemeIndexArcade     = 3,
+    AppThemeIndexBoutique   = 4,
+};
 
 @interface ViewController ()
 
-@property (nonatomic, strong) UIScrollView  *scrollView;
-@property (nonatomic, strong) UIStackView   *contentStack;
-@property (nonatomic, strong) UILabel       *instructionLabel;
-@property (nonatomic, strong) UITextView    *keyTextView;
-@property (nonatomic, strong) UIButton      *checkoutButton;
-@property (nonatomic, strong) UILabel       *resultLabel;
+@property (nonatomic, strong) UIScrollView          *scrollView;
+@property (nonatomic, strong) UIStackView           *contentStack;
+@property (nonatomic, strong) UILabel               *instructionLabel;
+@property (nonatomic, strong) UITextView            *keyTextView;
+@property (nonatomic, strong) UISegmentedControl    *themeControl;
+@property (nonatomic, strong) UIButton              *checkoutButton;
+@property (nonatomic, strong) UILabel               *resultLabel;
 
 @end
 
@@ -42,8 +55,15 @@
     self.contentStack.translatesAutoresizingMaskIntoConstraints = NO;
     [self.scrollView addSubview:self.contentStack];
 
+    UILabel *themeLabel = [UILabel new];
+    themeLabel.text = @"Theme";
+    themeLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleCaption1];
+    themeLabel.textColor = UIColor.secondaryLabelColor;
+
     [self.contentStack addArrangedSubview:self.instructionLabel];
     [self.contentStack addArrangedSubview:self.keyTextView];
+    [self.contentStack addArrangedSubview:themeLabel];
+    [self.contentStack addArrangedSubview:self.themeControl];
     [self.contentStack addArrangedSubview:self.checkoutButton];
     [self.contentStack addArrangedSubview:self.resultLabel];
 
@@ -91,6 +111,17 @@
     return _keyTextView;
 }
 
+- (UISegmentedControl *)themeControl {
+    if (!_themeControl) {
+        _themeControl = [[UISegmentedControl alloc] initWithItems:@[
+            @"Default", @"Daily Brew", @"Fintech Blue", @"Arcade", @"Boutique"
+        ]];
+        _themeControl.selectedSegmentIndex = 0;
+        [_themeControl addTarget:self action:@selector(themeTapped) forControlEvents:UIControlEventValueChanged];
+    }
+    return _themeControl;
+}
+
 - (UIButton *)checkoutButton {
     if (!_checkoutButton) {
         UIButtonConfiguration *config = [UIButtonConfiguration filledButtonConfiguration];
@@ -116,7 +147,105 @@
     return _resultLabel;
 }
 
+#pragma mark - Theme helpers
+
+- (UIColor *)colorWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b {
+    return [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1.0];
+}
+
+- (XDTAppearance *)appearanceForThemeIndex:(NSInteger)index {
+    XDTAppearance *appearance = [XDTAppearance new];
+
+    switch ((AppThemeIndex)index) {
+        case AppThemeIndexDefault:
+            break;
+
+        case AppThemeIndexDailyBrew: {
+            XDTFontFamily *fonts = [XDTFontFamily new];
+            fonts.regular  = [OpenSansFont regular];
+            fonts.medium   = [OpenSansFont medium];
+            fonts.semiBold = [OpenSansFont semiBold];
+            fonts.bold     = [OpenSansFont bold];
+            appearance.fontFamily         = fonts;
+            appearance.colorPrimary       = [self colorWithRed:141 green:110 blue:99];
+            appearance.colorText          = [self colorWithRed:62  green:39  blue:35];
+            appearance.colorTextSecondary = [self colorWithRed:121 green:85  blue:72];
+            appearance.colorTextPlaceholder = [self colorWithRed:161 green:136 blue:127];
+            appearance.colorDanger        = [self colorWithRed:211 green:47  blue:47];
+            appearance.colorBorder        = [self colorWithRed:215 green:204 blue:200];
+            appearance.colorBackground    = [self colorWithRed:255 green:251 blue:240];
+            appearance.borderRadius       = 12;
+            break;
+        }
+
+        case AppThemeIndexFintechBlue: {
+            XDTFontFamily *fonts = [XDTFontFamily new];
+            fonts.regular  = [OpenSansFont regular];
+            fonts.medium   = [OpenSansFont medium];
+            fonts.semiBold = [OpenSansFont semiBold];
+            fonts.bold     = [OpenSansFont bold];
+            appearance.fontFamily         = fonts;
+            appearance.colorPrimary       = [self colorWithRed:0   green:82  blue:255];
+            appearance.colorText          = [self colorWithRed:17  green:24  blue:39];
+            appearance.colorTextSecondary = [self colorWithRed:107 green:114 blue:128];
+            appearance.colorTextPlaceholder = [self colorWithRed:156 green:163 blue:175];
+            appearance.colorDanger        = [self colorWithRed:220 green:38  blue:38];
+            appearance.colorBorder        = [self colorWithRed:229 green:231 blue:235];
+            appearance.colorBackground    = [UIColor whiteColor];
+            appearance.borderRadius       = 6;
+            break;
+        }
+
+        case AppThemeIndexArcade: {
+            XDTFontFamily *fonts = [XDTFontFamily new];
+            fonts.regular  = [SpaceMonoFont regular];
+            fonts.medium   = [SpaceMonoFont regular];
+            fonts.semiBold = [SpaceMonoFont bold];
+            fonts.bold     = [SpaceMonoFont bold];
+            appearance.fontFamily         = fonts;
+            appearance.colorPrimary       = [self colorWithRed:0   green:255 blue:209];
+            appearance.colorText          = [UIColor whiteColor];
+            appearance.colorTextSecondary = [self colorWithRed:136 green:136 blue:136];
+            appearance.colorTextPlaceholder = [self colorWithRed:51 green:51 blue:51];
+            appearance.colorDisabled      = [self colorWithRed:26  green:26  blue:26];
+            appearance.colorDanger        = [self colorWithRed:255 green:0   blue:85];
+            appearance.colorBorder        = [self colorWithRed:0   green:255 blue:209];
+            appearance.colorBackground    = [UIColor blackColor];
+            appearance.qrForegroundColor  = [UIColor blackColor];
+            appearance.qrBackgroundColor  = [self colorWithRed:0   green:255 blue:209];
+            appearance.borderRadius       = 4;
+            break;
+        }
+
+        case AppThemeIndexBoutique: {
+            XDTFontFamily *fonts = [XDTFontFamily new];
+            fonts.regular  = [NotoSerifFont regular];
+            fonts.medium   = [NotoSerifFont medium];
+            fonts.semiBold = [NotoSerifFont semiBold];
+            fonts.bold     = [NotoSerifFont bold];
+            appearance.fontFamily         = fonts;
+            appearance.colorPrimary       = [self colorWithRed:44  green:44  blue:44];
+            appearance.colorText          = [self colorWithRed:44  green:44  blue:44];
+            appearance.colorTextSecondary = [self colorWithRed:90  green:90  blue:90];
+            appearance.colorTextPlaceholder = [self colorWithRed:170 green:170 blue:170];
+            appearance.colorDanger        = [self colorWithRed:148 green:27  blue:27];
+            appearance.colorBorder        = [self colorWithRed:44  green:44  blue:44];
+            appearance.colorBackground    = [self colorWithRed:244 green:241 blue:234];
+            appearance.qrForegroundColor  = [self colorWithRed:44  green:44  blue:44];
+            appearance.qrBackgroundColor  = [self colorWithRed:244 green:241 blue:234];
+            appearance.borderRadius       = 0;
+            break;
+        }
+    }
+
+    return appearance;
+}
+
 #pragma mark - Actions
+
+- (void)themeTapped {
+    // Selection is read at checkout time
+}
 
 - (void)checkoutTapped {
     NSString *key = [self.keyTextView.text
@@ -124,6 +253,9 @@
     if (key.length == 0) { return; }
 
     self.resultLabel.hidden = YES;
+
+    XDTAppearance *appearance = [self appearanceForThemeIndex:self.themeControl.selectedSegmentIndex];
+    [XDTComponents initializeWithAppearance:appearance];
 
     [XDTComponents presentFromViewController:self
                            componentsSdkKey:key
