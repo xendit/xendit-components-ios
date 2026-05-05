@@ -21,6 +21,13 @@ struct XenditSheetView: View {
 
     @State private var cancellables = Set<AnyCancellable>()
     @State private var errorMessage: String?
+    @State private var submissionAlert: SubmissionAlert?
+
+    private struct SubmissionAlert: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String?
+    }
 
     var body: some View {
         ZStack {
@@ -40,6 +47,13 @@ struct XenditSheetView: View {
             if stateStore.isSubmitting && stateStore.activeAction == nil {
                 submitLoadingOverlay
             }
+        }
+        .alert(item: $submissionAlert) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: alert.message.map { Text($0) },
+                dismissButton: .default(Text("OK"))
+            )
         }
         .onAppear {
             Country.warmUp()
@@ -163,14 +177,14 @@ struct XenditSheetView: View {
         }
 
         if stateStore.session?.sessionType == .save {
-            return strings.string(forKey: "payment.save_button_label")
+            return strings.string(for: .paymentMethodsSubmitAddPaymentMethod)
         }
 
-        return strings.string(forKey: "payment.pay_button_label")
+        return strings.string(for: .paymentMethodsSubmitPay)
     }
 
     private var headerTitle: String {
-        strings.string(forKey: "payment_methods.sheet_title")
+        strings.string(for: .paymentMethodsHeader)
     }
 
     private var isPayButtonDisabled: Bool {
@@ -191,7 +205,16 @@ struct XenditSheetView: View {
             case .fatalError(let message):
                 onResult(.failed(error: .init(code: "FATAL_ERROR", message: message)))
             case .submissionEnd(let payload):
-                onResult(.failed(error: .init(code: payload.developerError.code , message: payload.userErrorMessages.joined(separator: "\n"))))
+                let messages = payload.userErrorMessages
+                if !messages.isEmpty {
+                    stateStore.isSubmitting = false
+                    submissionAlert = SubmissionAlert(
+                        title: messages[0],
+                        message: messages.count > 1 ? messages[1] : nil
+                    )
+                } else {
+                    onResult(.failed(error: .init(code: payload.developerError.code, message: payload.developerError.code)))
+                }
             default:
                 break
             }

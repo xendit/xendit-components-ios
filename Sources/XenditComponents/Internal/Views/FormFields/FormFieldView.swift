@@ -36,10 +36,8 @@ struct FormFieldView: View {
         case .valid:
             return nil
         case .invalid(let code):
-            let fullKey = code.hasPrefix("validation.") ? code : "validation.\(code)"
             let fieldLabel = field.label ?? effectiveLabel
-            let resolved = strings.string(forKey: fullKey, replacements: ["field": fieldLabel])
-            return resolved != fullKey ? resolved : code
+            return strings.validationMessage(forCode: code, fieldLabel: fieldLabel) ?? code
         }
     }
 

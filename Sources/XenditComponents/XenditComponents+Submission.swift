@@ -86,24 +86,10 @@ extension XenditComponents {
             tokenRequestId = pt.sessionTokenRequestId
             actions = pt.actions
             switch pt.status {
-            case .active:
-                stateStore.isSubmitting = false
-                dispatch(.sessionComplete)
-                return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+            case .active, .failed, .canceled, .expired:
+                return handleFinalPaymentTokenStatus(pt)
             case .requiresAction, .pending:
                 handleRequiresAction(actions)
-            case .failed, .canceled, .expired:
-                stateStore.isSubmitting = false
-                let strings = XenditStrings(locale: stateStore.session?.locale ?? "en")
-                dispatch(.submissionEnd(.init(
-                    reason: "PAYMENT_TOKEN_\(pt.status)",
-                    userErrorMessages: [
-                        strings.string(forKey: "payment_token_status.failed.title"),
-                        strings.string(forKey: "payment_token_status.failed.subtext")
-                    ],
-                    developerError: .init(type: .failure, code: pt.failureCode ?? "UNKNOWN")
-                )))
-                return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
             case .unknown:
                 break
             }
@@ -132,35 +118,69 @@ extension XenditComponents {
             dispatch(.sessionComplete)
 
         case .failed:
-            let message = pr.failureCode.map { strings.failureMessage(forCode: $0) }
-                ?? strings.string(forKey: "payment_request_status.failed.subtext")
+            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_FAILED",
-                userErrorMessages: [strings.string(forKey: "payment_request_status.failed.title"), message],
-                developerError: .init(type: .failure, code: pr.failureCode ?? "UNKNOWN")
+                userErrorMessages: [
+                    strings.string(for: .paymentRequestStatusFailedTitle),
+                    message
+                ],
+                developerError: .init(type: .failure, code: pr.failureCode?.rawValue ?? "UNKNOWN")
             )))
 
         case .canceled:
+            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentRequestStatusCanceledSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_CANCELED",
                 userErrorMessages: [
-                    strings.string(forKey: "payment_request_status.canceled.title"),
-                    strings.string(forKey: "payment_request_status.canceled.subtext")
+                    strings.string(for: .paymentRequestStatusCanceledTitle),
+                    message
                 ],
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_CANCELED")
             )))
 
         case .expired:
+            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentRequestStatusExpiredSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_EXPIRED",
                 userErrorMessages: [
-                    strings.string(forKey: "payment_request_status.expired.title"),
-                    strings.string(forKey: "payment_request_status.expired.subtext")
+                    strings.string(for: .paymentRequestStatusExpiredTitle),
+                    message
                 ],
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_EXPIRED")
             )))
 
         case .requiresAction, .unknown:
+            break
+        }
+
+        return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+
+    private func handleFinalPaymentTokenStatus(_ pt: PaymentTokenResponse) -> AnyPublisher<Void, Error> {
+        stateStore.isSubmitting = false
+        let strings = XenditStrings(locale: stateStore.session?.locale ?? "en")
+
+        switch pt.status {
+        case .active:
+            dispatch(.sessionComplete)
+
+        case .failed, .canceled, .expired:
+            let message = pt.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentTokenStatusFailedSubtext)
+            dispatch(.submissionEnd(.init(
+                reason: "PAYMENT_TOKEN_\(pt.status)",
+                userErrorMessages: [
+                    strings.string(for: .paymentTokenStatusFailedTitle),
+                    message
+                ],
+                developerError: .init(type: .failure, code: pt.failureCode?.rawValue ?? "UNKNOWN")
+            )))
+
+        case .requiresAction, .pending, .unknown:
             break
         }
 
@@ -207,25 +227,30 @@ extension XenditComponents {
             dispatch(.sessionComplete)
 
         case .paymentRequestFailed(_, let failureCode):
-            let message = failureCode.map { strings.failureMessage(forCode: $0) }
-                ?? strings.string(forKey: "payment_request_status.failed.subtext")
+            let message = failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_FAILED",
-                userErrorMessages: [strings.string(forKey: "payment_request_status.failed.title"), message],
-                developerError: .init(type: .failure, code: failureCode ?? "UNKNOWN")
+                userErrorMessages: [
+                    strings.string(for: .paymentRequestStatusFailedTitle),
+                    message
+                ],
+                developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
             )))
 
         case .paymentTokenCreated:
             dispatch(.sessionComplete)
 
         case .paymentTokenFailed(_, let failureCode):
+            let message = failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+                ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_TOKEN_FAILED",
                 userErrorMessages: [
-                    strings.string(forKey: "payment_token_status.failed.title"),
-                    strings.string(forKey: "payment_token_status.failed.subtext")
+                    strings.string(for: .paymentTokenStatusFailedTitle),
+                    message
                 ],
-                developerError: .init(type: .failure, code: failureCode ?? "UNKNOWN")
+                developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
             )))
 
         case .continuePolling:

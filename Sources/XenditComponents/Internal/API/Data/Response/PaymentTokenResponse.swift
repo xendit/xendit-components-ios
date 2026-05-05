@@ -16,7 +16,7 @@ struct PaymentTokenResponse: Decodable {
     let currency: String?
     let status: PaymentTokenStatus
     let actions: [PaymentResponse.Action]
-    let failureCode: String?  //TODO: Use string instead of enum. Flexibility when new enum introduce no need to update and there is no action for now for failure code
+    let failureCode: PaymentTokenFailureCode?
     let created: Date?
     let updated: Date?
     let channelCode: String

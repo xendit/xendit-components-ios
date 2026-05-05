@@ -29,7 +29,7 @@ struct CheckboxFieldView: View {
                     )
                     .font(.title3)
 
-                Text(strings.string(forKey: "payment.save_checkbox_label"))
+                Text(strings.string(for: .paymentSaveCheckboxLabel))
                     .font(.labelLgRegular)
                     .foregroundColor(isEnabled ? .primary : .secondary)
 

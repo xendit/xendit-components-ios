@@ -250,9 +250,9 @@ public final class XenditComponents: ObservableObject {
                     self?.dispatch(.submissionEnd(.init(
                         reason: "REQUEST_FAILED",
                         userErrorMessages: [
-                            strings.string(forKey: "default_error.title"),
-                            strings.string(forKey: "default_error.message_1"),
-                            strings.string(forKey: "default_error.message_2")
+                            strings.string(for: .defaultErrorTitle),
+                            strings.string(for: .defaultErrorMessage1),
+                            strings.string(for: .defaultErrorMessage2)
                         ],
                         developerError: .init(type: .networkError, code: "NETWORK_ERROR")
                     )))

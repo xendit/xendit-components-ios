@@ -22,7 +22,7 @@ struct PaymentRequestResponse: Decodable {
     let customerId: String?
     let requestAmount: Decimal?
     let type: PaymentResponse.PaymentType?
-    let failureCode: String?
+    let failureCode: PaymentRequestFailureCode?
     let actions: [PaymentResponse.Action]
     let sessionTokenRequestId: String?
 
@@ -61,4 +61,48 @@ extension PaymentRequestResponse {
             self = Self(rawValue: raw) ?? .unknown
         }
     }
+    
+    enum PaymentRequestFailureCode: String, Codable {
+        case accountAccessBlocked = "ACCOUNT_ACCESS_BLOCKED"
+        case invalidMerchantSettings = "INVALID_MERCHANT_SETTINGS"
+        case invalidAccountDetails = "INVALID_ACCOUNT_DETAILS"
+        case paymentAttemptCountsExceeded = "PAYMENT_ATTEMPT_COUNTS_EXCEEDED"
+        case userDeviceUnreachable = "USER_DEVICE_UNREACHABLE"
+        case channelUnavailable = "CHANNEL_UNAVAILABLE"
+        case insufficientBalance = "INSUFFICIENT_BALANCE"
+        case accountNotActivated = "ACCOUNT_NOT_ACTIVATED"
+        case invalidToken = "INVALID_TOKEN"
+        case serverError = "SERVER_ERROR"
+        case partnerTimeoutError = "PARTNER_TIMEOUT_ERROR"
+        case timeoutError = "TIMEOUT_ERROR"
+        case userDeclinedPayment = "USER_DECLINED_PAYMENT"
+        case userDidNotAuthorize = "USER_DID_NOT_AUTHORIZE"
+        case paymentRequestExpired = "PAYMENT_REQUEST_EXPIRED"
+        case failureDetailsUnavailable = "FAILURE_DETAILS_UNAVAILABLE"
+        case expiredOtp = "EXPIRED_OTP"
+        case invalidOtp = "INVALID_OTP"
+        case paymentAmountLimitsExceeded = "PAYMENT_AMOUNT_LIMITS_EXCEEDED"
+        case otpAttemptCountsExceeded = "OTP_ATTEMPT_COUNTS_EXCEEDED"
+        case cardDeclined = "CARD_DECLINED"
+        case declinedByIssuer = "DECLINED_BY_ISSUER"
+        case issuerUnavailable = "ISSUER_UNAVAILABLE"
+        case invalidCvv = "INVALID_CVV"
+        case declinedByProcessor = "DECLINED_BY_PROCESSOR"
+        case captureAmountExceeded = "CAPTURE_AMOUNT_EXCEEDED"
+        case authenticationFailed = "AUTHENTICATION_FAILED"
+        case expiredCard = "EXPIRED_CARD"
+        case suspectedFradulent = "SUSPECTED_FRAUDULENT"
+        case stolenCard = "STOLEN_CARD"
+        case inactiveOrUnauthorizedCard = "INACTIVE_OR_UNAUTHORIZED_CARD"
+        case processorError = "PROCESSOR_ERROR"
+
+        /// Received when the backend introduces a failure code not yet known to this SDK version.
+        case unknown
+
+        init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .unknown
+        }
+    }
 }
+    

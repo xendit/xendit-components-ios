@@ -158,7 +158,7 @@ struct XenditWebView: UIViewRepresentable {
 
             if let url,
                let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               components.queryItems?.first(where: { $0.name == "component_status" })?.value == "SUCCESS" {
+               components.queryItems?.first(where: { $0.name == "component_status" })?.value != nil {
                 emitOnce()
             }
 

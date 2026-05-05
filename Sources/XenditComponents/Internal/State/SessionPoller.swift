@@ -15,9 +15,9 @@ enum PollResult {
     case sessionExpired
     case sessionCanceled
     case paymentRequestCreated(id: String)
-    case paymentRequestFailed(id: String, failureCode: String?)
+    case paymentRequestFailed(id: String, failureCode: PaymentRequestResponse.PaymentRequestFailureCode?)
     case paymentTokenCreated(id: String)
-    case paymentTokenFailed(id: String, failureCode: String?)
+    case paymentTokenFailed(id: String, failureCode: PaymentTokenResponse.PaymentTokenFailureCode?)
     case continuePolling
 }
 
