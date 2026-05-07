@@ -39,10 +39,12 @@ final class CheckoutAPI {
     }
 
     func pollSession(sessionAuthKey: String, tokenRequestId: String? = nil) -> AnyPublisher<PollResponse, APIClientError> {
-        var queries: [String: Any] = ["components_version": sdkVersion]
+        var queries: [String: Any] = [:]
         if let tokenRequestId = tokenRequestId {
             queries["token_request_id"] = tokenRequestId
         }
+        queries["components_version"] = sdkVersion
+
         return client.get(
             .path("/api/sessions/\(sessionAuthKey)/poll"),
             queries: queries,

@@ -48,7 +48,8 @@ struct APIRequest {
 
         // Set compulsory headers
         if let appVersion = config.appVersion {
-            request.addValue("ios:\(appVersion)", forHTTPHeaderField: "x-sdk-version")
+            let version = appVersion.hasPrefix("v") ? String(appVersion.dropFirst()) : appVersion
+            request.addValue("ios:\(version)", forHTTPHeaderField: "x-sdk-version")
         }
         if let hostId = config.bundleHostId {
             request.addValue(hostId, forHTTPHeaderField: "x-host-id")
