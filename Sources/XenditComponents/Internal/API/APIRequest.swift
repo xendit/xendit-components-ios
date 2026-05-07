@@ -75,7 +75,6 @@ struct APIRequest {
             request.setJSONContent()
 
         case let .jsonObjects(dictionary):
-            Logger("APIClient").info("httpBody: \(dictionary)")
             request.setJSONContent(dictionary.jsonData)
 
         case let .multipart(objects):

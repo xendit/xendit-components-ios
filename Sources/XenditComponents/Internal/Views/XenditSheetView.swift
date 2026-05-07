@@ -92,9 +92,6 @@ struct XenditSheetView: View {
                     //            if stateStore.isSubmitting && stateStore.activeAction == nil {
 
                     stateStore.activeAction = nil
-                    Logger("XenditSheetView").info("activeAction \(stateStore.activeAction?.value ?? "nil")")
-                    Logger("XenditSheetView").info("activeAction \(stateStore.isSubmitting)")
-
                 }
             } else if action.type == .presentToCustomer {
                 XenditQrView(

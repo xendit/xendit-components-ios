@@ -151,21 +151,6 @@ struct ChannelFormView: View {
                 }
             }
         }
-        .onAppear {
-            let log = Logger("ChannelFormView")
-            log.info("Section '\(section.title ?? section.id)' groups:")
-            for (i, group) in groups.enumerated() {
-                switch group {
-                case .standalone(let comp):
-                    log.info("  [\(i)] standalone: \(componentDescription(comp))")
-                case .joined(let comps):
-                    log.info("  [\(i)] joined (\(comps.count) items):")
-                    for (j, comp) in comps.enumerated() {
-                        log.info("    [\(i).\(j)] \(componentDescription(comp))")
-                    }
-                }
-            }
-        }
     }
 
     /// Groups components into standalone items and joined runs.
@@ -190,19 +175,6 @@ struct ChannelFormView: View {
             result.append((group.count > 1 || isAllJoinedRow) ? .joined(group) : .standalone(comp))
         }
         return result
-    }
-
-    private func componentDescription(_ component: Form.Component) -> String {
-        switch component {
-        case .inputField(let f):
-            return "inputField(id: \(f.id), type: \(f.type), join: \(f.join))"
-        case .row(let comps, _, _):
-            let fields = comps.compactMap { comp -> String? in
-                guard case .inputField(let f) = comp else { return nil }
-                return "inputField(id: \(f.id), type: \(f.type), join: \(f.join))"
-            }.joined(separator: ", ")
-            return "row(\(fields))"
-        }
     }
 
     private func isJoined(_ component: Form.Component) -> Bool {

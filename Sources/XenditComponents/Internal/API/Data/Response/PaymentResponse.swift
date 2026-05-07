@@ -35,7 +35,6 @@ extension PaymentResponse {
             case "API_POST_REQUEST":
                 self = .apiPostRequest(try ApiPostRequestData(from: decoder))
             default:
-                Logger("PaymentResponse.Action").warning("Unknown action type '\(type)' — ignoring")
                 self = .unknown
             }
         }
@@ -210,7 +209,6 @@ extension PaymentResponse {
                 let rows = try container.decode([[String]].self, forKey: .rows)
                 self = .table(headers: headers, rows: rows)
             default:
-                Logger("PaymentResponse.InstructionsStep").warning("Unknown step type '\(type)' — skipping")
                 self = .unknown(rawType: type)
             }
         }

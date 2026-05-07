@@ -101,7 +101,6 @@ struct XenditWebView: UIViewRepresentable {
         var parent: XenditWebView
         var loadedURL: URL?
         private var hasCompleted = false
-        private let log = Logger("XenditWebView")
 
         init(_ parent: XenditWebView) {
             self.parent = parent
@@ -114,10 +113,8 @@ struct XenditWebView: UIViewRepresentable {
             didReceive message: WKScriptMessage
         ) {
             guard let body = message.body as? String else {
-                log.info("[\(message.name)] \(message.body)")
                 return
             }
-            log.info("[\(message.name)] \(body)")
 
             guard
                 let data = body.data(using: .utf8),
@@ -125,7 +122,6 @@ struct XenditWebView: UIViewRepresentable {
             else { return }
 
             let type = json["type"] as? String
-            log.info("[\(message.name)] type: \(type ?? "nil")")
 
             if type == "xendit-iframe-action-complete" {
                 emitOnce()
@@ -141,11 +137,9 @@ struct XenditWebView: UIViewRepresentable {
         // MARK: WKNavigationDelegate
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            log.info("AcWeb:Started URL: \(webView.url?.absoluteString ?? "")")
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            log.info("AcWeb:Finished URL: \(webView.url?.absoluteString ?? "")")
         }
 
         func webView(
@@ -154,7 +148,6 @@ struct XenditWebView: UIViewRepresentable {
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
             let url = navigationAction.request.url
-            log.debug("AcWeb:Redirect URL: \(url?.absoluteString ?? "")")
 
             if let url,
                let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -170,11 +163,9 @@ struct XenditWebView: UIViewRepresentable {
             didFailProvisionalNavigation navigation: WKNavigation!,
             withError error: Error
         ) {
-            log.error("AcWeb:Error Provisional: \(error.localizedDescription)")
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            log.error("AcWeb:Error Navigation: \(error.localizedDescription)")
         }
     }
 }

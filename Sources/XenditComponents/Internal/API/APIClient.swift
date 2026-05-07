@@ -142,7 +142,6 @@ final class APIClient {
             urlString: urlString
         )
         
-        Logger("APIClient").info("Performing new request [\(request.method.rawValue)] [\(urlString)], timeout: \(urlRequest.timeoutInterval)")
         return publisher
     }
     
@@ -159,9 +158,6 @@ final class APIClient {
                 guard let httpResponse = response as? HTTPURLResponse else {
                     throw APIClientError(.noHttpResponse)
                 }
-                if let responseString = String(data: data, encoding: .utf8) {
-                    Logger("APIClient").info("[\(urlString)] response [\(httpResponse.statusCode)]: \(responseString), data: \(data.count)")
-                }
                 switch httpResponse.statusCode {
                 case 200 ... 399:
                     let responseData = data.isEmpty ? APIResponse.Empty.data : data
@@ -172,9 +168,7 @@ final class APIClient {
                     do {
                         let error = try JSONDecoder().decode(APIResponse.ErrorObject.self, from: data).toAPIClientError(httpResponse.statusCode)
                         requestError = error
-                        Logger("APIClient").warning("Request failed, error: \(error.localizedDescription)")
                     } catch {
-                        Logger("APIClient").warning("Failed to decode error response, error: \(error.localizedDescription)")
                     }
                     throw requestError
                 }

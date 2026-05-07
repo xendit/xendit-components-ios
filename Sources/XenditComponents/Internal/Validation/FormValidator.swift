@@ -19,18 +19,13 @@ enum ValidationResult: Equatable {
 
 struct FormValidator {
 
-    private static let log = Logger("Validation")
-
     // MARK: - Validate for UI model field (used by FormFieldView)
 
     static func validate(field: Form.InputField, value: String) -> ValidationResult {
-        let fieldKey = field.channelProperty.keys.first ?? "unknown"
         if value.isEmpty {
             if field.required {
-                log.debug("[XenditSDK] [Validation] '\(fieldKey)' is required but empty → invalid")
                 return .invalid(message: "required")
             }
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' is empty and optional → valid")
             return .valid
         }
 
@@ -63,25 +58,16 @@ struct FormValidator {
             result = .valid
         }
 
-        switch result {
-        case .valid:
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' → valid")
-        case .invalid(let message):
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' → invalid: \(message)")
-        }
         return result
     }
 
     // MARK: - Validate for response field (used by channelPropertiesAreValid)
 
     static func validate(field: SessionResponse.Channel.FormField, value: String) -> ValidationResult {
-        let fieldKey = field.channelProperty.keys.first ?? "unknown"
         if value.isEmpty {
             if field.required {
-                log.debug("[XenditSDK] [Validation] '\(fieldKey)' is required but empty → invalid")
                 return .invalid(message: "required")
             }
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' is empty and optional → valid")
             return .valid
         }
 
@@ -117,12 +103,6 @@ struct FormValidator {
             result = .valid
         }
 
-        switch result {
-        case .valid:
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' (\(field.type.name)) → valid")
-        case .invalid(let message):
-            log.debug("[XenditSDK] [Validation] '\(fieldKey)' (\(field.type.name)) → invalid: \(message)")
-        }
         return result
     }
 
@@ -173,21 +153,16 @@ struct FormValidator {
                 if let re = try? NSRegularExpression(pattern: pattern) {
                     let range = NSRange(value.startIndex..., in: value)
                     if re.firstMatch(in: value, range: range) == nil {
-                        log.debug("[XenditSDK] [Validation] text failed regex '\(pattern)': \(message)")
                         return .invalid(message: message)
                     }
-                } else {
-                    log.debug("[XenditSDK] [Validation] invalid regex pattern '\(pattern)', skipping")
                 }
             }
         }
 
         if let min = minLength, value.count < min {
-            log.debug("[XenditSDK] [Validation] text length \(value.count) < min \(min) → text_too_short")
             return .invalid(message: "text_too_short")
         }
         if value.count > maxLength {
-            log.debug("[XenditSDK] [Validation] text length \(value.count) > max \(maxLength) → text_too_long")
             return .invalid(message: "text_too_long")
         }
         return .valid
@@ -203,18 +178,14 @@ struct FormValidator {
     ) -> Bool {
         let filteredFields = filterFormFields(fields, sessionType: sessionType, showBillingDetails: showBillingDetails)
         for field in filteredFields {
-            log.debug("[XenditSDK] [Validation] checking field \(field.label)")
             let keys = field.channelProperty.keys
             for key in keys {
-                log.debug("[XenditSDK] [Validation] checking key \(key)")
                 let value = getChannelPropertyValue(channelProperties, key: key) ?? ""
                 if case .invalid = validate(field: field, value: value) {
-                    log.debug("[XenditSDK] [Validation] channelPropertiesAreValid → false (key: '\(key)')")
                     return false
                 }
             }
         }
-        log.debug("[XenditSDK] [Validation] channelPropertiesAreValid → true")
         return true
     }
 
