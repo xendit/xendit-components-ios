@@ -210,6 +210,7 @@ private struct AccordionGroupView: View {
             .padding(.horizontal, Spacing.s4)
             .padding(.top, Spacing.s6)
             .padding(.bottom, isRoundedRectangle ? Spacing.s6 : 32)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
