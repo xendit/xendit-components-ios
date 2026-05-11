@@ -51,7 +51,7 @@ enum XenditEvent {
     case paymentTokenDiscarded(paymentTokenId: String)
 
     /// Fired when the SDK encounters an unrecoverable error.
-    case fatalError(message: String)
+    case fatalError(message: String, errorCode: String? = nil)
 
     struct SubmissionEndPayload {
         public let reason: String

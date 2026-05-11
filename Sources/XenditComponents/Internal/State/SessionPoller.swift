@@ -18,6 +18,7 @@ enum PollResult {
     case paymentRequestFailed(id: String, failureCode: PaymentRequestResponse.PaymentRequestFailureCode?)
     case paymentTokenCreated(id: String)
     case paymentTokenFailed(id: String, failureCode: PaymentTokenResponse.PaymentTokenFailureCode?)
+    case pollFailed(errorCode: String, message: String)
     case continuePolling
 }
 
@@ -57,8 +58,11 @@ final class SessionPoller {
             .delay(for: .seconds(delay), scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
-                if case .failure = completion {
-                    self.poll(checkoutAPI: checkoutAPI, sessionAuthKey: sessionAuthKey, tokenRequestId: tokenRequestId, onResult: onResult)
+                if case .failure(let error) = completion {
+                    let errorCode = error.backendError?.code ?? "UNKNOWN_ERROR"
+                    let message = error.backendError?.message ?? "An unexpected error occurred"
+                    onResult(.pollFailed(errorCode: errorCode, message: message))
+                    self.stopPolling()
                 }
             }, receiveValue: { [weak self] response in
                 guard let self else { return }

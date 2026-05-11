@@ -252,6 +252,16 @@ extension XenditComponents {
                 ],
                 developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
             )))
+            
+        case .pollFailed(let errorCode, let message):
+            dispatch(.submissionEnd(.init(
+                reason: "POLL_FAILED",
+                userErrorMessages: [
+                    strings.string(for: .paymentRequestStatusFailedTitle),
+                    message
+                ],
+                developerError: .init(type: .failure, code: errorCode)
+            )))
 
         case .continuePolling:
             break
