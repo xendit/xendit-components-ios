@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "xdt_card_unionpay.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
