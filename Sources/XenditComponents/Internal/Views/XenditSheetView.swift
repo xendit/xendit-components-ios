@@ -198,8 +198,8 @@ struct XenditSheetView: View {
                 onResult(.canceled)
             case .sessionExpired:
                 onResult(.expired)
-            case .fatalError(let message):
-                onResult(.failed(error: .init(code: "FATAL_ERROR", message: message)))
+            case .fatalError(let message, let errorCode):
+                onResult(.failed(error: .init(code: errorCode ?? "FATAL_ERROR", message: message)))
             case .submissionEnd(let payload):
                 let messages = payload.userErrorMessages
                 if !messages.isEmpty {

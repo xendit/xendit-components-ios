@@ -76,6 +76,7 @@ private extension APIClientError {
 
 private extension APIClientError.BackendError {
     var description: String? {
-        return "\(errorContent?.message1 ?? "")  \(errorContent?.message2 ?? "")"
+        let combined = "\(errorContent?.message1 ?? "")  \(errorContent?.message2 ?? "")".trimmingCharacters(in: .whitespaces)
+        return combined.isEmpty ? message : combined
     }
 }
