@@ -18,6 +18,7 @@ enum PollResult {
     case paymentRequestFailed(id: String, failureCode: PaymentRequestResponse.PaymentRequestFailureCode?)
     case paymentTokenCreated(id: String)
     case paymentTokenFailed(id: String, failureCode: PaymentTokenResponse.PaymentTokenFailureCode?)
+    case requiresAction
     case pollFailed(errorCode: String, message: String)
     case continuePolling
 }
@@ -27,6 +28,12 @@ enum PollResult {
 final class SessionPoller {
     private var cancellables = Set<AnyCancellable>()
     private let delay: TimeInterval = 5.0
+    private(set) var isPolling = false
+
+    private var lastCheckoutAPI: CheckoutAPI?
+    private var lastSessionAuthKey: String?
+    private var lastTokenRequestId: String?
+    private var lastOnResult: ((PollResult) -> Void)?
 
     func startPolling(
         checkoutAPI: CheckoutAPI,
@@ -35,6 +42,11 @@ final class SessionPoller {
         onResult: @escaping (PollResult) -> Void
     ) {
         stopPolling()
+        lastCheckoutAPI = checkoutAPI
+        lastSessionAuthKey = sessionAuthKey
+        lastTokenRequestId = tokenRequestId
+        lastOnResult = onResult
+        isPolling = true
 
         poll(
             checkoutAPI: checkoutAPI,
@@ -46,6 +58,16 @@ final class SessionPoller {
 
     func stopPolling() {
         cancellables.removeAll()
+        isPolling = false
+    }
+
+    func resumePolling() {
+        guard !isPolling,
+              let api = lastCheckoutAPI,
+              let key = lastSessionAuthKey,
+              let onResult = lastOnResult else { return }
+        isPolling = true
+        poll(checkoutAPI: api, sessionAuthKey: key, tokenRequestId: lastTokenRequestId, onResult: onResult)
     }
 
     private func poll(
@@ -59,7 +81,7 @@ final class SessionPoller {
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
                 if case .failure(let error) = completion {
-                    let errorCode = error.backendError?.code ?? "UNKNOWN_ERROR"
+                    let errorCode = error.errorCode ?? "UNKNOWN_ERROR"
                     let message = error.backendError?.message ?? "An unexpected error occurred"
                     onResult(.pollFailed(errorCode: errorCode, message: message))
                     self.stopPolling()
@@ -100,11 +122,8 @@ final class SessionPoller {
                 return .paymentRequestCreated(id: pr.paymentRequestId)
             case .failed, .canceled, .expired:
                 return .paymentRequestFailed(id: pr.paymentRequestId, failureCode: pr.failureCode)
-            case .requiresAction:
-                return .continuePolling
-            case .unknown:
-                // Unknown payment request status — continue polling.
-                return .continuePolling
+            case .requiresAction, .unknown:
+                return .requiresAction
             }
         }
 
@@ -114,11 +133,8 @@ final class SessionPoller {
                 return .paymentTokenCreated(id: pt.paymentTokenId)
             case .failed, .canceled, .expired:
                 return .paymentTokenFailed(id: pt.paymentTokenId, failureCode: pt.failureCode)
-            case .requiresAction, .pending:
-                return .continuePolling
-            case .unknown:
-                // Unknown payment token status — continue polling.
-                return .continuePolling
+            case .requiresAction, .pending, .unknown:
+                return .requiresAction
             }
         }
 

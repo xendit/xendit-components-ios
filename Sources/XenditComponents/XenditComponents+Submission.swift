@@ -193,7 +193,8 @@ extension XenditComponents {
         parsedKey: ParsedSdkKey,
         tokenRequestId: String?
     ) -> AnyPublisher<Void, Error> {
-        Future<Void, Error> { [weak self] promise in
+        stateStore.isPolling = true
+        return Future<Void, Error> { [weak self] promise in
             guard let self else {
                 promise(.failure(URLError(.cancelled)))
                 return
@@ -205,6 +206,7 @@ extension XenditComponents {
             ) { result in
                 self.handlePollResult(result)
                 if case .continuePolling = result { return }
+                self.stateStore.isPolling = false
                 promise(.success(()))
             }
         }
@@ -252,7 +254,13 @@ extension XenditComponents {
                 ],
                 developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
             )))
-            
+
+        case .continuePolling:
+            break
+
+        case .requiresAction:
+            break
+
         case .pollFailed(let errorCode, let message):
             dispatch(.submissionEnd(.init(
                 reason: "POLL_FAILED",
@@ -262,9 +270,6 @@ extension XenditComponents {
                 ],
                 developerError: .init(type: .failure, code: errorCode)
             )))
-
-        case .continuePolling:
-            break
         }
     }
 }

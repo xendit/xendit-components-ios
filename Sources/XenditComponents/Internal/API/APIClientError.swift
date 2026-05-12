@@ -13,6 +13,11 @@ struct APIClientError: Error {
     let nativeError: Error?
     let httpStatusCode: Int?
 
+    /// Returns the backend error code if available, otherwise falls back to the error type code.
+    var errorCode: String {
+        backendError?.code ?? type.code
+    }
+
     init(
         _ type: ErrorType = .unknown,
         backendError: BackendError? = nil,
@@ -85,5 +90,15 @@ extension APIClientError {
 
         case unknown // Unknown error (likely something new from BE)
 
+        var code: String {
+            switch self {
+            case .validationError: return "VALIDATION_ERROR"
+            case .noHttpResponse:  return "NO_HTTP_RESPONSE"
+            case .noInternet:      return "NO_INTERNET"
+            case .invalidInput:    return "INVALID_INPUT"
+            case .cancelled:       return "CANCELLED"
+            case .unknown:         return "UNKNOWN"
+            }
+        }
     }
 }

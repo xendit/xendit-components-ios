@@ -44,7 +44,7 @@ struct XenditSheetView: View {
                 }
             }
 
-            if stateStore.isSubmitting && stateStore.activeAction == nil {
+            if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil {
                 submitLoadingOverlay
             }
         }
@@ -89,9 +89,12 @@ struct XenditSheetView: View {
         .fullScreenCover(item: $stateStore.activeAction) { action in
             if action.type == .redirectCustomer {
                 XenditActionWebView(urlString: action.value, strings: strings) {
-                    //            if stateStore.isSubmitting && stateStore.activeAction == nil {
-
                     stateStore.activeAction = nil
+                    stateStore.isSubmitting = false
+                    if !sdk.poller.isPolling {
+                        stateStore.isPolling = true
+                    }
+                    sdk.poller.resumePolling()
                 }
             } else if action.type == .presentToCustomer {
                 XenditQrView(

@@ -119,6 +119,8 @@
 "session::installment_plan.pay_in_full" = "Pay in full — {{amount}}";
 "session::installment_plan.pay_in_installments" = "{{installments}}x Installments — {{amount}}";
 "session::navigation.back" = "Back";
+"session::network_error.title" = "Unable to Connect";
+"session::network_error.subtext" = "Please check your internet connection and try again";
 "session::page_title.pay" = "Checkout at {{merchantName}}";
 "session::page_title.save" = "Add payment method at {{merchantName}}";
 "session::payment.save_checkbox_label" = "Save card information for future use";

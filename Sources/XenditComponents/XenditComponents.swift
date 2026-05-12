@@ -189,9 +189,8 @@ public final class XenditComponents: ObservableObject {
             .handleEvents(receiveCompletion: { [weak self] completion in
                 guard case .failure(let error) = completion else { return }
                 let message = error.localizedDescription
-                Logger("XenditComponents").error(message)
                 self?.stateStore.sdkStatus = .fatalError(message)
-                let errorCode = (error as? APIClientError)?.backendError?.code
+                let errorCode = (error as? APIClientError)?.errorCode
                 self?.dispatch(.fatalError(message: message, errorCode: errorCode))
             })
             .receive(on: DispatchQueue.main)
@@ -240,7 +239,17 @@ public final class XenditComponents: ObservableObject {
                 self?.stateStore.isSubmitting = false
                 let strings = XenditStrings(locale: session.locale)
                 if let clientError = error as? APIClientError,
-                   let backendError = clientError.backendError {
+                   clientError.type == .noInternet {
+                    self?.dispatch(.submissionEnd(.init(
+                        reason: "REQUEST_FAILED",
+                        userErrorMessages: [
+                            strings.string(for: .networkErrorTitle),
+                            strings.string(for: .networkErrorSubtext)
+                        ],
+                        developerError: .init(type: .networkError, code: clientError.errorCode)
+                    )))
+                } else if let clientError = error as? APIClientError,
+                          let backendError = clientError.backendError {
                     if let errorContent = backendError.errorContent {
                         self?.dispatch(.submissionEnd(.init(
                             reason: "REQUEST_FAILED",
