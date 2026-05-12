@@ -88,7 +88,7 @@ struct XenditSheetView: View {
         }
         .fullScreenCover(item: $stateStore.activeAction) { action in
             if action.type == .redirectCustomer {
-                XenditActionWebView(urlString: action.value) {
+                XenditActionWebView(urlString: action.value, strings: strings) {
                     //            if stateStore.isSubmitting && stateStore.activeAction == nil {
 
                     stateStore.activeAction = nil

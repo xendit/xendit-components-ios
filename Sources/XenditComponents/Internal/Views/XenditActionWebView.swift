@@ -194,6 +194,7 @@ private class WeakMessageHandler: NSObject, WKScriptMessageHandler {
 
 struct XenditActionWebView: View {
     let urlString: String
+    let strings: XenditStrings
     let onDismiss: () -> Void
     var onChallengeCompleted: (() -> Void)?
 
@@ -201,7 +202,7 @@ struct XenditActionWebView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button("Done") { onDismiss() }
+                Button(strings.string(for: .dialogClose)) { onDismiss() }
                     .padding()
             }
             .background(Color(.systemGroupedBackground))
