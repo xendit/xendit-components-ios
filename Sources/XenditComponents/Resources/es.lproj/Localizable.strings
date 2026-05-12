@@ -119,6 +119,8 @@
 "session::installment_plan.pay_in_full" = "";
 "session::installment_plan.pay_in_installments" = "";
 "session::navigation.back" = "";
+"session::network_error.title" = "";
+"session::network_error.subtext" = "";
 "session::page_title.pay" = "";
 "session::page_title.save" = "";
 "session::payment.save_checkbox_label" = "";

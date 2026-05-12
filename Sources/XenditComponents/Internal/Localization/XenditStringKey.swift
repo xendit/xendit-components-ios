@@ -200,6 +200,11 @@ enum LocalizationKey: String {
     case installmentPlanPayInFull = "session::installment_plan.pay_in_full"
     case installmentPlanPayInInstallments = "session::installment_plan.pay_in_installments"
 
+    // MARK: Network Error
+
+    case networkErrorTitle = "session::network_error.title"
+    case networkErrorSubtext = "session::network_error.subtext"
+
     // MARK: Navigation
 
     case navigationBack = "session::navigation.back"

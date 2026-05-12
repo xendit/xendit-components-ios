@@ -18,6 +18,7 @@ final class SDKStateStore: ObservableObject {
     @Published var channelProperties: ChannelProperties = [:]
     @Published var sdkStatus: SDKStatus = .idle
     @Published var isSubmitting: Bool = false
+    @Published var isPolling: Bool = false
     @Published var savePaymentMethod: Bool = false
 
     @Published var cardNumber: String = "" {
