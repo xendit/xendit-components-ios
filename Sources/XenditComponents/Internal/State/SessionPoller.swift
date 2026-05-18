@@ -81,7 +81,7 @@ final class SessionPoller {
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
                 if case .failure(let error) = completion {
-                    let errorCode = error.errorCode ?? "UNKNOWN_ERROR"
+                    let errorCode = error.errorCode
                     let message = error.backendError?.message ?? "An unexpected error occurred"
                     onResult(.pollFailed(errorCode: errorCode, message: message))
                     self.stopPolling()

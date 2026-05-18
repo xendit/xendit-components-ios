@@ -119,8 +119,8 @@
 "session::installment_plan.pay_in_full" = "";
 "session::installment_plan.pay_in_installments" = "";
 "session::navigation.back" = "Quay lại";
-"session::network_error.title" = "Unable to Connect";
-"session::network_error.subtext" = "Please check your internet connection and try again";
+"session::network_error.title" = "Không thể kết nối";
+"session::network_error.subtext" = "Vui lòng kiểm tra kết nối internet của bạn và thử lại";
 "session::page_title.pay" = "Thanh toán tại {{merchantName}}";
 "session::page_title.save" = "Thêm phương thức thanh toán tại {{merchantName}}";
 "session::payment.save_checkbox_label" = "Lưu phương thức thanh toán này cho các thanh toán định kỳ";
