@@ -15,11 +15,7 @@ final class APIClient {
     let settings: Settings
     
     private(set) var hasInternet = true
-    
-    var deviceId: String {
-        UserDefaults.standard.string(forKey: config.deviceIdKey) ?? ""
-    }
-    
+        
     // For decoding date time string from backend
     static let dateTimeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter(calendar: .gregorian)

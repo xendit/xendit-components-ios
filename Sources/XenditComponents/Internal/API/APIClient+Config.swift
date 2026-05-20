@@ -10,7 +10,6 @@ import Foundation
 extension APIClient {
     struct Config {
         let apiVersion: String
-        let deviceIdKey: String
         let appVersion: String?
         let bundleId: String
         let bundleHostId: String?
@@ -24,7 +23,6 @@ extension APIClient {
 
         init(
             apiVersion: String = "",
-            deviceIdKey: String = "",
             appVersion: String? = "",
             bundleId: String = "",
             bundleHostId: String? = nil,
@@ -37,7 +35,6 @@ extension APIClient {
             forceUpdateNotification: Notification.Name = .init(rawValue: "")
         ) {
             self.apiVersion = apiVersion
-            self.deviceIdKey = deviceIdKey
             self.appVersion = appVersion
             self.bundleId = bundleId
             self.bundleHostId = bundleHostId
