@@ -189,9 +189,9 @@ public final class XenditComponents: ObservableObject {
             .handleEvents(receiveCompletion: { [weak self] completion in
                 guard case .failure(let error) = completion else { return }
                 let message = error.localizedDescription
-                Logger("XenditComponents").error(message)
                 self?.stateStore.sdkStatus = .fatalError(message)
-                self?.dispatch(.fatalError(message: message))
+                let errorCode = (error as? APIClientError)?.errorCode
+                self?.dispatch(.fatalError(message: message, errorCode: errorCode))
             })
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
@@ -239,13 +239,33 @@ public final class XenditComponents: ObservableObject {
                 self?.stateStore.isSubmitting = false
                 let strings = XenditStrings(locale: session.locale)
                 if let clientError = error as? APIClientError,
-                          let backendError = clientError.backendError,
-                          let errorContent = backendError.errorContent {
+                   clientError.type == .noInternet {
                     self?.dispatch(.submissionEnd(.init(
                         reason: "REQUEST_FAILED",
-                        userErrorMessages: [errorContent.title, errorContent.message1, errorContent.message2].compactMap { $0 },
-                        developerError: .init(type: .failure, code: backendError.code)
+                        userErrorMessages: [
+                            strings.string(for: .networkErrorTitle),
+                            strings.string(for: .networkErrorSubtext)
+                        ],
+                        developerError: .init(type: .networkError, code: clientError.errorCode)
                     )))
+                } else if let clientError = error as? APIClientError,
+                          let backendError = clientError.backendError {
+                    if let errorContent = backendError.errorContent {
+                        self?.dispatch(.submissionEnd(.init(
+                            reason: "REQUEST_FAILED",
+                            userErrorMessages: [errorContent.title, errorContent.message1, errorContent.message2].compactMap { $0 },
+                            developerError: .init(type: .failure, code: backendError.code)
+                        )))
+                    } else {
+                        self?.dispatch(.submissionEnd(.init(
+                            reason: "REQUEST_FAILED",
+                            userErrorMessages: [
+                                strings.string(for: .defaultErrorTitle),
+                                backendError.message
+                            ],
+                            developerError: .init(type: .failure, code: backendError.code)
+                        )))
+                    }
                 } else {
                     self?.dispatch(.submissionEnd(.init(
                         reason: "REQUEST_FAILED",
