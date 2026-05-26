@@ -197,6 +197,7 @@
 "session::validation.card_expiry_invalid" = "Ngày hết hạn thẻ không hợp lệ";
 "session::validation.card_number_incomplete" = "Số thẻ chưa đầy đủ";
 "session::validation.card_number_invalid" = "Số thẻ không hợp lệ";
+"session::validation.card_brand_not_supported" = "Thương hiệu thẻ này không được hỗ trợ cho giao dịch này.";
 "session::validation.generic_invalid" = "{{field}} không hợp lệ";
 "session::validation.required" = "Vui lòng nhập {{field}}";
 "session::validation.text_too_long" = "{{field}} quá dài";

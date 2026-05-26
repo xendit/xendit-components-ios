@@ -197,6 +197,7 @@
 "session::validation.card_expiry_invalid" = "Card expiry is not valid";
 "session::validation.card_number_incomplete" = "Card number is incomplete";
 "session::validation.card_number_invalid" = "Card number is not valid";
+"session::validation.card_brand_not_supported" = "This card brand is not supported for this transaction.";
 "session::validation.generic_invalid" = "{{field}} is not valid. Please check and try again.";
 "session::validation.required" = "{{field}} is required.";
 "session::validation.text_too_long" = "{{field}} is too long";

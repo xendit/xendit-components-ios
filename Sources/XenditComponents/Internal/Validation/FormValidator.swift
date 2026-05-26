@@ -31,8 +31,21 @@ struct FormValidator {
 
         let result: ValidationResult
         switch field.type {
-        case .creditCardNumber(_):
-            result = validateCreditCard(value) ? .valid : .invalid(message: "generic_invalid")
+        case .creditCardNumber(let brands):
+            if !validateCreditCard(value) {
+                result = .invalid(message: "generic_invalid")
+            } else if !brands.isEmpty {
+                let digits = value.filter { $0.isNumber }
+                let detected = detectCreditCardType(digits)
+                if let scheme = detected.schemeName,
+                   !brands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
+                    result = .invalid(message: "card_brand_not_supported")
+                } else {
+                    result = .valid
+                }
+            } else {
+                result = .valid
+            }
 
         case .creditCardExpiry, .creditCardCvn:
             result = .valid

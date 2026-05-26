@@ -11,7 +11,7 @@ import UIKit
 struct CreditCardNumberFieldView: View {
     let label: String
     let placeholder: String
-    var brands: [String] = []
+    var brands: [Form.CardBrand] = []
     @Binding var value: String
     var isDisabled: Bool = false
     var cardType: CreditCardType? = nil
@@ -21,13 +21,12 @@ struct CreditCardNumberFieldView: View {
     // Brand assets to show when the field is empty (no card number entered yet).
     private var visibleBrandAssets: [String] {
         guard value.isEmpty else { return [] }
-        return brands.compactMap { CreditCardType(rawValue: $0)?.localAssetName }
+        return brands.compactMap { CreditCardType(rawValue: $0.name)?.localAssetName }
     }
 
-    // Right-side icon area width: used to offset the text field so text doesn't overlap the badges.
+    // Right-side icon area width
     private var trailingIconWidth: CGFloat {
         if !visibleBrandAssets.isEmpty {
-            // Each badge: 36pt logo + 4pt inner padding + 2pt border = 42pt; 4pt gap between badges; 10pt from edge.
             return CGFloat(visibleBrandAssets.count) * 42 + CGFloat(visibleBrandAssets.count - 1) * 4 + 10
         }
         return cardType?.localAssetName != nil ? 46 : 0
@@ -64,15 +63,15 @@ struct CreditCardNumberFieldView: View {
     @ViewBuilder
     private var trailingBadge: some View {
         if !visibleBrandAssets.isEmpty {
-            // Multiple brand logos — shown when the field is empty.
             HStack(spacing: 4) {
                 ForEach(visibleBrandAssets, id: \.self) { assetName in
                     brandLogo(assetName: assetName)
                 }
             }
             .padding(.trailing, Spacing.s3)
-        } else if let assetName = cardType?.localAssetName {
-            // Single detected card type — shown while the user is typing.
+        } else if let type = cardType,
+                  brands.contains(where: { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }),
+                  let assetName = type.localAssetName {
             brandLogo(assetName: assetName)
                 .padding(.trailing, Spacing.s3)
         }
@@ -86,10 +85,7 @@ struct CreditCardNumberFieldView: View {
             .padding(2)
             .overlay {
                 RoundedRectangle(cornerRadius: 3.33)
-                    .stroke(
-                        XenditComponents.appearance.resolvedBorder,
-                        lineWidth: 1
-                    )
+                    .stroke(XenditComponents.appearance.resolvedBorder, lineWidth: 1)
             }
     }
 }

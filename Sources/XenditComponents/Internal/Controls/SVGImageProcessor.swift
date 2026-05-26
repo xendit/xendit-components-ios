@@ -10,7 +10,7 @@ import SVGKit
 import UIKit
 
 public struct SVGImageProcessor: ImageProcessor {
-    public var identifier: String = "com.superapp.webpprocessor"
+    public var identifier: String = "co.xendit.webpprocessor"
     public func process(item: ImageProcessItem, options: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {
         switch item {
         case let .image(image):

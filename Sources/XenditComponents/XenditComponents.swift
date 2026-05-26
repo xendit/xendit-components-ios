@@ -81,6 +81,7 @@ public final class XenditComponents: ObservableObject {
 
         let sheetView = XenditSheetView(sdk: sdk) { result in
             viewController.dismiss(animated: true) {
+                sdk.eventListeners.removeAll()
                 activeSDK = nil
                 onResult(result)
             }
