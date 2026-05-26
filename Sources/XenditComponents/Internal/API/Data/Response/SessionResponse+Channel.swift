@@ -386,7 +386,7 @@ extension SessionResponse.Channel {
 
     private func mapInputType(_ type: FormField.FieldType) -> Form.InputType {
         switch type {
-        case .creditCardNumber:  return .creditCardNumber(brands: self.card?.brands.map { $0.name } ?? [])
+        case .creditCardNumber:  return .creditCardNumber(brands: self.card?.brands.map { Form.CardBrand(name: $0.name, logoUrl: $0.logoUrl) } ?? [])
         case .creditCardExpiry:  return .creditCardExpiry
         case .creditCardCvn:     return .creditCardCvn
         case .phoneNumber:       return .phoneNumber

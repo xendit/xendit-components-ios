@@ -197,6 +197,7 @@
 "session::validation.card_expiry_invalid" = "";
 "session::validation.card_number_incomplete" = "";
 "session::validation.card_number_invalid" = "";
+"session::validation.card_brand_not_supported" = "";
 "session::validation.generic_invalid" = "";
 "session::validation.required" = "";
 "session::validation.text_too_long" = "";

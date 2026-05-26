@@ -203,7 +203,8 @@ extension XenditComponents {
                 checkoutAPI: self.checkoutAPI,
                 sessionAuthKey: parsedKey.sessionAuthKey,
                 tokenRequestId: tokenRequestId
-            ) { result in
+            ) { [weak self] result in
+                guard let self else { return }
                 self.handlePollResult(result)
                 if case .continuePolling = result { return }
                 self.stateStore.isPolling = false
