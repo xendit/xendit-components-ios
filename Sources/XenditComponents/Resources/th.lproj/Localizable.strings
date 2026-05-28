@@ -197,7 +197,7 @@
 "session::validation.card_expiry_invalid" = "วันหมดอายุของบัตรไม่ถูกต้อง";
 "session::validation.card_number_incomplete" = "หมายเลขบัตรไม่ครบถ้วน";
 "session::validation.card_number_invalid" = "หมายเลขบัตรไม่ถูกต้อง";
-"session::validation.card_brand_not_supported" = "ไม่รองรับบัตรยี่ห้อนี้สำหรับธุรกรรมนี้";
+"session::validation.card_brand_not_supported" = "แบรนด์บัตรนี้ไม่รองรับสำหรับธุรกรรมนี้";
 "session::validation.generic_invalid" = "{{field}} ไม่ถูกต้อง";
 "session::validation.required" = "กรุณากรอก {{field}}";
 "session::validation.text_too_long" = "{{field}} ยาวเกินไป";
