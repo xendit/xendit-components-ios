@@ -48,9 +48,11 @@ final class SDKStateStore: ObservableObject {
         guard fieldsValid else { return false }
 
         // Block submission if detected card brand is not in the allowed brands list
-        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty,
-           let detectedScheme = cardDetails?.schemes.first {
-            if !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(detectedScheme) == .orderedSame }) {
+        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty {
+            let scheme = cardDetails?.schemes.first
+                ?? detectCreditCardType(cardNumber.filter { $0.isNumber }).schemeName
+            if let scheme,
+               !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
                 return false
             }
         }
