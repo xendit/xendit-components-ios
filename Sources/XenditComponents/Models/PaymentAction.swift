@@ -16,6 +16,8 @@ struct PaymentAction: Identifiable, Hashable {
     let subtitle: String?
     let graphic: String?
     let otp: OtpInfo?
+    
+    let isQrString: Bool
 
     enum ActionType: Hashable {
         case redirectCustomer
@@ -41,7 +43,8 @@ extension PaymentAction {
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: nil
+                otp: nil,
+                isQrString: false
             )
         case .presentToCustomer(let data):
             guard !data.value.isEmpty else { return nil }
@@ -52,7 +55,8 @@ extension PaymentAction {
                 title: data.actionTitle,
                 subtitle: data.actionSubtitle,
                 graphic: data.actionGraphic,
-                otp: nil
+                otp: nil,
+                isQrString: data.descriptor == .qrString
             )
         case .apiPostRequest(let data):
             let otpInfo = data.otp.map { OtpInfo(title: $0.title, instructions: $0.instructions) }
@@ -63,7 +67,8 @@ extension PaymentAction {
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: otpInfo
+                otp: otpInfo,
+                isQrString: false
             )
         case .unknown:
             return nil

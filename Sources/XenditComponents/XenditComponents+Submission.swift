@@ -70,6 +70,7 @@ extension XenditComponents {
         switch result {
         case .paymentRequest(let pr):
             dispatch(.paymentRequestCreated(paymentRequestId: pr.paymentRequestId))
+            lastPaymentRequestId = pr.paymentRequestId
             tokenRequestId = pr.sessionTokenRequestId
             actions = pr.actions
             switch pr.status {
@@ -272,6 +273,31 @@ extension XenditComponents {
                 developerError: .init(type: .failure, code: errorCode)
             )))
         }
+    }
+    
+    // MARK: - Simulate payment
+
+    func simulatePaymentIfNeeded() -> AnyPublisher<Void, Error> {
+        guard stateStore.session?.sessionType == .pay else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        guard parsedKey?.hostId != "pl" else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        guard let key = parsedKey,
+              let prId = lastPaymentRequestId,
+              let channelCode = stateStore.currentChannel?.channelCode else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        return Future<Void, Error> { [weak self] promise in
+            guard let self else {
+                promise(.failure(URLError(.cancelled)))
+                return
+            }
+            checkoutAPI.simulatePayment(
+                sessionAuthKey: key.sessionAuthKey,
+                paymentRequestId: prId,
+                channelCode: channelCode
+            ).sink(receiveCompletion: { _ in
+                promise(.success(()))
+            }, receiveValue: { _ in }
+            )
+        }
+        .eraseToAnyPublisher()
     }
 }
 

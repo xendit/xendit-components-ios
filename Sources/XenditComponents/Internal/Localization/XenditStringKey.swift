@@ -47,6 +47,11 @@ enum LocalizationKey: String {
 
     case actionQrCodeAmountToPay = "session::action_qr_code.amount_to_pay"
     case actionQrCodeDownloadQr = "session::action_qr_code.download_qr"
+    case actionQrCodeNmid = "session::action_qr_code.nmid"
+    case actionQrCodeScanToPay = "session::action_qr_code.scan_to_pay"
+    case actionQrCodeSaved = "session::action_qr_code.saved"
+    case actionQrCodeSaveFailed = "session::action_qr_code.save_failed"
+    case actionQrCodeUnableToGenerate = "session::action_qr_code.unable_to_generate"
 
     // MARK: Action — Redirect
 

@@ -11,6 +11,7 @@ import SwiftUI
 @MainActor
 final class SDKStateStore: ObservableObject {
     @Published var session: Session?
+    @Published var businessName: String?
     @Published var customer: Customer?
     @Published var channels: [SessionResponse.Channel] = []
     @Published var channelUiGroups: [SessionResponse.ChannelUIGroup] = []

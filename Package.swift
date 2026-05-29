@@ -17,8 +17,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.7.0"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0"),
-        .package(url: "https://github.com/SVGKit/SVGKit.git", exact: "3.0.0"),
-        .package(url: "https://github.com/iziz/libPhoneNumber-iOS.git", exact: "1.1.0")
+        .package(url: "https://github.com/exyte/Macaw.git", from: "0.9.0"),
+        .package(url: "https://github.com/iziz/libPhoneNumber-iOS.git", exact: "1.1.0"),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.4.0")
     ],
     targets: [
         .target(
@@ -26,8 +27,9 @@ let package = Package(
             dependencies: [
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
                 .product(name: "Kingfisher", package: "Kingfisher"),
-                .product(name: "SVGKit", package: "SVGKit"),
-                .product(name: "libPhoneNumber", package: "libPhoneNumber-iOS")
+                .product(name: "Macaw", package: "Macaw"),
+                .product(name: "libPhoneNumber", package: "libPhoneNumber-iOS"),
+                .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "Sources/XenditComponents",
             resources: [.process("Resources")]

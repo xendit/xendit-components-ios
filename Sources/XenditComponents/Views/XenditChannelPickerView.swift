@@ -5,6 +5,7 @@
 //  Created by Ahmad X on 02/05/2026.
 //
 
+import Lottie
 import SwiftUI
 
 /// A SwiftUI view that renders the Xendit channel picker.
@@ -238,14 +239,18 @@ private struct AccordionGroupView: View {
                 }
 
                 if let instructions = channel.instructions, !instructions.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
-                        ForEach(instructions, id: \.self) { instruction in
-                            Text("• \(instruction)")
-                                .font(InterFont.captionRegular)
-                                .foregroundColor(XenditComponents.appearance.resolvedTextSecondary)
+                    if channel.pmType == .qrCode {
+                        QrInstructionsView(instructions: instructions)
+                    } else {
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(instructions, id: \.self) { instruction in
+                                Text("• \(instruction)")
+                                    .font(InterFont.captionRegular)
+                                    .foregroundColor(XenditComponents.appearance.resolvedTextSecondary)
+                            }
                         }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
                 }
             }
             .padding(.horizontal, Spacing.s4)
@@ -339,6 +344,56 @@ struct SheetDetentsModifier: ViewModifier {
                 .presentationDragIndicator(.visible)
         } else {
             content
+        }
+    }
+}
+
+// MARK: - QR channel inline content
+
+private struct QrInstructionsView: View {
+    let instructions: [String]
+
+    var body: some View {
+        let a = XenditComponents.appearance
+        VStack(spacing: 0) {
+            DashedDivider(color: a.resolvedBorder)
+                .frame(height: 1)
+
+            HStack(alignment: .center, spacing: Spacing.s3) {
+                LottieView(animation: .named("qr_scanner", bundle: .module))
+                    .looping()
+                    .frame(width: 60, height: 60)
+                    .offset(y: -2)
+
+
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(Array(instructions.enumerated()), id: \.offset) { index, instruction in
+                        Text(instruction)
+                            .font(index == 0 ? InterFont.labelSmBold : InterFont.captionRegular)
+                            .foregroundColor(
+                                index == 0
+                                    ? a.resolvedText
+                                    : a.resolvedTextSecondary
+                            )
+                    }
+                }
+                Spacer()
+            }
+            .padding(.vertical, Spacing.s2)
+        }
+    }
+}
+
+private struct DashedDivider: View {
+    let color: Color
+
+    var body: some View {
+        GeometryReader { geo in
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: 0.5))
+                path.addLine(to: CGPoint(x: geo.size.width, y: 0.5))
+            }
+            .stroke(color, style: StrokeStyle(lineWidth: 1, dash: [6, 6]))
         }
     }
 }

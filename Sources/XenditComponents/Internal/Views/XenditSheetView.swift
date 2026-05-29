@@ -92,21 +92,28 @@ struct XenditSheetView: View {
         .fullScreenCover(item: $stateStore.activeAction) { action in
             if action.type == .redirectCustomer {
                 XenditActionWebView(urlString: action.value, strings: strings) {
-                    stateStore.activeAction = nil
-                    stateStore.isSubmitting = false
-                    if !sdk.poller.isPolling {
-                        stateStore.isPolling = true
-                    }
-                    sdk.poller.resumePolling()
+                    resumePolling()
                 }
             } else if action.type == .presentToCustomer {
                 XenditQrView(
                     action: action,
-                    channelName: stateStore.currentChannel?.brandName ?? "QR Code",
+                    businessName: stateStore.businessName,
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
                     amount: stateStore.session?.amount,
                     currency: stateStore.session?.currency,
-                    onDismiss: { stateStore.activeAction = nil }
+                    locale: stateStore.session?.locale ?? "en",
+                    onDismiss: {
+                        resumePolling()
+                    },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in
+                                resumePolling()
+                            }, receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
                 )
+
             }
         }
     }
@@ -222,5 +229,14 @@ struct XenditSheetView: View {
                 break
             }
         }
+    }
+    
+    private func resumePolling() {
+        stateStore.activeAction = nil
+        stateStore.isSubmitting = false
+        if !sdk.poller.isPolling {
+            stateStore.isPolling = true
+        }
+        sdk.poller.resumePolling()
     }
 }

@@ -108,6 +108,7 @@ public final class XenditComponents: ObservableObject {
     // can access them without requiring `fileprivate`.
     let componentsSdkKey: String
     var parsedKey: ParsedSdkKey?
+    var lastPaymentRequestId: String?
     let checkoutAPI: CheckoutAPI
     var eventListeners: [XenditEventListener] = []
     var poller = SessionPoller()
@@ -165,8 +166,9 @@ public final class XenditComponents: ObservableObject {
 
                 self.stateStore.rawSession = response.session
                 self.stateStore.session = response.session.toModel()
+                self.stateStore.businessName = response.business.name
                 self.stateStore.customer = response.customer.toModel()
-                self.stateStore.channels = response.channels.filter { $0.pmType == .cards }
+                self.stateStore.channels = response.channels.filter { $0.pmType == .cards || $0.pmType == .qrCode }
                 self.stateStore.channelUiGroups = response.channelUiGroups
                 
                 switch response.session.status {
