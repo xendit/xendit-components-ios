@@ -77,7 +77,7 @@ struct PhoneNumberFieldView: View {
         .onChange(of: externalCountryCode) { code in
             guard !code.isEmpty, selectedCountryCode != code else { return }
             selectedCountryCode = code
-            updateFullValue()
+            updateFullValue(notifyChange: false)
         }
         .onChange(of: value) { newValue in
             syncFromExternalValue(newValue)
@@ -139,8 +139,8 @@ struct PhoneNumberFieldView: View {
         }
     }
 
-    private func updateFullValue() {
+    private func updateFullValue(notifyChange: Bool = true) {
         value = "+\(selectedCountry.dialCode)\(localNumber)"
-        onChanged?()
+        if notifyChange { onChanged?() }
     }
 }

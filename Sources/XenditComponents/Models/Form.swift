@@ -56,7 +56,7 @@ extension Form {
     enum InputType: Hashable {
         // Text type
         case text(minLength: Int?, maxLength: Int, numeric: Bool?, regexValidators: [RegexValidator]?)
-        case creditCardNumber(brands: [String])
+        case creditCardNumber(brands: [CardBrand])
         case creditCardExpiry
         case creditCardCvn
         case email
@@ -110,6 +110,11 @@ extension Form {
     
     struct Flags: Hashable {
         let requireBillingInformation: Bool?
+    }
+
+    struct CardBrand: Hashable {
+        let name: String
+        let logoUrl: String
     }
     
     enum VerticalAlignment: String, Decodable, Hashable {

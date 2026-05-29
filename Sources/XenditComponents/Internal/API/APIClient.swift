@@ -100,6 +100,10 @@ final class APIClient {
         
         monitorNetwork()
     }
+
+    deinit {
+        networkMonitor.cancel()
+    }
     
     private func monitorNetwork() {
         networkMonitor.pathUpdateHandler = { [weak self] path in

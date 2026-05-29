@@ -22,6 +22,7 @@ struct XenditSheetView: View {
     @State private var cancellables = Set<AnyCancellable>()
     @State private var errorMessage: String?
     @State private var submissionAlert: SubmissionAlert?
+    @State private var didSetupListeners = false
 
     private struct SubmissionAlert: Identifiable {
         let id = UUID()
@@ -58,6 +59,8 @@ struct XenditSheetView: View {
         }
         .onAppear {
             Country.warmUp()
+            guard !didSetupListeners else { return }
+            didSetupListeners = true
             setupEventListeners()
         }
     }
@@ -120,6 +123,7 @@ struct XenditSheetView: View {
 
             Button(action: {
                 errorMessage = nil
+                cancellables.removeAll()
                 sdk.submit()
                     .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
                     .store(in: &cancellables)

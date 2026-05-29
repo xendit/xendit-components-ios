@@ -323,6 +323,7 @@ enum LocalizationKey: String {
     case validationCardExpiryInvalid = "session::validation.card_expiry_invalid"
     case validationCardNumberIncomplete = "session::validation.card_number_incomplete"
     case validationCardNumberInvalid = "session::validation.card_number_invalid"
+    case validationCardBrandNotSupported = "session::validation.card_brand_not_supported"
     case validationGenericInvalid = "session::validation.generic_invalid"
     case validationRequired = "session::validation.required"
     case validationTextTooLong = "session::validation.text_too_long"

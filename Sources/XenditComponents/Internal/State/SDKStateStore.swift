@@ -39,12 +39,24 @@ final class SDKStateStore: ObservableObject {
     var isFormValid: Bool {
         guard let channel = currentChannel else { return false }
         let sessionType: SessionResponse.Session.SessionType = session?.sessionType == .pay ? .pay : .save
-        return FormValidator.channelPropertiesAreValid(
+        let fieldsValid = FormValidator.channelPropertiesAreValid(
             fields: channel.form,
             channelProperties: channelProperties,
             sessionType: sessionType,
             showBillingDetails: cardDetails?.requireBillingInformation ?? false
         )
+        guard fieldsValid else { return false }
+
+        // Block submission if detected card brand is not in the allowed brands list
+        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty {
+            let scheme = cardDetails?.schemes.first
+                ?? detectCreditCardType(cardNumber.filter { $0.isNumber }).schemeName
+            if let scheme,
+               !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
+                return false
+            }
+        }
+        return true
     }
     
     /// Detects the card network from the current `cardNumber` and updates `cardDetails.schemes`

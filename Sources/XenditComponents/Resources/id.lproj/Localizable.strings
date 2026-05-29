@@ -197,6 +197,7 @@
 "session::validation.card_expiry_invalid" = "Tanggal kedaluwarsa kartu tidak valid";
 "session::validation.card_number_incomplete" = "Nomor kartu tidak lengkap";
 "session::validation.card_number_invalid" = "Nomor kartu tidak valid";
+"session::validation.card_brand_not_supported" = "Kartu ini tidak didukung untuk transaksi ini.";
 "session::validation.generic_invalid" = "{{field}} tidak valid. Silakan cek dan coba lagi.";
 "session::validation.required" = "{{field}} wajib diisi.";
 "session::validation.text_too_long" = "{{field}} terlalu panjang";

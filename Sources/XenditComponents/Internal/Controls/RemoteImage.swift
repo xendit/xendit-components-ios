@@ -5,7 +5,6 @@
 //  Created by Ahmad X on 28/04/2026.
 //
 
-#if os(iOS)
 import SwiftUI
 
 /// Renders a remote image from a URL, automatically routing to SVGImage for .svg
@@ -26,5 +25,3 @@ struct RemoteImage: View {
         }
     }
 }
-
-#endif
