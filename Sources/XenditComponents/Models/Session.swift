@@ -31,7 +31,7 @@ public struct Session {
     public let currency: String
 
     /// Amount to be collected (0 for SAVE sessions).
-    public let amount: Double
+    public let amount: Decimal
 
     /// When the session will expire.
     public let expiresAt: Date

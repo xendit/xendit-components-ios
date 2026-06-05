@@ -431,11 +431,11 @@ extension SessionResponse.Channel {
 // MARK: - Amount Range
 
 extension SessionResponse.Channel {
-    func isInAmountRange(for sessionType: SessionResponse.Session.SessionType, amount: Double) -> Bool {
+    func isInAmountRange(for sessionType: SessionResponse.Session.SessionType, amount: Decimal) -> Bool {
         guard sessionType == .pay else { return true }
-        let min = minAmount.map { NSDecimalNumber(decimal: $0).doubleValue } ?? 0
-        let max = maxAmount.map { NSDecimalNumber(decimal: $0).doubleValue } ?? Double.greatestFiniteMagnitude
-        return amount >= min && amount <= max
+        if let min = minAmount, amount < min { return false }
+        if let max = maxAmount, amount > max { return false }
+        return true
     }
 }
 

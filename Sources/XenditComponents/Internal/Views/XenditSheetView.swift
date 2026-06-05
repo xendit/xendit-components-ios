@@ -237,6 +237,7 @@ struct XenditSheetView: View {
         if !sdk.poller.isPolling {
             stateStore.isPolling = true
         }
+        sdk.poller.stopPolling()
         sdk.poller.resumePolling()
     }
 }

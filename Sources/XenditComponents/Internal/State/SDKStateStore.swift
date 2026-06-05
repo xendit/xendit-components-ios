@@ -22,12 +22,8 @@ final class SDKStateStore: ObservableObject {
     @Published var isPolling: Bool = false
     @Published var savePaymentMethod: Bool = false
 
-    @Published var cardNumber: String = "" {
-        didSet { updateDetectedScheme() }
-    }
-    @Published var cardDetails: CardInfoResponse? {
-        didSet { updateDetectedScheme() }
-    }
+    @Published var cardNumber: String = ""
+    @Published var cardDetails: CardInfoResponse?
 
     @Published var phoneCountryCode: String = ""
     @Published var activeAction: PaymentAction?
@@ -48,34 +44,15 @@ final class SDKStateStore: ObservableObject {
         )
         guard fieldsValid else { return false }
 
-        // Block submission if detected card brand is not in the allowed brands list
-        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty {
-            let scheme = cardDetails?.schemes.first
-                ?? detectCreditCardType(cardNumber.filter { $0.isNumber }).schemeName
-            if let scheme,
-               !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
-                return false
-            }
+        // Block submission if the API-confirmed card scheme is not in the allowed brands list.
+        // If cardDetails has not arrived yet, skip the check and allow submission to proceed.
+        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty,
+           let scheme = cardDetails?.schemes.first,
+           !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
+            return false
+
         }
         return true
-    }
-    
-    /// Detects the card network from the current `cardNumber` and updates `cardDetails.schemes`
-    /// so the correct brand logo is shown immediately — before (or instead of) the BIN API response.
-    private func updateDetectedScheme() {
-        let digits = cardNumber.filter { $0.isNumber }
-        let detectedType = detectCreditCardType(digits)
-
-        guard let scheme = detectedType.schemeName, let existing = cardDetails else { return }
-        // Only overwrite if the detected scheme differs from what is already set,
-        // to avoid triggering an unnecessary @Published re-render.
-        guard existing.schemes.first != scheme else { return }
-
-        cardDetails = CardInfoResponse(
-            requireBillingInformation: existing.requireBillingInformation,
-            countryCodes: existing.countryCodes,
-            schemes: [scheme]
-        )
     }
 
     enum SDKStatus: Equatable {

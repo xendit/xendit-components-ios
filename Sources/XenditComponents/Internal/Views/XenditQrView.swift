@@ -11,7 +11,7 @@ struct XenditQrView: View {
     let action: PaymentAction
     let businessName: String?
     let channelLogoUrl: String?
-    let amount: Double?
+    let amount: Decimal?
     let currency: String?
     let locale: String
     let onDismiss: () -> Void
@@ -40,7 +40,7 @@ struct XenditQrView: View {
 
     private var formattedAmount: String? {
         guard let amount, let currency, amount > 0 else { return nil }
-        return "\(currency) \(String(format: "%.2f", amount))"
+        return AmountFormat.format(amount: amount, currency: currency)
     }
 
     var body: some View {
