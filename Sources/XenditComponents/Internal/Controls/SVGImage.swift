@@ -8,14 +8,10 @@
 import Kingfisher
 import SwiftUI
 
-/// Custom Kingfisher processor that parses SVG on the main thread.
-/// SVGKit accesses UIScreen.main for PPI calculation, which must happen on the main thread.
-/// Using the default background-thread SVGImageProcessor causes an intermittent assertion failure.
-/// Wraps Kingfisher's SVGImageProcessor to ensure SVGKit runs on the main thread.
-/// SVGKit accesses UIScreen.main for PPI calculation, which requires the main thread.
-/// Running it on a background thread causes an intermittent assertion failure on first load.
+/// Wraps SVGImageProcessor to guarantee it runs on the main thread.
+/// MacawView is a UIKit view — UIView operations must happen on the main thread.
 private struct MainThreadSVGProcessor: ImageProcessor {
-    let identifier = "co.xendit.svgk.mainthread"
+    let identifier = "co.xendit.macaw.mainthread.v1"
     private let inner = SVGImageProcessor()
 
     func process(item: ImageProcessItem, options: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {

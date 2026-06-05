@@ -183,7 +183,7 @@ extension SessionResponse.Session {
             referenceId: referenceId,
             country: country,
             currency: currency,
-            amount: NSDecimalNumber(decimal: amount).doubleValue,
+            amount: amount,
             expiresAt: expiresAt,
             locale: locale,
             status: status.toModel(),

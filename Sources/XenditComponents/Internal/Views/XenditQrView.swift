@@ -10,7 +10,7 @@ import SwiftUI
 struct XenditQrView: View {
     let action: PaymentAction
     let channelName: String
-    let amount: Double?
+    let amount: Decimal?
     let currency: String?
     let onDismiss: () -> Void
 
@@ -56,7 +56,7 @@ struct XenditQrView: View {
                     Text("Amount to Pay")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("\(currency) \(amount, specifier: "%.2f")")
+                    Text(AmountFormat.format(amount: amount, currency: currency))
                         .font(.title2)
                         .fontWeight(.bold)
                 }

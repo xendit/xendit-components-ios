@@ -18,18 +18,21 @@ struct CreditCardNumberFieldView: View {
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
-    // Brand assets to show when the field is empty (no card number entered yet).
-    private var visibleBrandAssets: [String] {
+    // Brands to show when the field is empty (no card number entered yet).
+    private var visibleBrands: [Form.CardBrand] {
         guard value.isEmpty else { return [] }
-        return brands.compactMap { CreditCardType(rawValue: $0.name)?.localAssetName }
+        return brands.filter { !$0.logoUrl.isEmpty || CreditCardType(rawValue: $0.name)?.localAssetName != nil }
     }
 
     // Right-side icon area width
     private var trailingIconWidth: CGFloat {
-        if !visibleBrandAssets.isEmpty {
-            return CGFloat(visibleBrandAssets.count) * 42 + CGFloat(visibleBrandAssets.count - 1) * 4 + 10
+        if !visibleBrands.isEmpty {
+            return CGFloat(visibleBrands.count) * 42 + CGFloat(visibleBrands.count - 1) * 4 + 10
         }
-        return cardType?.localAssetName != nil ? 46 : 0
+        let hasMatchingBrand = cardType.map { type in
+            brands.contains { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }
+        } ?? false
+        return hasMatchingBrand ? 46 : 0
     }
 
     var body: some View {
@@ -62,25 +65,24 @@ struct CreditCardNumberFieldView: View {
 
     @ViewBuilder
     private var trailingBadge: some View {
-        if !visibleBrandAssets.isEmpty {
+        if !visibleBrands.isEmpty {
             HStack(spacing: 4) {
-                ForEach(visibleBrandAssets, id: \.self) { assetName in
-                    brandLogo(assetName: assetName)
+                ForEach(visibleBrands, id: \.self) { brand in
+                    brandLogo(brand: brand)
                 }
             }
             .padding(.trailing, Spacing.s3)
         } else if let type = cardType,
-                  brands.contains(where: { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }),
-                  let assetName = type.localAssetName {
-            brandLogo(assetName: assetName)
+                  let matchingBrand = brands.first(where: { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }) {
+            brandLogo(brand: matchingBrand)
                 .padding(.trailing, Spacing.s3)
         }
     }
 
-    private func brandLogo(assetName: String) -> some View {
-        Image(assetName, bundle: .module)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
+    private func brandLogo(brand: Form.CardBrand) -> some View {
+        let logoUrl = URL(string: brand.logoUrl)
+        let localAsset = CreditCardType(rawValue: brand.name)?.localAssetName
+        return RemoteImage(url: logoUrl, localFallback: localAsset)
             .frame(width: 23.3, height: 16.7)
             .padding(2)
             .overlay {

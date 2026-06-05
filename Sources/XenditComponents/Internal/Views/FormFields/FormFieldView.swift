@@ -31,7 +31,7 @@ struct FormFieldView: View {
 
     private var validationError: String? {
         guard isTouched else { return nil }
-        let result = FormValidator.validate(field: field, value: value)
+        let result = FormValidator.validate(field: field, value: value, detectedScheme: cardType?.schemeName)
         switch result {
         case .valid:
             return nil
@@ -55,6 +55,22 @@ struct FormFieldView: View {
         .onChange(of: value) { _ in
             guard isTouched else { return }
             onValidationChanged?(validationError)
+        }
+        .onChange(of: cardType) { newCardType in
+            // isTouched may have been reset by a re-render triggered by the card-info API response.
+            // Use value.isEmpty as the reliable signal that the user has entered something.
+            guard !value.isEmpty else { return }
+            isTouched = true
+            let result = FormValidator.validate(field: field, value: value, detectedScheme: newCardType?.schemeName)
+            let error: String? = {
+                switch result {
+                case .valid: return nil
+                case .invalid(let code):
+                    let fieldLabel = field.label ?? effectiveLabel
+                    return strings.validationMessage(forCode: code, fieldLabel: fieldLabel) ?? code
+                }
+            }()
+            onValidationChanged?(error)
         }
     }
 
@@ -238,14 +254,6 @@ private extension InstallmentPlan {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currency
-        formatter.maximumFractionDigits = 0
-        formatter.minimumFractionDigits = 0
-        if currency == "IDR" {
-            formatter.locale = Locale(identifier: "id_ID")
-        }
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(currency)\(amount)"
+        return AmountFormat.format(amount: amount, currency: currency)
     }
 }
