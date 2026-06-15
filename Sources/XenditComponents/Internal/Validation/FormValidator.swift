@@ -21,7 +21,7 @@ struct FormValidator {
 
     // MARK: - Validate for UI model field (used by FormFieldView)
 
-    static func validate(field: Form.InputField, value: String) -> ValidationResult {
+    static func validate(field: Form.InputField, value: String, detectedScheme: String? = nil) -> ValidationResult {
         if value.isEmpty {
             if field.required {
                 return .invalid(message: "required")
@@ -34,15 +34,10 @@ struct FormValidator {
         case .creditCardNumber(let brands):
             if !validateCreditCard(value) {
                 result = .invalid(message: "generic_invalid")
-            } else if !brands.isEmpty {
-                let digits = value.filter { $0.isNumber }
-                let detected = detectCreditCardType(digits)
-                if let scheme = detected.schemeName,
-                   !brands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
-                    result = .invalid(message: "card_brand_not_supported")
-                } else {
-                    result = .valid
-                }
+            } else if !brands.isEmpty,
+                      let scheme = detectedScheme,
+                      !brands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
+                result = .invalid(message: "card_brand_not_allowed")
             } else {
                 result = .valid
             }
@@ -268,93 +263,12 @@ enum CreditCardType: String {
         }
     }
 }
-//NOTE: put it in UTIL or Helper folder
-/// Validates a credit card number string using the Luhn algorithm and card-type rules.
-///
+/// Validates a credit card number string using the Luhn algorithm.
 /// - Parameter input: Raw card number string; whitespace and dashes are stripped before processing.
-/// - Returns: `true` if the number passes the Luhn check **and** matches the expected length and
-///   prefix for its detected card type.
+/// - Returns: `true` if the number passes the Luhn check.
 func validateCreditCard(_ input: String) -> Bool {
-    // 1. Sanitize: remove spaces and dashes so the caller doesn't have to pre-clean the string.
     let digits = input.filter { $0.isNumber }
-
-    // 2. Detect card type from IIN/BIN prefix.
-    let type = detectCreditCardType(digits)
-
-    // 3. Verify the digit count matches what the card network requires.
-    guard isValidLength(digits, for: type) else { return false }
-
-    // 4. Run the Luhn (Mod 10) check.
     return passesLuhn(digits)
-}
-
-// MARK: - Card type detection
-
-func detectCreditCardType(_ digits: String) -> CreditCardType {
-    // All prefix checks use `hasPrefix` on the raw digit string — O(k) where k is prefix length,
-    // no regex compilation overhead.
-
-    if digits.hasPrefix("4") {
-        return .visa
-    }
-
-    // Mastercard: prefixes 51–55 or 2221–2720.
-    if let twoDigit = Int(digits.prefix(2)), (51...55).contains(twoDigit) {
-        return .mastercard
-    }
-    if let fourDigit = Int(digits.prefix(4)), (2221...2720).contains(fourDigit) {
-        return .mastercard
-    }
-
-    // Amex: prefixes 34 or 37.
-    if digits.hasPrefix("34") || digits.hasPrefix("37") {
-        return .amex
-    }
-
-    // Discover: prefix 6011, 65, or 644–649.
-    if digits.hasPrefix("6011") || digits.hasPrefix("65") {
-        return .discover
-    }
-    if let threeDigit = Int(digits.prefix(3)), (644...649).contains(threeDigit) {
-        return .discover
-    }
-
-    // JCB: prefixes 3528–3589.
-    if let fourDigit = Int(digits.prefix(4)), (3528...3589).contains(fourDigit) {
-        return .jcb
-    }
-
-    // Diners Club International: 300–305, 36, 38.
-    // Diners Club North America (co-branded): 54.
-    if let threeDigit = Int(digits.prefix(3)), (300...305).contains(threeDigit) {
-        return .dinersClub
-    }
-    if digits.hasPrefix("36") || digits.hasPrefix("38") || digits.hasPrefix("54") {
-        return .dinersClub
-    }
-
-    // UnionPay: prefix 62 or 81.
-    if digits.hasPrefix("62") || digits.hasPrefix("81") {
-        return .unionPay
-    }
-
-    return .unknown
-}
-
-// MARK: - Length check
-
-private func isValidLength(_ digits: String, for type: CreditCardType) -> Bool {
-    let count = digits.count
-    switch type {
-    case .visa:        return count == 13 || count == 16 || count == 19
-    case .mastercard:  return count == 16
-    case .amex:        return count == 15
-    case .discover:    return count == 16 || count == 19
-    case .jcb:         return (16...19).contains(count)
-    case .dinersClub:  return count == 14 || count == 16   // 14 = International, 16 = North America
-    case .unionPay:    return (16...19).contains(count)
-    case .unknown:     return false   // reject unrecognized card networks
-    }
 }
 
 // MARK: - Luhn algorithm

@@ -55,7 +55,7 @@ struct XenditMapper {
                 let interval = formValues[keys[1]]
                 let code = formValues[keys[2]]
 
-                flatMap[keys[0]] = term
+                flatMap[keys[0]] = term.flatMap { Int($0) }
                 flatMap[keys[1]] = interval
                 flatMap[keys[2]] = code
             default:
