@@ -47,13 +47,13 @@ struct ChannelFormView: View {
             }
         }
         .onAppear {
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
         }
         .onChange(of: channel.channelCode) { _ in
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
         }
         .onChange(of: session.allowSavePaymentMethod) { _ in
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
         }
     }
 
@@ -254,7 +254,7 @@ struct ChannelFormView: View {
         let fieldMapper = mapper(for: field)
 
         let binding: Binding<String>
-        if case .checkbox(let isChecked, _) = field.type {
+        if case .checkbox(let isChecked, _, _) = field.type {
             // Checkbox binds directly to stateStore.savePaymentMethod
             binding = Binding(
                 get: { self.stateStore.savePaymentMethod ? "true" : "false" },

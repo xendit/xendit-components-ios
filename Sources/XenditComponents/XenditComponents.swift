@@ -168,7 +168,10 @@ public final class XenditComponents: ObservableObject {
                 self.stateStore.session = response.session.toModel()
                 self.stateStore.businessName = response.business.name
                 self.stateStore.customer = response.customer.toModel()
-                self.stateStore.channels = response.channels.filter { $0.pmType == .cards || $0.pmType == .qrCode }
+                let filtered = response.channels.filter { $0.pmType == .cards || $0.pmType == .qrCode || $0.pmType == .ewallet }
+                let pairing = CombinedChannelsResult.combining(filtered)
+                self.stateStore.channels = pairing.channels
+                self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups
                 
                 switch response.session.status {
@@ -181,7 +184,7 @@ public final class XenditComponents: ObservableObject {
                 case .expired:
                     self.dispatch(.sessionExpired)
                     return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
-                case .active, .unknown:
+                case .active, .pending, .unknown:
                     break
                 }
                 
@@ -230,7 +233,15 @@ public final class XenditComponents: ObservableObject {
         stateStore.isSubmitting = true
         dispatch(.submissionBegin)
 
-        return performSubmission(channel: channel, session: session, parsedKey: parsedKey)
+        let effectiveChannel: SessionResponse.Channel
+        if stateStore.savePaymentMethod,
+           let variants = stateStore.channelVariants[channel.channelCode] {
+            effectiveChannel = variants.saveChannel
+        } else {
+            effectiveChannel = channel
+        }
+
+        return performSubmission(channel: effectiveChannel, session: session, parsedKey: parsedKey)
             .flatMap { [weak self] result -> AnyPublisher<Void, Error> in
                 guard let self else {
                     return Fail(error: URLError(.cancelled)).eraseToAnyPublisher()

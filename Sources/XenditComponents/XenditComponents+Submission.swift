@@ -78,7 +78,7 @@ extension XenditComponents {
                 return handleFinalPaymentRequestStatus(pr)
             case .requiresAction:
                 handleRequiresAction(actions)
-            case .unknown:
+            case .pending, .unknown:
                 break
             }
 
@@ -105,9 +105,16 @@ extension XenditComponents {
             if case .presentToCustomer(let d) = $0 { return !d.value.isEmpty }
             return false
         })
-        guard let action, let paymentAction = PaymentAction.from(action) else { return }
-        stateStore.activeAction = paymentAction
-        dispatch(.actionBegin)
+        if let action, let paymentAction = PaymentAction.from(action) {
+            if paymentAction.isDeeplink, let url = URL(string: paymentAction.value) {
+                stateStore.pendingDeeplinkUrl = url
+            } else {
+                stateStore.activeAction = paymentAction
+            }
+            dispatch(.actionBegin)
+        } else {
+            stateStore.awaitingPaymentAction = .emptyPaymentActions
+        }
     }
 
     private func handleFinalPaymentRequestStatus(_ pr: PaymentRequestResponse) -> AnyPublisher<Void, Error> {
@@ -154,7 +161,7 @@ extension XenditComponents {
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_EXPIRED")
             )))
 
-        case .requiresAction, .unknown:
+        case .requiresAction, .pending, .unknown:
             break
         }
 
@@ -217,6 +224,7 @@ extension XenditComponents {
 
     private func handlePollResult(_ result: PollResult) {
         dispatch(.actionEnd)
+        stateStore.awaitingPaymentAction = nil
         let locale = stateStore.session?.locale ?? "en"
         let strings = XenditStrings(locale: locale)
 

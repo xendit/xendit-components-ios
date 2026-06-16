@@ -124,6 +124,7 @@
 "session::page_title.pay" = "Checkout di {{merchantName}}";
 "session::page_title.save" = "Tambah metode pembayaran di {{merchantName}}";
 "session::payment.save_checkbox_label" = "Simpan untuk pembayaran lebih cepat lain kali";
+"session::payment.ewallet_save_checkbox_label" = "Hubungkan {{brandName}} ke {{businessName}} untuk pembelian berikutnya";
 "session::payment_items.description" = "Catatan:";
 "session::payment_items.subscription_billing_interval_day_one" = "Setiap hari";
 "session::payment_items.subscription_billing_interval_day_other" = "Setiap {{count}} hari";

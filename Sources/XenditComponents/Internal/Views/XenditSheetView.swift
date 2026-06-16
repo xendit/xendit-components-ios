@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UIKit
 
 struct XenditSheetView: View {
     private let sdk: XenditComponents
@@ -45,8 +46,24 @@ struct XenditSheetView: View {
                 }
             }
 
-            if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil {
+            if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil && stateStore.awaitingPaymentAction == nil {
                 submitLoadingOverlay
+            }
+            
+            if let awaitingAction = stateStore.awaitingPaymentAction {
+                AwaitingPaymentView(
+                    action: awaitingAction,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    locale: stateStore.session?.locale ?? "en",
+                    onClose: {
+                        stateStore.awaitingPaymentAction = nil
+                        stateStore.isPolling = false
+                        stateStore.isSubmitting = false
+                        sdk.poller.stopPolling()
+                    }
+                )
+                .ignoresSafeArea()
             }
         }
         .background(XenditComponents.appearance.resolvedBackground)
@@ -56,6 +73,12 @@ struct XenditSheetView: View {
                 message: alert.message.map { Text($0) },
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .onChange(of: stateStore.pendingDeeplinkUrl) { url in
+            guard let url else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            stateStore.pendingDeeplinkUrl = nil
+            stateStore.awaitingPaymentAction = .deeplink
         }
         .onAppear {
             Country.warmUp()

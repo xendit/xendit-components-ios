@@ -16,7 +16,27 @@ struct BottomSheetPickerFieldView: View {
     @Binding var value: String
     var isDisabled: Bool = false
     var searchEnabled: Bool = false
+    var showIconDivider: Bool = false
+    var iconSize: CGSize = CGSize(width: 16, height: 16)
+    var iconClipShape: IconClipShape = .circle
     var onChanged: (() -> Void)?
+
+    enum IconClipShape: Shape {
+        case circle
+        case roundedRectangle(cornerRadius: CGFloat)
+        case rectangle
+
+        func path(in rect: CGRect) -> Path {
+            switch self {
+            case .circle:
+                return Circle().path(in: rect)
+            case .roundedRectangle(let cornerRadius):
+                return RoundedRectangle(cornerRadius: cornerRadius).path(in: rect)
+            case .rectangle:
+                return Rectangle().path(in: rect)
+            }
+        }
+    }
 
     @State private var isPresented: Bool = false
 
@@ -43,14 +63,22 @@ struct BottomSheetPickerFieldView: View {
                 HStack(spacing: Spacing.s2) {
                     if let iconUrl = selectedOption?.iconUrl {
                         RemoteImage(url: URL(string: iconUrl))
-                            .frame(width: 16, height: 16)
-                            .clipShape(Circle())
+                            .frame(width: iconSize.width, height: iconSize.height)
+                            .clipShape(iconClipShape)
+                        if showIconDivider {
+                            Rectangle()
+                                .fill(XenditComponents.appearance.resolvedBorder)
+                                .frame(width: 1)
+                                .frame(maxHeight: .infinity)
+                                .padding(.vertical, Spacing.s2)
+                        }
                     }
                     Text(selectedOption?.label ?? placeholder)
                         .font(.labelLgRegular)
                         .foregroundColor(value.isEmpty
                             ? XenditComponents.appearance.resolvedTextPlaceholder
                             : XenditComponents.appearance.resolvedText)
+                    
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.labelLgRegular)

@@ -46,6 +46,7 @@ struct PaymentRequestResponse: Decodable {
 extension PaymentRequestResponse {
     enum PaymentRequestStatus: String, Decodable {
         case acceptingPayments = "ACCEPTING_PAYMENTS"
+        case pending = "PENDING"
         case requiresAction = "REQUIRES_ACTION"
         case authorized = "AUTHORIZED"
         case canceled = "CANCELED"

@@ -124,6 +124,7 @@
 "session::page_title.pay" = "";
 "session::page_title.save" = "";
 "session::payment.save_checkbox_label" = "";
+"session::payment.ewallet_save_checkbox_label" = "";
 "session::payment_items.description" = "";
 "session::payment_items.subscription_billing_interval_day_one" = "";
 "session::payment_items.subscription_billing_interval_day_other" = "";

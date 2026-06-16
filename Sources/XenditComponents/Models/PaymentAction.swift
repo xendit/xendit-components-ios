@@ -12,12 +12,12 @@ struct PaymentAction: Identifiable, Hashable {
     let id: String
     let type: ActionType
     let value: String
+    let isQrString: Bool
+    let isDeeplink: Bool
     let title: String?
     let subtitle: String?
     let graphic: String?
     let otp: OtpInfo?
-    
-    let isQrString: Bool
 
     enum ActionType: Hashable {
         case redirectCustomer
@@ -40,11 +40,12 @@ extension PaymentAction {
                 id: data.value,
                 type: .redirectCustomer,
                 value: data.value,
+                isQrString: false,
+                isDeeplink: data.descriptor == .deeplinkUrl,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: nil,
-                isQrString: false
+                otp: nil
             )
         case .presentToCustomer(let data):
             guard !data.value.isEmpty else { return nil }
@@ -52,11 +53,12 @@ extension PaymentAction {
                 id: data.value,
                 type: .presentToCustomer,
                 value: data.value,
+                isQrString: data.descriptor == .qrString,
+                isDeeplink: false,
                 title: data.actionTitle,
                 subtitle: data.actionSubtitle,
                 graphic: data.actionGraphic,
-                otp: nil,
-                isQrString: data.descriptor == .qrString
+                otp: nil
             )
         case .apiPostRequest(let data):
             let otpInfo = data.otp.map { OtpInfo(title: $0.title, instructions: $0.instructions) }
@@ -64,11 +66,12 @@ extension PaymentAction {
                 id: data.value,
                 type: .presentToCustomer,
                 value: data.value,
+                isQrString: false,
+                isDeeplink: false,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: otpInfo,
-                isQrString: false
+                otp: otpInfo
             )
         case .unknown:
             return nil

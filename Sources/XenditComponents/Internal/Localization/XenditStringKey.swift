@@ -222,6 +222,7 @@ enum LocalizationKey: String {
     // MARK: Payment
 
     case paymentSaveCheckboxLabel = "session::payment.save_checkbox_label"
+    case paymentEwalletSaveCheckboxLabel = "session::payment.ewallet_save_checkbox_label"
 
     // MARK: Payment Items
 

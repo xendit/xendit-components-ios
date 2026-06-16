@@ -125,6 +125,7 @@
 "session::page_title.save" = "Add payment method at {{merchantName}}";
 "session::payment.save_checkbox_label" = "Save card information for future use";
 "session::payment_items.description" = "Note:";
+"session::payment.ewallet_save_checkbox_label" = "Link {{brandName}} to {{businessName}} for future purchases";
 "session::payment_items.subscription_billing_interval_day_one" = "Every day";
 "session::payment_items.subscription_billing_interval_day_other" = "Every {{count}} days";
 "session::payment_items.subscription_billing_interval_month_one" = "Every month on the {{anchor}}";

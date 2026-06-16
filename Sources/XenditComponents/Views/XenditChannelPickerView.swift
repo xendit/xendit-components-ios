@@ -5,7 +5,6 @@
 //  Created by Ahmad X on 02/05/2026.
 //
 
-import Lottie
 import SwiftUI
 
 /// A SwiftUI view that renders the Xendit channel picker.
@@ -61,8 +60,9 @@ struct XenditChannelPickerView: View {
                     channels: groupChannels,
                     session: session,
                     selectedChannelCode: state.currentChannel?.channelCode,
-                    isRoundedRectangle: index == visibleGroups.count - 1, stateStore: state,
-                    sdk: sdk,
+                    isLastInGroup: index == visibleGroups.count - 1,
+                    stateStore: state,
+                    onPropertiesChanged: { sdk?.updateChannelProperties($0) },
                     onChannelSelected: { channel in
                         sdk?.setCurrentResponseChannel(channel)
                     }
@@ -81,18 +81,21 @@ private struct AccordionGroupView: View {
     let channels: [SessionResponse.Channel]
     let session: Session
     let selectedChannelCode: String?
-    let isRoundedRectangle: Bool
+    let isLastInGroup: Bool
     @ObservedObject var stateStore: SDKStateStore
-    weak var sdk: XenditComponents?
+    let onPropertiesChanged: (ChannelProperties) -> Void
     var onChannelSelected: ((SessionResponse.Channel) -> Void)?
 
     @State private var isManuallyCollapsed: Bool = false
     @State private var showChannelPicker: Bool = false
+    @State private var isEwalletExpanded: Bool = false
 
     private var isSingleChannel: Bool { channels.count == 1 }
+    private var isEwalletMultiChannel: Bool { channels.count > 1 && channels.first?.pmType == .ewallet }
 
     private var isSelected: Bool {
-        channels.contains { $0.channelCode == selectedChannelCode }
+        let hasChannel = channels.contains { $0.channelCode == selectedChannelCode }
+        return isEwalletMultiChannel ? (isEwalletExpanded || hasChannel) : hasChannel
     }
 
     private var selectedChannel: SessionResponse.Channel? {
@@ -103,9 +106,7 @@ private struct AccordionGroupView: View {
         isSingleChannel ? channels.first : selectedChannel
     }
 
-    private var shouldBeOpen: Bool {
-        isSelected && !isManuallyCollapsed
-    }
+    private var shouldBeOpen: Bool { isSelected && !isManuallyCollapsed }
 
     private var localChannelIconName: String? {
         switch channels.first?.pmType {
@@ -129,7 +130,7 @@ private struct AccordionGroupView: View {
         .cornerRadius(8)
         .overlay(
             Group {
-                if isRoundedRectangle {
+                if isLastInGroup {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(XenditComponents.appearance.resolvedBorder, lineWidth: 1)
                 } else {
@@ -139,8 +140,13 @@ private struct AccordionGroupView: View {
             }
         )
         .animation(.easeInOut(duration: 0.2), value: shouldBeOpen)
-        .onChange(of: selectedChannelCode) { _ in
+        .onChange(of: selectedChannelCode) { newCode in
             isManuallyCollapsed = false
+            if isEwalletMultiChannel, let code = newCode {
+                if !channels.contains(where: { $0.channelCode == code }) {
+                    isEwalletExpanded = false
+                }
+            }
         }
         .sheet(isPresented: $showChannelPicker) {
             ChannelPickerSheet(
@@ -193,13 +199,6 @@ private struct AccordionGroupView: View {
                                 ? XenditComponents.appearance.resolvedPrimary
                                 : XenditComponents.appearance.resolvedText
                         )
-
-                    // For multi-channel, show the selected channel name as a subtitle.
-                    if !isSingleChannel, let ch = selectedChannel {
-                        Text(ch.brandName)
-                            .font(.caption)
-                            .foregroundColor(XenditComponents.appearance.resolvedText)
-                    }
                 }
 
                 Spacer()
@@ -210,7 +209,7 @@ private struct AccordionGroupView: View {
             }
             .padding(.horizontal, Spacing.s4)
             .padding(.top, Spacing.s6)
-            .padding(.bottom, isRoundedRectangle ? Spacing.s6 : 32)
+            .padding(.bottom, isLastInGroup ? Spacing.s6 : 32)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -220,39 +219,16 @@ private struct AccordionGroupView: View {
 
     @ViewBuilder
     private var inlineContent: some View {
-        if let channel = activeChannel, let session = stateStore.session, let sdk = sdk {
-            VStack(alignment: .leading, spacing: Spacing.s1) {
-                if !channel.form.isEmpty {
-                    ChannelFormView(
-                        channel: channel,
-                        session: session,
-                        locale: session.locale,
-                        stateStore: stateStore,
-                        channelProperties: Binding(
-                            get: { stateStore.channelProperties },
-                            set: { stateStore.channelProperties = $0 }
-                        ),
-                        onPropertiesChanged: { properties in
-                            sdk.updateChannelProperties(properties)
-                        }
-                    )
-                }
-
-                if let instructions = channel.instructions, !instructions.isEmpty {
-                    if channel.pmType == .qrCode {
-                        QrInstructionsView(instructions: instructions)
-                    } else {
-                        VStack(alignment: .leading, spacing: 4) {
-                            ForEach(instructions, id: \.self) { instruction in
-                                Text("• \(instruction)")
-                                    .font(InterFont.captionRegular)
-                                    .foregroundColor(XenditComponents.appearance.resolvedTextSecondary)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
+        if let session = stateStore.session {
+            ChannelGroupContentBuilder.make(
+                channels: channels,
+                group: group,
+                selectedChannel: activeChannel,
+                session: session,
+                stateStore: stateStore,
+                onPropertiesChanged: onPropertiesChanged,
+                onChannelSelected: onChannelSelected ?? { _ in }
+            )
             .padding(.horizontal, Spacing.s4)
             .padding(.bottom, Spacing.s4)
         }
@@ -266,6 +242,14 @@ private struct AccordionGroupView: View {
                 isManuallyCollapsed.toggle()
             } else {
                 onChannelSelected?(channels[0])
+            }
+        } else if isEwalletMultiChannel {
+            if shouldBeOpen {
+                isEwalletExpanded = false
+                isManuallyCollapsed = true
+            } else {
+                isEwalletExpanded = true
+                isManuallyCollapsed = false
             }
         } else {
             showChannelPicker = true
@@ -348,52 +332,3 @@ struct SheetDetentsModifier: ViewModifier {
     }
 }
 
-// MARK: - QR channel inline content
-
-private struct QrInstructionsView: View {
-    let instructions: [String]
-
-    var body: some View {
-        let a = XenditComponents.appearance
-        VStack(spacing: 0) {
-            DashedDivider(color: a.resolvedBorder)
-                .frame(height: 1)
-
-            HStack(alignment: .center, spacing: Spacing.s3) {
-                LottieView(animation: .named("qr_scanner", bundle: .module))
-                    .looping()
-                    .frame(width: 60, height: 60)
-                    .offset(y: -2)
-
-
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(Array(instructions.enumerated()), id: \.offset) { index, instruction in
-                        Text(instruction)
-                            .font(index == 0 ? InterFont.labelSmBold : InterFont.captionRegular)
-                            .foregroundColor(
-                                index == 0
-                                    ? a.resolvedText
-                                    : a.resolvedTextSecondary
-                            )
-                    }
-                }
-                Spacer()
-            }
-            .padding(.vertical, Spacing.s2)
-        }
-    }
-}
-
-private struct DashedDivider: View {
-    let color: Color
-
-    var body: some View {
-        GeometryReader { geo in
-            Path { path in
-                path.move(to: CGPoint(x: 0, y: 0.5))
-                path.addLine(to: CGPoint(x: geo.size.width, y: 0.5))
-            }
-            .stroke(color, style: StrokeStyle(lineWidth: 1, dash: [6, 6]))
-        }
-    }
-}

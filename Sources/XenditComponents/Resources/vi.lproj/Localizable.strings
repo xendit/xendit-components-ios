@@ -124,6 +124,7 @@
 "session::page_title.pay" = "Thanh toán tại {{merchantName}}";
 "session::page_title.save" = "Thêm phương thức thanh toán tại {{merchantName}}";
 "session::payment.save_checkbox_label" = "Lưu phương thức thanh toán này cho các thanh toán định kỳ";
+"session::payment.ewallet_save_checkbox_label" = "Liên kết {{brandName}} với {{businessName}} cho các lần mua hàng tiếp theo";
 "session::payment_items.description" = "Ghi chú:";
 "session::payment_items.subscription_billing_interval_day_one" = "";
 "session::payment_items.subscription_billing_interval_day_other" = "";
