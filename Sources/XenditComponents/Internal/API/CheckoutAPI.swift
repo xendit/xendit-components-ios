@@ -17,24 +17,21 @@ final class CheckoutAPI {
     func fetchSession(sessionAuthKey: String) -> AnyPublisher<SessionResponse.Response, APIClientError> {
         client.get(
             .path("/api/sessions/\(sessionAuthKey)"),
-            queries: ["components_version": sdkVersion],
-            headers: [.custom("origin", "https://demo-store.xendit.co")] //TODO: Should not hardcoded
+            queries: ["components_version": sdkVersion]
         )
     }
 
     func createPaymentRequest(query: PaymentRequestQuery) -> AnyPublisher<PaymentRequestResponse, APIClientError> {
         client.post(
             .path("/api/sessions/payment_requests?components_version=\(sdkVersion)"),
-            json: query.json,
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            json: query.json
         )
     }
 
     func createPaymentToken(query: PaymentTokenQuery) -> AnyPublisher<PaymentTokenResponse, APIClientError> {
         client.post(
             .path("/api/sessions/payment_tokens?components_version=\(sdkVersion)"),
-            json: query.json,
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            json: query.json
         )
     }
 
@@ -47,16 +44,14 @@ final class CheckoutAPI {
 
         return client.get(
             .path("/api/sessions/\(sessionAuthKey)/poll"),
-            queries: queries,
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            queries: queries
         )
     }
 
     func getCardInfo(sessionAuthKey: String, query: CardInfoQuery) -> AnyPublisher<CardInfoResponse, APIClientError> {
         client.post(
             .path("/api/sessions/\(sessionAuthKey)/card_info?components_version=\(sdkVersion)"),
-            json: query.json,
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            json: query.json
         )
     }
     
@@ -76,8 +71,7 @@ final class CheckoutAPI {
     func getPaymentOptions(sessionAuthKey: String, query: PaymentOptionsQuery) -> AnyPublisher<PaymentOptionsResponse, APIClientError> {
         client.post(
             .path("/api/sessions/\(sessionAuthKey)/payment_options?components_version=\(sdkVersion)"),
-            json: query.json,
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            json: query.json
         )
     }
 }
