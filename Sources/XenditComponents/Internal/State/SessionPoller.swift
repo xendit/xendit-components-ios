@@ -119,9 +119,9 @@ final class SessionPoller {
                 return .paymentRequestCreated(id: pr.paymentRequestId)
             case .failed, .canceled, .expired:
                 return .paymentRequestFailed(id: pr.paymentRequestId, failureCode: pr.failureCode)
-            case .requiresAction, .unknown:
+            case .unknown:
                 return .requiresAction
-            case .pending:
+            case .requiresAction, .pending:
                 break
             }
         }
@@ -132,9 +132,9 @@ final class SessionPoller {
                 return .paymentTokenCreated(id: pt.paymentTokenId)
             case .failed, .canceled, .expired:
                 return .paymentTokenFailed(id: pt.paymentTokenId, failureCode: pt.failureCode)
-            case .requiresAction, .unknown:
+            case .unknown:
                 return .requiresAction
-            case  .pending:
+            case .requiresAction, .pending:
                 break
             }
         }

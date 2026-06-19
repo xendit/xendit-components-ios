@@ -29,6 +29,7 @@ final class SDKStateStore: ObservableObject {
     @Published var activeAction: PaymentAction?
     @Published var pendingDeeplinkUrl: URL?
     @Published var awaitingPaymentAction: AwaitingPaymentAction? = nil
+    @Published var expandedGroupId: String? = nil
     @Published var channelVariants: [String: ChannelVariants] = [:]
     @Published var installmentPlans: [InstallmentPlan]?
     @Published var selectedInstallmentPlan: InstallmentPlan?

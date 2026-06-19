@@ -88,14 +88,23 @@ private struct AccordionGroupView: View {
 
     @State private var isManuallyCollapsed: Bool = false
     @State private var showChannelPicker: Bool = false
-    @State private var isEwalletExpanded: Bool = false
+    @State private var isMultiChannelExpanded: Bool = false
 
     private var isSingleChannel: Bool { channels.count == 1 }
-    private var isEwalletMultiChannel: Bool { channels.count > 1 && channels.first?.pmType == .ewallet }
+
+    /// `true` for multi-bank groups (eWallet, Virtual Account, Bank Transfer) that expand
+    /// inline to show a channel picker, rather than opening a bottom sheet.
+    private var isExpandableMultiChannel: Bool {
+        guard channels.count > 1 else { return false }
+        switch channels.first?.pmType {
+        case .ewallet, .virtualAccount, .bankTransfer: return true
+        default: return false
+        }
+    }
 
     private var isSelected: Bool {
         let hasChannel = channels.contains { $0.channelCode == selectedChannelCode }
-        return isEwalletMultiChannel ? (isEwalletExpanded || hasChannel) : hasChannel
+        return isExpandableMultiChannel ? (isMultiChannelExpanded || hasChannel) : hasChannel
     }
 
     private var selectedChannel: SessionResponse.Channel? {
@@ -106,7 +115,10 @@ private struct AccordionGroupView: View {
         isSingleChannel ? channels.first : selectedChannel
     }
 
-    private var shouldBeOpen: Bool { isSelected && !isManuallyCollapsed }
+    private var shouldBeOpen: Bool {
+        guard !isManuallyCollapsed else { return false }
+        return isExpandableMultiChannel ? (isMultiChannelExpanded || isSelected) : isSelected
+    }
 
     private var localChannelIconName: String? {
         switch channels.first?.pmType {
@@ -142,10 +154,20 @@ private struct AccordionGroupView: View {
         .animation(.easeInOut(duration: 0.2), value: shouldBeOpen)
         .onChange(of: selectedChannelCode) { newCode in
             isManuallyCollapsed = false
-            if isEwalletMultiChannel, let code = newCode {
+            guard isExpandableMultiChannel else { return }
+            if let code = newCode {
                 if !channels.contains(where: { $0.channelCode == code }) {
-                    isEwalletExpanded = false
+                    isMultiChannelExpanded = false
                 }
+            } else {
+                if stateStore.expandedGroupId != group.id {
+                    isMultiChannelExpanded = false
+                }
+            }
+        }
+        .onChange(of: stateStore.expandedGroupId) { activeId in
+            if isExpandableMultiChannel, activeId != group.id {
+                isMultiChannelExpanded = false
             }
         }
         .sheet(isPresented: $showChannelPicker) {
@@ -243,13 +265,19 @@ private struct AccordionGroupView: View {
             } else {
                 onChannelSelected?(channels[0])
             }
-        } else if isEwalletMultiChannel {
+        } else if isExpandableMultiChannel {
             if shouldBeOpen {
-                isEwalletExpanded = false
+                isMultiChannelExpanded = false
                 isManuallyCollapsed = true
+                stateStore.expandedGroupId = nil
             } else {
-                isEwalletExpanded = true
+                let hasChannelAlready = channels.contains { $0.channelCode == selectedChannelCode }
+                isMultiChannelExpanded = true
                 isManuallyCollapsed = false
+                stateStore.expandedGroupId = group.id
+                if !hasChannelAlready {
+                    stateStore.currentChannel = nil
+                }
             }
         } else {
             showChannelPicker = true

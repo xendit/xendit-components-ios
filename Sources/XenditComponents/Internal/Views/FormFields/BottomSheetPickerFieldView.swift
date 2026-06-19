@@ -84,6 +84,7 @@ struct BottomSheetPickerFieldView: View {
                         .font(.labelLgRegular)
                         .foregroundColor(.Text.default)
                 }
+                .contentShape(Rectangle())
                 .padding(.horizontal, Spacing.s3)
                 .frame(height: 44)
                 .xenditFieldBorder()
@@ -204,7 +205,6 @@ struct XenditPickerSheet: View {
                 if let iconUrl = option.iconUrl {
                     RemoteImage(url: URL(string: iconUrl))
                         .frame(width: 24, height: 24)
-                        .clipShape(Circle())
                 }
                 HStack(spacing: Spacing.s1) {
                     Text(option.label)
