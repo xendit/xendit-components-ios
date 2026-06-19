@@ -222,6 +222,7 @@ struct XenditPickerSheet: View {
                         .foregroundColor(XenditComponents.appearance.resolvedPrimary)
                 }
             }
+            .contentShape(Rectangle())
             .padding(.horizontal, Spacing.s4)
             .padding(.vertical, Spacing.s3)
         }
