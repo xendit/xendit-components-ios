@@ -47,13 +47,13 @@ struct ChannelFormView: View {
             }
         }
         .onAppear {
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName, hasSaveVariant: stateStore.channelVariants[channel.channelCode] != nil)
         }
         .onChange(of: channel.channelCode) { _ in
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName, hasSaveVariant: stateStore.channelVariants[channel.channelCode] != nil)
         }
         .onChange(of: session.allowSavePaymentMethod) { _ in
-            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName)
+            formPage = channel.parse(allowSavePaymentMethod: allowSavePaymentMethod, businessName: stateStore.businessName, hasSaveVariant: stateStore.channelVariants[channel.channelCode] != nil)
         }
     }
 

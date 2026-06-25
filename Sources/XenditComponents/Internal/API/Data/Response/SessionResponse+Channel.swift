@@ -245,7 +245,7 @@ extension SessionResponse.Channel.FormField.FieldType {
 }
 
 extension SessionResponse.Channel {
-    func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?, businessName: String? = nil) -> Form.Page {
+    func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?, businessName: String? = nil, hasSaveVariant: Bool = false) -> Form.Page {
         var sections: [Form.Section] = []
         var currentTitle: String? = nil
         var currentComponents: [Form.Component] = []
@@ -356,7 +356,7 @@ extension SessionResponse.Channel {
         }
 
         // Append save payment method checkbox at the bottom if applicable
-        if allowSave, allowSavePaymentMethod != .disabled {
+        if (allowSave || hasSaveVariant), allowSavePaymentMethod != .disabled {
             let isChecked = allowSavePaymentMethod == .forced
             let isEnabled = allowSavePaymentMethod == .optional
             let checkboxVariant: Form.CheckboxVariant
