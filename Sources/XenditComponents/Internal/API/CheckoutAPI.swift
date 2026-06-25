@@ -62,8 +62,7 @@ final class CheckoutAPI {
     ) -> AnyPublisher<APIResponse.Empty, APIClientError> {
         client.post(
             .path("/api/sessions/\(sessionAuthKey)/payment_requests/\(paymentRequestId)/simulate?components_version=\(sdkVersion)"),
-            json: ["channel_code": channelCode],
-            headers: [.custom("origin", "https://demo-store.xendit.co")]
+            json: ["channel_code": channelCode]
         )
     }
 
