@@ -26,8 +26,8 @@ extension CombinedChannelsResult {
     ///
     /// At submission time, resolve the effective channel from `variants` based on the user's
     /// save preference before calling `performSubmission`.
-    static func combining(_ channels: [SessionResponse.Channel]) -> CombinedChannelsResult {
-        guard !channels.isEmpty else {
+    static func combining(_ channels: [SessionResponse.Channel]?) -> CombinedChannelsResult {
+        guard let channels = channels, !channels.isEmpty else {
             return CombinedChannelsResult(channels: [], variants: [:])
         }
 

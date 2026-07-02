@@ -166,13 +166,13 @@ public final class XenditComponents: ObservableObject {
 
                 self.stateStore.rawSession = response.session
                 self.stateStore.session = response.session.toModel()
-                self.stateStore.businessName = response.business.name
-                self.stateStore.customer = response.customer.toModel()
-                let filtered = response.channels.filter { $0.pmType == .cards || $0.pmType == .qrCode || $0.pmType == .ewallet }
+                self.stateStore.businessName = response.business?.name
+                self.stateStore.customer = response.customer?.toModel()
+                let filtered = response.channels?.filter { $0.pmType == .cards || $0.pmType == .qrCode || $0.pmType == .ewallet }
                 let pairing = CombinedChannelsResult.combining(filtered)
                 self.stateStore.channels = pairing.channels
                 self.stateStore.channelVariants = pairing.variants
-                self.stateStore.channelUiGroups = response.channelUiGroups
+                self.stateStore.channelUiGroups = response.channelUiGroups ?? []
                 
                 switch response.session.status {
                 case.completed:
