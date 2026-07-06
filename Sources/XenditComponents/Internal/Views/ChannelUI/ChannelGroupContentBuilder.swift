@@ -10,6 +10,14 @@ import SwiftUI
 
 /// Maps a channel group to the appropriate inline content view.
 enum ChannelGroupContentBuilder {
+    /// Returns `true` for pmTypes that use an inline channel picker (PickerChannelGroupUI).
+    static func usesPicker(for pmType: SessionResponse.Channel.PaymentMethod?) -> Bool {
+        switch pmType {
+        case .qrCode, .ewallet, .virtualAccount, .bankTransfer, .directDebit, .overTheCounter: return true
+        default: return false
+        }
+    }
+    
     @ViewBuilder
     static func make(
         channels: [SessionResponse.Channel],
@@ -21,12 +29,6 @@ enum ChannelGroupContentBuilder {
         onChannelSelected: @escaping (SessionResponse.Channel) -> Void
     ) -> some View {
         switch channels.first?.pmType {
-        case .ewallet:
-            PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
-                LottieView(animation: .named("redirect_web_url", bundle: .module))
-                    .looping()
-                    .frame(width: 40, height: 40)
-            }
         case .qrCode:
             PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
                 LottieView(animation: .named("qr_scanner", bundle: .module))
@@ -43,7 +45,7 @@ enum ChannelGroupContentBuilder {
                     onPropertiesChanged: onPropertiesChanged
                 )
             }
-        case .virtualAccount, .bankTransfer, .directDebit, .overTheCounter:
+        case .ewallet, .virtualAccount, .bankTransfer, .directDebit, .overTheCounter:
             PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
                 LottieView(animation: .named("redirect_web_url", bundle: .module))
                     .looping()

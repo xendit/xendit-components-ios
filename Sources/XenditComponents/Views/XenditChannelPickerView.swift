@@ -92,14 +92,9 @@ private struct AccordionGroupView: View {
 
     private var isSingleChannel: Bool { channels.count == 1 }
 
-    /// `true` for multi-bank groups (eWallet, Virtual Account, Bank Transfer) that expand
-    /// inline to show a channel picker, rather than opening a bottom sheet.
+    /// `true` for groups that expand inline to show a channel picker, rather than opening a bottom sheet.
     private var isExpandableMultiChannel: Bool {
-        guard channels.count > 1 else { return false }
-        switch channels.first?.pmType {
-        case .ewallet, .virtualAccount, .bankTransfer: return true
-        default: return false
-        }
+        channels.count > 1 && ChannelGroupContentBuilder.usesPicker(for: channels.first?.pmType)
     }
 
     private var isSelected: Bool {
