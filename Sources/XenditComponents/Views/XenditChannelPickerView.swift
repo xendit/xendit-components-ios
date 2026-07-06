@@ -125,6 +125,9 @@ private struct AccordionGroupView: View {
         case .cards:        return "xdt_channel_card"
         case .ewallet:      return "xdt_channel_ewallet"
         case .qrCode:       return "xdt_channel_qr"
+        case .overTheCounter:       return "xdt_channel_over_counter"
+        case .bankTransfer, .virtualAccount:       return "xdt_channel_bank_transfer"
+        case .onlineBanking, .directDebit:       return "xdt_channel_online_banking"
         default:            return nil
         }
     }
@@ -160,12 +163,15 @@ private struct AccordionGroupView: View {
                     isMultiChannelExpanded = false
                 }
             } else {
+                // currentChannel was cleared — collapse unless we are the group that triggered it.
                 if stateStore.expandedGroupId != group.id {
                     isMultiChannelExpanded = false
                 }
             }
         }
         .onChange(of: stateStore.expandedGroupId) { activeId in
+            // Collapse this group when a different expandable group becomes active.
+            // Covers the nil→nil case where selectedChannelCode never changes.
             if isExpandableMultiChannel, activeId != group.id {
                 isMultiChannelExpanded = false
             }
@@ -271,6 +277,7 @@ private struct AccordionGroupView: View {
                 isManuallyCollapsed = true
                 stateStore.expandedGroupId = nil
             } else {
+                // Capture before mutating isMultiChannelExpanded — isSelected depends on it.
                 let hasChannelAlready = channels.contains { $0.channelCode == selectedChannelCode }
                 isMultiChannelExpanded = true
                 isManuallyCollapsed = false

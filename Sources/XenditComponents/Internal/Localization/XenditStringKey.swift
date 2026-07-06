@@ -66,6 +66,11 @@ enum LocalizationKey: String {
     case actionVaCopyAmount = "session::action_va.copy_amount"
     case actionVaCopyNumber = "session::action_va.copy_number"
     case actionVaVirtualAccountNumber = "session::action_va.virtual_account_number"
+    case actionVaMerchantName = "session::action_va.merchant_name"
+    case actionVaTransferTo = "session::action_va.transfer_to"
+    case actionVaExpiresAt = "session::action_va.expires_at"
+    case actionVaDone = "session::action_va.done"
+    case actionVaWaiting = "session::action_va.waiting_for_payment"
 
     // MARK: Channel Selection
 

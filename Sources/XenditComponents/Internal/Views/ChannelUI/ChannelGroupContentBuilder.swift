@@ -5,10 +5,10 @@
 //  Created by Ahmad X on 16/06/2026.
 //
 
+import Lottie
 import SwiftUI
 
 /// Maps a channel group to the appropriate inline content view.
-/// Add a new case here (and a new channel UI file) when a new channel type is introduced.
 enum ChannelGroupContentBuilder {
     @ViewBuilder
     static func make(
@@ -22,23 +22,17 @@ enum ChannelGroupContentBuilder {
     ) -> some View {
         switch channels.first?.pmType {
         case .ewallet:
-            EWalletChannelGroupUI(
-                channels: channels,
-                group: group,
-                selectedChannel: selectedChannel,
-                session: session,
-                stateStore: stateStore,
-                onPropertiesChanged: onPropertiesChanged,
-                onChannelSelected: onChannelSelected
-            )
+            PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
+                LottieView(animation: .named("redirect_web_url", bundle: .module))
+                    .looping()
+                    .frame(width: 40, height: 40)
+            }
         case .qrCode:
-            if let channel = selectedChannel ?? channels.first {
-                QrChannelGroupUI(
-                    channel: channel,
-                    session: session,
-                    stateStore: stateStore,
-                    onPropertiesChanged: onPropertiesChanged
-                )
+            PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
+                LottieView(animation: .named("qr_scanner", bundle: .module))
+                    .looping()
+                    .frame(width: 60, height: 60)
+                    .offset(y: -2)
             }
         case .cards:
             if let channel = selectedChannel ?? channels.first {
@@ -49,6 +43,12 @@ enum ChannelGroupContentBuilder {
                     onPropertiesChanged: onPropertiesChanged
                 )
             }
+        case .virtualAccount, .bankTransfer, .directDebit, .overTheCounter:
+            PickerChannelGroupUI(channels: channels, group: group, selectedChannel: selectedChannel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged, onChannelSelected: onChannelSelected) {
+                LottieView(animation: .named("redirect_web_url", bundle: .module))
+                    .looping()
+                    .frame(width: 40, height: 40)
+            }
         default:
             if let channel = selectedChannel ?? channels.first {
                 GenericChannelGroupUI(
@@ -57,6 +57,66 @@ enum ChannelGroupContentBuilder {
                     stateStore: stateStore,
                     onPropertiesChanged: onPropertiesChanged
                 )
+            }
+        }
+    }
+}
+
+// MARK: - Shared picker-based channel group UI
+
+struct PickerChannelGroupUI<Icon: View>: View {
+    let channels: [SessionResponse.Channel]
+    let group: SessionResponse.ChannelUIGroup
+    let selectedChannel: SessionResponse.Channel?
+    let session: Session
+    @ObservedObject var stateStore: SDKStateStore
+    let onPropertiesChanged: (ChannelProperties) -> Void
+    let onChannelSelected: (SessionResponse.Channel) -> Void
+    @ViewBuilder let icon: () -> Icon
+
+    var body: some View {
+        let strings = XenditStrings(locale: session.locale)
+        VStack(alignment: .leading, spacing: Spacing.s3) {
+            DropdownFieldView(
+                label: strings.string(for: .paymentMethodsPayWith),
+                placeholder: strings.string(
+                    for: .paymentMethodsSelectChannelPlaceholder,
+                    replacements: ["groupName": group.label]
+                ),
+                options: channels.map {
+                    DropdownFieldView.Option(
+                        label: $0.brandName,
+                        value: $0.channelCode,
+                        subtitle: nil,
+                        iconUrl: $0.brandLogoUrl.isEmpty ? nil : $0.brandLogoUrl
+                    )
+                },
+                value: Binding(
+                    get: { selectedChannel?.channelCode ?? "" },
+                    set: { code in
+                        if let ch = channels.first(where: { $0.channelCode == code }) {
+                            onChannelSelected(ch)
+                        }
+                    }
+                ),
+                isDisabled: channels.count == 1,
+                showIconDivider: true
+            )
+            if let channel = selectedChannel {
+                if hasFormContent(channel, session: session) {
+                    ChannelFormContent(channel: channel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged)
+                }
+                if let banner = channel.banner, !banner.imageUrl.isEmpty {
+                    ChannelBannerView(banner: banner)
+                }
+                if let instructions = channel.instructions, !instructions.isEmpty {
+                    ChannelInstructionsView(instructions: instructions, icon: icon)
+                }
+            }
+        }
+        .onAppear {
+            if channels.count == 1, selectedChannel == nil, let only = channels.first {
+                onChannelSelected(only)
             }
         }
     }
@@ -101,20 +161,47 @@ struct ChannelFormContent: View {
     }
 }
 
-// MARK: - Shared bullet-list instructions view (Cards, Generic)
+// MARK: - Shared instructions view with dynamic icon
 
-struct BulletInstructionsView: View {
+struct ChannelInstructionsView<Icon: View>: View {
     let instructions: [String]
+    @ViewBuilder let icon: () -> Icon
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(instructions, id: \.self) { instruction in
-                Text("• \(instruction)")
-                    .font(InterFont.captionRegular)
-                    .foregroundColor(XenditComponents.appearance.resolvedTextSecondary)
+        let a = XenditComponents.appearance
+        VStack(spacing: 0) {
+            DashedDivider(color: a.resolvedBorder)
+                .frame(height: 1)
+            HStack(alignment: .center, spacing: Spacing.s3) {
+                icon()
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(Array(instructions.enumerated()), id: \.offset) { index, instruction in
+                        Text(instruction)
+                            .font(index == 0 ? InterFont.labelSmBold : InterFont.captionRegular)
+                            .foregroundColor(index == 0 ? a.resolvedText : a.resolvedTextSecondary)
+                    }
+                }
+                Spacer()
             }
+            .padding(.vertical, Spacing.s2)
         }
-        .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Banner image between form and instructions
+
+struct ChannelBannerView: View {
+    let banner: SessionResponse.Channel.Banner
+
+    var body: some View {
+        let a = XenditComponents.appearance
+        let ratio = (banner.aspectRatio ?? 0) > 0 ? banner.aspectRatio : nil
+        RemoteImage(url: URL(string: banner.imageUrl), contentMode: .fill)
+            .frame(maxWidth: .infinity)
+            .frame(height: ratio == nil ? 72 : nil)
+            .aspectRatio(ratio.map { CGFloat($0) }, contentMode: .fill)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: a.resolvedRadius))
     }
 }
 

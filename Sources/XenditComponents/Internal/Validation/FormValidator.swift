@@ -184,7 +184,7 @@ struct FormValidator {
         sessionType: SessionResponse.Session.SessionType,
         showBillingDetails: Bool = false
     ) -> Bool {
-        let filteredFields = filterFormFields(fields, sessionType: sessionType, showBillingDetails: showBillingDetails)
+        let filteredFields = filterFormFields(fields, channelProperties: channelProperties, sessionType: sessionType, showBillingDetails: showBillingDetails)
         for field in filteredFields {
             let keys = field.channelProperty.keys
             for key in keys {
@@ -207,23 +207,35 @@ struct FormValidator {
 
 // MARK: - Channel Properties Helper
 
-func getChannelPropertyValue(_ properties: ChannelProperties, key: String) -> String? {
-    if let value = properties[key] {
-        return value
-    }
-    return nil
-}
-
-func filterFormFields(
-    _ fields: [SessionResponse.Channel.FormField],
-    sessionType: SessionResponse.Session.SessionType,
-    showBillingDetails: Bool
-) -> [SessionResponse.Channel.FormField] {
-    fields.filter { field in
-        if field.flags?.requireBillingInformation == true {
-            if !showBillingDetails { return false }
+extension FormValidator {
+    static func evaluateDisplayIf(_ conditions: [[String]]?, channelProperties: ChannelProperties) -> Bool {
+        guard let conditions, !conditions.isEmpty else { return true }
+        for condition in conditions {
+            guard condition.count >= 3 else { continue }
+            let actual = channelProperties[condition[0]] ?? ""
+            switch condition[1] {
+            case "equals":     if actual != condition[2] { return false }
+            case "not_equals": if actual == condition[2] { return false }
+            default: break
+            }
         }
         return true
+    }
+    
+    private static func getChannelPropertyValue(_ properties: ChannelProperties, key: String) -> String? {
+        properties[key]
+    }
+    
+    private static func filterFormFields(
+        _ fields: [SessionResponse.Channel.FormField],
+        channelProperties: ChannelProperties = [:],
+        sessionType: SessionResponse.Session.SessionType,
+        showBillingDetails: Bool
+    ) -> [SessionResponse.Channel.FormField] {
+        fields.filter { field in
+            if field.flags?.requireBillingInformation == true, !showBillingDetails { return false }
+            return evaluateDisplayIf(field.displayIf, channelProperties: channelProperties)
+        }
     }
 }
 
@@ -232,6 +244,28 @@ func filterFormFields(
 typealias ChannelProperties = [String: String]
 
 // MARK: - Credit Card Validation
+
+extension FormValidator {
+    static func validateCreditCard(_ input: String) -> Bool {
+        let digits = input.filter { $0.isNumber }
+        return passesLuhn(digits)
+    }
+
+    private static func passesLuhn(_ digits: String) -> Bool {
+        var total = 0
+        let reversed = digits.reversed()
+        for (offset, character) in reversed.enumerated() {
+            guard let digit = character.wholeNumberValue else { return false }
+            if offset % 2 == 1 {
+                let doubled = digit * 2
+                total += doubled > 9 ? doubled - 9 : doubled
+            } else {
+                total += digit
+            }
+        }
+        return total % 10 == 0
+    }
+}
 
 /// Identifies the card network based on IIN/BIN prefix and digit length.
 enum CreditCardType: String {
@@ -262,40 +296,4 @@ enum CreditCardType: String {
         default:          return nil   // Discover, Diners Club — no bundled asset yet
         }
     }
-}
-/// Validates a credit card number string using the Luhn algorithm.
-/// - Parameter input: Raw card number string; whitespace and dashes are stripped before processing.
-/// - Returns: `true` if the number passes the Luhn check.
-func validateCreditCard(_ input: String) -> Bool {
-    let digits = input.filter { $0.isNumber }
-    return passesLuhn(digits)
-}
-
-// MARK: - Luhn algorithm
-
-/// Returns `true` when the digit string satisfies the Luhn (Mod 10) checksum.
-///
-/// Steps:
-///   1. Convert each character to its numeric value.
-///   2. From the rightmost digit, double every second digit (positions 2, 4, 6, …).
-///   3. If doubling produces a value ≥ 10, subtract 9 (equivalent to summing the two digits).
-///   4. Sum all values; the card is valid when the total is divisible by 10.
-private func passesLuhn(_ digits: String) -> Bool {
-    var total = 0
-    let reversed = digits.reversed()
-
-    for (offset, character) in reversed.enumerated() {
-        guard let digit = character.wholeNumberValue else { return false }
-
-        if offset % 2 == 1 {
-            // Every second digit from the right — double it.
-            let doubled = digit * 2
-            // If doubling overshoots 9, subtract 9 to get the digit-sum equivalent.
-            total += doubled > 9 ? doubled - 9 : doubled
-        } else {
-            total += digit
-        }
-    }
-
-    return total % 10 == 0
 }

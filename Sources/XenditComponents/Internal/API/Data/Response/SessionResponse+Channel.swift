@@ -314,7 +314,8 @@ extension SessionResponse.Channel {
                 initialValue: field.initialValue,
                 channelProperty: mapChannelProperty(field.channelProperty),
                 flags: Form.Flags(requireBillingInformation: field.flags?.requireBillingInformation),
-                join: field.join ?? false
+                join: field.join ?? false,
+                displayIf: field.displayIf
             )
             let component = Form.Component.inputField(field: inputField)
 
@@ -375,7 +376,8 @@ extension SessionResponse.Channel {
                 initialValue: nil,
                 channelProperty: .single("allow_save_payment_method"),
                 flags: Form.Flags(requireBillingInformation: nil),
-                join: false
+                join: false,
+                displayIf: nil
             )
             sections.append(Form.Section(
                 id: "section_save_payment_method",
@@ -429,7 +431,8 @@ extension SessionResponse.Channel {
         return .inputField(field: Form.InputField(
             id: f.id, type: f.type, label: f.label, placeholder: f.placeholder,
             required: f.required, isDisabled: f.isDisabled, initialValue: f.initialValue,
-            channelProperty: f.channelProperty, flags: f.flags, join: true
+            channelProperty: f.channelProperty, flags: f.flags, join: true,
+            displayIf: f.displayIf
         ))
     }
 }

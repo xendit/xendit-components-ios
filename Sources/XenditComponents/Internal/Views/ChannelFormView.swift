@@ -241,10 +241,10 @@ struct ChannelFormView: View {
         if case .installmentPlan = field.type {
             guard let plans = stateStore.installmentPlans, !plans.isEmpty else { return false }
         }
-        if field.flags.requireBillingInformation == true && !showBillingDetails { //NOTE: This should be handle in the payment type object
+        if field.flags.requireBillingInformation == true && !showBillingDetails {
             return false
         }
-        return true
+        return FormValidator.evaluateDisplayIf(field.displayIf, channelProperties: channelProperties)
     }
 
     // MARK: - Field view with binding
@@ -300,6 +300,13 @@ struct ChannelFormView: View {
                 }
             }
         )
+        .onAppear {
+            guard let initial = field.initialValue, !initial.isEmpty else { return }
+            if case .checkbox = field.type { return }
+            guard let key = keys.first, self.channelProperties[key] == nil else { return }
+            fieldMapper.setValue(initial, into: &self.channelProperties, keys: keys)
+            self.onPropertiesChanged?(self.channelProperties)
+        }
     }
 
     private func mapper(for field: Form.InputField) -> FieldPropertyMapper {

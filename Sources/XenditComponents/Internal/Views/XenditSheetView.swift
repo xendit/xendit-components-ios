@@ -113,7 +113,49 @@ struct XenditSheetView: View {
             footerView
         }
         .fullScreenCover(item: $stateStore.activeAction) { action in
-            if action.type == .redirectCustomer {
+            if action.isVirtualAccount {
+                VirtualAccountActionView(
+                    action: action,
+                    businessName: stateStore.businessName,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    amount: stateStore.session?.amount,
+                    currency: stateStore.session?.currency,
+                    locale: stateStore.session?.locale ?? "en",
+                    showSimulateButton: sdk.parsedKey?.hostId != "pl",
+                    brandColor: stateStore.currentChannel?.brandColor ?? "",
+                    onDismiss: {
+                        resumePolling()
+                    },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in resumePolling() },
+                                  receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
+                )
+            } else if action.isBarcode {
+                XenditBarcodeView(
+                    action: action,
+                    businessName: stateStore.businessName,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    amount: stateStore.session?.amount,
+                    currency: stateStore.session?.currency,
+                    locale: stateStore.session?.locale ?? "en",
+                    showSimulateButton: sdk.parsedKey?.hostId != "pl",
+                    brandColor: stateStore.currentChannel?.brandColor ?? "",
+                    onDismiss: {
+                        resumePolling()
+                    },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in resumePolling() },
+                                  receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
+                )
+            } else if action.type == .redirectCustomer {
                 XenditActionWebView(urlString: action.value, strings: strings) {
                     resumePolling()
                 }

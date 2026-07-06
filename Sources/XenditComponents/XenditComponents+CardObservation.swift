@@ -50,7 +50,7 @@ extension XenditComponents {
 
         fetchCardInfo(sessionAuthKey: sessionAuthKey, encryptedCardNumber: encryptedCardNumber)
 
-        if stateStore.session != nil, validateCreditCard(cleanNumber) {
+        if stateStore.session != nil, FormValidator.validateCreditCard(cleanNumber) {
             fetchInstallmentPlans(
                 sessionAuthKey: sessionAuthKey,
                 encryptedCardNumber: encryptedCardNumber

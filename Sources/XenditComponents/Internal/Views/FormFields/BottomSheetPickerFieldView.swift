@@ -78,11 +78,13 @@ struct BottomSheetPickerFieldView: View {
                         .foregroundColor(value.isEmpty
                             ? XenditComponents.appearance.resolvedTextPlaceholder
                             : XenditComponents.appearance.resolvedText)
-                    
+
                     Spacer()
-                    Image(systemName: "chevron.down")
-                        .font(.labelLgRegular)
-                        .foregroundColor(.Text.default)
+                    if !isDisabled {
+                        Image(systemName: "chevron.down")
+                            .font(.labelLgRegular)
+                            .foregroundColor(.Text.default)
+                    }
                 }
                 .contentShape(Rectangle())
                 .padding(.horizontal, Spacing.s3)
