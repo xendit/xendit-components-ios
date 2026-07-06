@@ -20,6 +20,7 @@ struct XenditBarcodeView: View {
     let onDismiss: () -> Void
     let onPaymentMade: () -> Void
 
+    @State private var isSharing = false
     @State private var toastMessage: String?
 
     private var strings: XenditStrings { XenditStrings(locale: locale) }
@@ -55,6 +56,11 @@ struct XenditBarcodeView: View {
             .padding(.vertical, Spacing.s6)
         }
         .background(a.resolvedBackground)
+        .sheet(isPresented: $isSharing) {
+            if let img = barcodeImage {
+                ActivityViewController(activityItems: [img])
+            }
+        }
         .overlay(toastOverlay, alignment: .bottom)
     }
 
@@ -258,11 +264,10 @@ struct XenditBarcodeView: View {
     // MARK: - Actions
 
     private func downloadBarcode() {
-        guard let img = barcodeImage else {
+        guard barcodeImage != nil else {
             withAnimation { toastMessage = strings.string(for: .actionQrCodeUnableToGenerate) }
             return
         }
-        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
-        withAnimation { toastMessage = strings.string(for: .actionQrCodeSaved) }
+        isSharing = true
     }
 }
