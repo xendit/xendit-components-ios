@@ -142,10 +142,6 @@ public final class XenditComponents: ObservableObject {
             return Fail(error: error).eraseToAnyPublisher()
         }
 
-        #if DEBUG
-        Logger.setup(prefix: "XenditComponents")
-        #endif
-
         parsedKey = key
         APIClient.shared.settings.apiUrl = key.baseURL.absoluteString
 

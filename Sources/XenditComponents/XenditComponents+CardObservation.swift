@@ -44,7 +44,6 @@ extension XenditComponents {
                 sessionId: sessionAuthKey
             )
         } catch {
-            Logger.warning("Failed to encrypt card number: \(error)")
             return
         }
 
