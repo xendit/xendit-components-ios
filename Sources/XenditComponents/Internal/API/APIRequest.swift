@@ -20,25 +20,30 @@ struct APIRequest {
         self.parameter = parameter
     }
 
+    /// Returns nil when a valid URL cannot be formed from the endpoint or query
+    /// parameters. Never traps: the SDK must not crash its host app over
+    /// malformed server-provided strings.
     func getURLRequest(
         config: APIClient.Config,
         settings: APIClient.Settings,
         token: String? = nil,
         options: APIClient.Options = .init()
-    ) -> URLRequest {
+    ) -> URLRequest? {
         // Build URL
-        var requestUrl = endPoint.getUrl(config: config, settings: settings)
+        guard var requestUrl = endPoint.getUrl(config: config, settings: settings) else {
+            return nil
+        }
         if case let .query(items) = parameter {
-            var urlComponents = URLComponents(string: requestUrl.absoluteString)!
-            let queryItems = items.compactMap {
+            guard var urlComponents = URLComponents(string: requestUrl.absoluteString) else {
+                return nil
+            }
+            urlComponents.queryItems = items.compactMap {
                 URLQueryItem(name: $0.key, value: "\($0.value)")
             }
-            urlComponents.queryItems = queryItems
-            if let urlWithQueries = urlComponents.url {
-                requestUrl = urlWithQueries
-            } else {
-                fatalError("Cannot convert query parameters: \(items)")
+            guard let urlWithQueries = urlComponents.url else {
+                return nil
             }
+            requestUrl = urlWithQueries
         }
 
         // Create request
@@ -107,7 +112,7 @@ extension APIRequest {
         case url(URL)
         case urlString(String)
 
-        func getUrl(config: APIClient.Config, settings: APIClient.Settings) -> URL {
+        func getUrl(config: APIClient.Config, settings: APIClient.Settings) -> URL? {
             let version: String = {
                 switch self {
                 case let .v(version, _):
@@ -120,18 +125,11 @@ extension APIRequest {
 
             switch self {
             case let .path(path), let .v(_, path):
-                var urlString = settings.apiUrl + version + path
-                guard let url = URL(string: urlString) else {
-                    fatalError("Something wrong with URL: \(path)")
-                }
-                return url
+                return URL(string: settings.apiUrl + version + path)
             case let .url(url):
                 return url
             case let .urlString(urlString):
-                guard let url = URL(string: urlString) else {
-                    fatalError("Something wrong with URL: \(urlString)")
-                }
-                return url
+                return URL(string: urlString)
             }
         }
     }
@@ -185,9 +183,7 @@ extension Dictionary where Key == String, Value == Any {
     var jsonData: Data? {
         do {
             return try JSONSerialization.data(withJSONObject: self, options: [])
-        } catch {
-            Logger.warning("Failed to convert to JSON, error: \(error.localizedDescription)")
-        }
+        } catch {}
         return nil
     }
 }
