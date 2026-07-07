@@ -45,9 +45,9 @@ struct CreditCardNumberFieldView: View {
                     keyboardType: .numberPad,
                     uiFont: XenditComponents.appearance.fontFamily?.regular,
                     characterFilter: \.isNumber,
-                    maxLength: 16,
+                    maxLength: 19,
                     transform: { text in
-                        let digits = String(text.filter(\.isNumber).prefix(16))
+                        let digits = String(text.filter(\.isNumber).prefix(19))
                         return (display: formatCardNumber(digits), stored: digits)
                     },
                     onChanged: onChanged,
