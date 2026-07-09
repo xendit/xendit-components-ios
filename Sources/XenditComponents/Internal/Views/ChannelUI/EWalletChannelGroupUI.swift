@@ -102,9 +102,11 @@ struct EwalletInstructionsView: View {
                 .frame(height: 1)
             HStack(alignment: .center, spacing: Spacing.s3) {
                 Image("xdt_icon_phone", bundle: .module)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 32, height: 40)
+                    .foregroundColor(a.resolvedText)
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(Array(instructions.enumerated()), id: \.offset) { index, instruction in
                         Text(instruction)
