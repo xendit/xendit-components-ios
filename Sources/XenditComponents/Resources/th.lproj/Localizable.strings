@@ -142,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "ไม่สามารถใช้ได้กับการชำระเงินนี้";
 "session::payment_methods.digital_wallet_or" = "";
 "session::payment_methods.header" = "วิธีการชำระเงิน";
+"session::payment_methods.header_2" = "เลือกวิธีการชำระเงิน";
 "session::payment_methods.no_available_payment_methods" = "";
 "session::payment_methods.no_available_payment_methods_subtext" = "";
 "session::payment_methods.pay_with" = "ชำระเงินด้วย";

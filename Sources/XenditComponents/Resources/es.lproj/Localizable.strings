@@ -142,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "";
 "session::payment_methods.digital_wallet_or" = "";
 "session::payment_methods.header" = "";
+"session::payment_methods.header_2" = "Seleccionar método de pago";
 "session::payment_methods.no_available_payment_methods" = "";
 "session::payment_methods.no_available_payment_methods_subtext" = "";
 "session::payment_methods.pay_with" = "";
