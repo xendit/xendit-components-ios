@@ -18,9 +18,15 @@ struct CreditCardNumberFieldView: View {
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
-    // Brands to show when the field is empty (no card number entered yet).
+    private var hasMatchingBrand: Bool {
+        cardType.map { type in
+            brands.contains { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }
+        } ?? false
+    }
+
+    // Shown until a matching brand is detected; then the matched brand takes over.
     private var visibleBrands: [Form.CardBrand] {
-        guard value.isEmpty else { return [] }
+        guard !hasMatchingBrand else { return [] }
         return brands.filter { !$0.logoUrl.isEmpty || CreditCardType(rawValue: $0.name)?.localAssetName != nil }
     }
 
@@ -29,9 +35,6 @@ struct CreditCardNumberFieldView: View {
         if !visibleBrands.isEmpty {
             return CGFloat(visibleBrands.count) * 42 + CGFloat(visibleBrands.count - 1) * 4 + 10
         }
-        let hasMatchingBrand = cardType.map { type in
-            brands.contains { $0.name.caseInsensitiveCompare(type.rawValue) == .orderedSame }
-        } ?? false
         return hasMatchingBrand ? 46 : 0
     }
 

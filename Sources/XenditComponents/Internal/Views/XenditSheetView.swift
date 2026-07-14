@@ -114,9 +114,12 @@ struct XenditSheetView: View {
         }
         .fullScreenCover(item: $stateStore.activeAction) { action in
             if action.type == .redirectCustomer {
-                XenditActionWebView(urlString: action.value, strings: strings) {
-                    resumePolling()
-                }
+                XenditActionWebView(
+                    urlString: action.value,
+                    strings: strings,
+                    onDismiss: { dismissAction() },
+                    onChallengeCompleted: { resumePolling() }
+                )
             } else if action.type == .presentToCustomer {
                 XenditQrView(
                     action: action,
@@ -125,9 +128,7 @@ struct XenditSheetView: View {
                     amount: stateStore.session?.amount,
                     currency: stateStore.session?.currency,
                     locale: stateStore.session?.locale ?? "en",
-                    onDismiss: {
-                        resumePolling()
-                    },
+                    onDismiss: { dismissAction() },
                     onPaymentMade: {
                         sdk.simulatePaymentIfNeeded()
                             .sink(receiveCompletion: { _ in
@@ -255,12 +256,17 @@ struct XenditSheetView: View {
     }
     
     private func resumePolling() {
-        stateStore.activeAction = nil
-        stateStore.isSubmitting = false
-        if !sdk.poller.isPolling {
+        dismissAction()
+        if !sdk.poller.isPolling || !stateStore.isPolling {
             stateStore.isPolling = true
         }
         sdk.poller.stopPolling()
         sdk.poller.resumePolling()
+    }
+    
+    private func dismissAction() {
+        stateStore.activeAction = nil
+        stateStore.isSubmitting = false
+        stateStore.isPolling = false
     }
 }

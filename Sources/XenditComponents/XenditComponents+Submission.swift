@@ -224,7 +224,6 @@ extension XenditComponents {
 
     private func handlePollResult(_ result: PollResult) {
         dispatch(.actionEnd)
-        stateStore.awaitingPaymentAction = nil
         let locale = stateStore.session?.locale ?? "en"
         let strings = XenditStrings(locale: locale)
 
