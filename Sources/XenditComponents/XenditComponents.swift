@@ -186,6 +186,7 @@ public final class XenditComponents: ObservableObject {
                 self.stateStore.channels = pairing.channels
                 self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups ?? []
+                self.stateStore.phoneCountryCode = response.session.country
 
                 self.applyMerchantPreferences()
 
