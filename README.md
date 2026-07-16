@@ -112,6 +112,54 @@ appearance.borderRadius = 12;
 
 The `components_sdk_key` is obtained from the [Create Session](https://developers.xendit.co) API response on your backend.
 
+## Payment Method Preference
+
+Merchants can control which payment methods are shown in the payment sheet, and in what order, by passing `merchantPreferredPaymentMethod` to `present(from:componentsSdkKey:merchantPreferredPaymentMethod:onResult:)`.
+
+When provided, only the listed types are shown and they appear in the specified order. Pass `nil` (the default) to show all available payment methods in the server's default order.
+
+The following values are supported:
+
+- `.cards`
+- `.ewallet`
+- `.qrCode`
+
+### Swift
+
+```swift
+XenditComponents.present(
+    from: viewController,
+    componentsSdkKey: "<your_components_sdk_key>",
+    merchantPreferredPaymentMethod: [.ewallet, .cards]
+) { result in
+    switch result {
+    case .success(let id, _): print("Paid: \(id)")
+    case .failed(let error):  print("Error: \(error.message)")
+    case .canceled, .expired, .dismissed: break
+    }
+}
+```
+
+### Objective-C
+
+```objc
+[XDTComponents presentFromViewController:self
+                       componentsSdkKey:@"<your_components_sdk_key>"
+          merchantPreferredPaymentMethod:@[@(XDTPaymentMethodEwallet), @(XDTPaymentMethodCards)]
+                               onResult:^(XDTPaymentResult *result) {
+    switch (result.status) {
+        case XDTPaymentStatusSuccess:
+            NSLog(@"Paid: %@", result.paymentRequestId);
+            break;
+        case XDTPaymentStatusFailed:
+            NSLog(@"Error: %@", result.error.message);
+            break;
+        default:
+            break;
+    }
+}];
+```
+
 ## Appearance Customization
 
 Use `XenditAppearance` to match the payment sheet to your brand. All properties are optional — any you omit fall back to the SDK's built-in defaults.

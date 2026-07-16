@@ -115,6 +115,17 @@ private struct AccordionGroupView: View {
         isSingleChannel ? channels.first : selectedChannel
     }
 
+    private var isGroupDisabled: Bool {
+        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        return channels.allSatisfy { !$0.isInAmountRange(for: sessionType, amount: session.amount) }
+    }
+
+    private var groupDisabledReason: String? {
+        guard isGroupDisabled, let first = channels.first else { return nil }
+        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        return first.amountDisabledReason(for: sessionType, amount: session.amount, locale: stateStore.session?.locale ?? "en")
+    }
+    
     private var shouldBeOpen: Bool {
         guard !isManuallyCollapsed else { return false }
         return isExpandableMultiChannel ? (isMultiChannelExpanded || isSelected) : isSelected
@@ -176,6 +187,7 @@ private struct AccordionGroupView: View {
                 channels: channels,
                 session: session,
                 selectedChannelCode: selectedChannelCode,
+                locale: stateStore.session?.locale ?? "en",
                 onChannelSelected: { channel in
                     onChannelSelected?(channel)
                     showChannelPicker = false
@@ -221,18 +233,26 @@ private struct AccordionGroupView: View {
                                 ? XenditComponents.appearance.resolvedPrimary
                                 : XenditComponents.appearance.resolvedText
                         )
+                    if let reason = groupDisabledReason {
+                        Text(reason)
+                            .font(.labelMdRegular)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()
 
-                Image(systemName: shouldBeOpen ? "chevron.up" : "chevron.down")
-                    .font(.subheadline)
-                    .foregroundColor(XenditComponents.appearance.resolvedText)
+                if !isGroupDisabled {
+                    Image(systemName: shouldBeOpen ? "chevron.up" : "chevron.down")
+                        .font(.subheadline)
+                        .foregroundColor(XenditComponents.appearance.resolvedText)
+                }
             }
             .padding(.horizontal, Spacing.s4)
             .padding(.top, Spacing.s6)
             .padding(.bottom, isLastInGroup ? Spacing.s6 : 32)
             .contentShape(Rectangle())
+            .opacity(isGroupDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
     }
@@ -259,6 +279,7 @@ private struct AccordionGroupView: View {
     // MARK: Actions
 
     private func handleHeaderTap() {
+        guard !isGroupDisabled else { return }
         if isSingleChannel {
             if isSelected {
                 isManuallyCollapsed.toggle()
@@ -292,6 +313,7 @@ private struct ChannelPickerSheet: View {
     let channels: [SessionResponse.Channel]
     let session: Session
     let selectedChannelCode: String?
+    let locale: String
     var onChannelSelected: ((SessionResponse.Channel) -> Void)?
 
     var body: some View {
@@ -312,7 +334,8 @@ private struct ChannelPickerSheet: View {
     private func channelRow(_ channel: SessionResponse.Channel) -> some View {
         let isSelected = channel.channelCode == selectedChannelCode
         let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
-        let isDisabled = !channel.isInAmountRange(for: sessionType, amount: session.amount)
+        let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: locale)
+        let isDisabled = reason != nil
 
         return Button(action: {
             guard !isDisabled else { return }
@@ -326,20 +349,28 @@ private struct ChannelPickerSheet: View {
                 }
                 .frame(width: 40, height: 40)
                 .cornerRadius(6)
+                .opacity(isDisabled ? 0.5 : 1.0)
 
-                Text(channel.brandName)
-                    .font(InterFont.bodyMd)
-                    .foregroundColor(isDisabled ? .secondary : .primary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(channel.brandName)
+                        .font(.bodyMd)
+                        .foregroundColor(isDisabled ? .secondary : .primary)
+                    if let reason {
+                        Text(reason)
+                            .font(.labelSmRegular)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
 
                 Spacer()
 
-                if isSelected {
+                if isSelected && !isDisabled {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(XenditComponents.appearance.resolvedPrimary)
                 }
             }
             .padding(.vertical, 12)
-            .opacity(isDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)

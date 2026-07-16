@@ -8,6 +8,17 @@
 import Foundation
 import UIKit
 
+// MARK: - XDTPaymentMethod
+
+/// Payment method types used to filter and order the channel picker from Objective-C.
+/// Swift callers should use `XenditPaymentMethod` directly.
+@objc(XDTPaymentMethod)
+public enum XDTPaymentMethod: Int {
+    case cards
+    case ewallet
+    case qrCode
+}
+
 // MARK: - XDTComponents
 
 /// Objective-C entry point for the Xendit Components iOS SDK.
@@ -83,6 +94,39 @@ public final class XDTComponents: NSObject {
             XenditComponents.present(
                 from: viewController,
                 componentsSdkKey: componentsSdkKey
+            ) { result in
+                onResult(XDTPaymentResult(swiftResult: result))
+            }
+        }
+    }
+
+    /// Presents the Xendit payment sheet, restricting and ordering payment methods by preference.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller from which to present the sheet.
+    ///   - componentsSdkKey: Session-scoped key obtained from your backend.
+    ///   - merchantPreferredPaymentMethod: Payment method types to show, in the desired display order.
+    ///     Pass an empty array or omit this overload to show all available methods.
+    ///   - onResult: Completion block invoked with the final payment outcome.
+    @objc public static func presentFromViewController(
+        _ viewController: UIViewController,
+        componentsSdkKey: String,
+        merchantPreferredPaymentMethod: [Int],
+        onResult: @escaping (XDTPaymentResult) -> Void
+    ) {
+        let preferred: [XenditPaymentMethod] = merchantPreferredPaymentMethod.compactMap {
+            switch XDTPaymentMethod(rawValue: $0) {
+            case .cards:          return .cards
+            case .ewallet:        return .ewallet
+            case .qrCode:         return .qrCode
+            case nil:             return nil
+            }
+        }
+        Task { @MainActor in
+            XenditComponents.present(
+                from: viewController,
+                componentsSdkKey: componentsSdkKey,
+                merchantPreferredPaymentMethod: preferred.isEmpty ? nil : preferred
             ) { result in
                 onResult(XDTPaymentResult(swiftResult: result))
             }

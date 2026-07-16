@@ -68,12 +68,15 @@ struct EWalletChannelGroupUI: View {
     // MARK: - Helpers
 
     private var ewalletPickerOptions: [DropdownFieldView.Option] {
-        channels.map {
-            DropdownFieldView.Option(
-                label: $0.brandName,
-                value: $0.channelCode,
-                subtitle: nil,
-                iconUrl: $0.brandLogoUrl.isEmpty ? nil : $0.brandLogoUrl
+        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        return channels.map { channel in
+            let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: session.locale)
+            return DropdownFieldView.Option(
+                label: channel.brandName,
+                value: channel.channelCode,
+                subtitle: reason,
+                iconUrl: channel.brandLogoUrl.isEmpty ? nil : channel.brandLogoUrl,
+                isDisabled: reason != nil
             )
         }
     }

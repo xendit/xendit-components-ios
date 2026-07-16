@@ -48,6 +48,7 @@ struct BottomSheetPickerFieldView: View {
         let subtitle: String?
         let value: String
         var iconUrl: String? = nil
+        var isDisabled: Bool = false
     }
 
     // MARK: - Body
@@ -78,11 +79,13 @@ struct BottomSheetPickerFieldView: View {
                         .foregroundColor(value.isEmpty
                             ? XenditComponents.appearance.resolvedTextPlaceholder
                             : XenditComponents.appearance.resolvedText)
-                    
+
                     Spacer()
-                    Image(systemName: "chevron.down")
-                        .font(.labelLgRegular)
-                        .foregroundColor(.Text.default)
+                    if !isDisabled {
+                        Image(systemName: "chevron.down")
+                            .font(.labelLgRegular)
+                            .foregroundColor(.Text.default)
+                    }
                 }
                 .contentShape(Rectangle())
                 .padding(.horizontal, Spacing.s3)
@@ -198,6 +201,7 @@ struct XenditPickerSheet: View {
     private func optionRow(_ option: BottomSheetPickerFieldView.PickerOption) -> some View {
         let isSelected = option.value == value
         return Button {
+            guard !option.isDisabled else { return }
             onSelected(option.value)
             dismiss()
         } label: {
@@ -205,19 +209,21 @@ struct XenditPickerSheet: View {
                 if let iconUrl = option.iconUrl {
                     RemoteImage(url: URL(string: iconUrl))
                         .frame(width: 24, height: 24)
+                        .opacity(option.isDisabled ? 0.5 : 1.0)
                 }
-                HStack(spacing: Spacing.s1) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(option.label)
                         .font(.labelLgRegular)
-                        .foregroundColor(.Text.default)
+                        .foregroundColor(option.isDisabled ? .secondary : .Text.default)
                     if let subtitle = option.subtitle {
                         Text(subtitle)
-                            .font(.labelMdRegular)
+                            .font(.labelSmRegular)
                             .foregroundColor(.Text.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 Spacer()
-                if isSelected {
+                if isSelected && !option.isDisabled {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(XenditComponents.appearance.resolvedPrimary)
                 }
@@ -227,6 +233,7 @@ struct XenditPickerSheet: View {
             .padding(.vertical, Spacing.s3)
         }
         .buttonStyle(.plain)
+        .disabled(option.isDisabled)
     }
 }
 

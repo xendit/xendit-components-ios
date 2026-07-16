@@ -24,6 +24,7 @@ struct DropdownFieldView: View {
         let value: String
         let subtitle: String?
         var iconUrl: String? = nil
+        var isDisabled: Bool = false
     }
 
     var body: some View {
@@ -35,7 +36,8 @@ struct DropdownFieldView: View {
                     label: $0.label,
                     subtitle: $0.subtitle,
                     value: $0.value,
-                    iconUrl: $0.iconUrl
+                    iconUrl: $0.iconUrl,
+                    isDisabled: $0.isDisabled
                 )
             },
             value: $value,

@@ -443,6 +443,15 @@ extension SessionResponse.Channel {
         if let max = maxAmount, amount > max { return false }
         return true
     }
+    
+    func amountDisabledReason(for sessionType: SessionResponse.Session.SessionType, amount: Decimal, locale: String) -> String? {
+        guard !isInAmountRange(for: sessionType, amount: amount) else { return nil }
+        let strings = XenditStrings(locale: locale)
+        if let min = minAmount, amount < min {
+            return strings.string(for: .paymentMethodsChannelDisabledAmountTooSmall)
+        }
+        return strings.string(for: .paymentMethodsChannelDisabledAmountTooLarge)
+    }
 }
 
 // MARK: - Banner
