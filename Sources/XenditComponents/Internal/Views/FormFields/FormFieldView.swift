@@ -205,14 +205,15 @@ struct FormFieldView: View {
                 )
             }
 
-        case .checkbox(let isChecked, let isEnabled):
+        case .checkbox(let isChecked, let isEnabled, let variant):
             CheckboxFieldView(
                 isChecked: Binding(
                     get: { value == "true" },
                     set: { value = $0 ? "true" : "false"; handleChanged() }
                 ),
                 isEnabled: isEnabled,
-                locale: locale
+                locale: locale,
+                variant: variant
             )
             .onAppear {
                 // Initialise from the parsed isChecked state if not yet set

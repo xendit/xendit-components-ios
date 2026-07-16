@@ -109,10 +109,7 @@ final class SessionPoller {
             return .sessionExpired
         case .canceled:
             return .sessionCanceled
-        case .active:
-            break
-        case .unknown:
-            // Unknown session status — continue polling until a known terminal state is reached.
+        case .active, .pending, .unknown:
             break
         }
 
@@ -122,8 +119,10 @@ final class SessionPoller {
                 return .paymentRequestCreated(id: pr.paymentRequestId)
             case .failed, .canceled, .expired:
                 return .paymentRequestFailed(id: pr.paymentRequestId, failureCode: pr.failureCode)
-            case .requiresAction, .unknown:
+            case .unknown:
                 return .requiresAction
+            case .requiresAction, .pending:
+                break
             }
         }
 
@@ -133,8 +132,10 @@ final class SessionPoller {
                 return .paymentTokenCreated(id: pt.paymentTokenId)
             case .failed, .canceled, .expired:
                 return .paymentTokenFailed(id: pt.paymentTokenId, failureCode: pt.failureCode)
-            case .requiresAction, .pending, .unknown:
+            case .unknown:
                 return .requiresAction
+            case .requiresAction, .pending:
+                break
             }
         }
 

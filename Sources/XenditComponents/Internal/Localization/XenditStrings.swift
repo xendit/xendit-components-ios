@@ -20,6 +20,13 @@ struct XenditStrings {
         return localize(key.rawValue, replacements: replacements)
     }
 
+    func ewalletSaveCheckboxLabel(brandName: String, businessName: String) -> String {
+        return string(for: .paymentEwalletSaveCheckboxLabel, replacements: [
+            "brandName": brandName,
+            "businessName": businessName
+        ])
+    }
+
     /// Returns the localized validation message for a given validation code, or `nil` when no
     /// matching key exists in the strings file (e.g. a server-supplied regex error message).
     func validationMessage(forCode code: String, fieldLabel: String) -> String? {

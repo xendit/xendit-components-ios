@@ -54,6 +54,17 @@ final class CheckoutAPI {
             json: query.json
         )
     }
+    
+    func simulatePayment(
+        sessionAuthKey: String,
+        paymentRequestId: String,
+        channelCode: String
+    ) -> AnyPublisher<APIResponse.Empty, APIClientError> {
+        client.post(
+            .path("/api/sessions/\(sessionAuthKey)/payment_requests/\(paymentRequestId)/simulate?components_version=\(sdkVersion)"),
+            json: ["channel_code": channelCode]
+        )
+    }
 
     //NOTE: Fetch this when full PAN only
     func getPaymentOptions(sessionAuthKey: String, query: PaymentOptionsQuery) -> AnyPublisher<PaymentOptionsResponse, APIClientError> {

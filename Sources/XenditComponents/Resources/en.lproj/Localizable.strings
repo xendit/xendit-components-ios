@@ -125,6 +125,7 @@
 "session::page_title.save" = "Add payment method at {{merchantName}}";
 "session::payment.save_checkbox_label" = "Save card information for future use";
 "session::payment_items.description" = "Note:";
+"session::payment.ewallet_save_checkbox_label" = "Link {{brandName}} to {{businessName}} for future purchases";
 "session::payment_items.subscription_billing_interval_day_one" = "Every day";
 "session::payment_items.subscription_billing_interval_day_other" = "Every {{count}} days";
 "session::payment_items.subscription_billing_interval_month_one" = "Every month on the {{anchor}}";
@@ -141,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "The payment amount is below the min. transaction limit";
 "session::payment_methods.digital_wallet_or" = "or";
 "session::payment_methods.header" = "Payment Methods";
+"session::payment_methods.header_2" = "Select Payment Method";
 "session::payment_methods.no_available_payment_methods" = "No payment methods available";
 "session::payment_methods.no_available_payment_methods_subtext" = "Contact the seller for assistance to complete your payment.";
 "session::payment_methods.pay_with" = "Pay with";

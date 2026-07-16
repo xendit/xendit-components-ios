@@ -11,9 +11,19 @@ struct CheckboxFieldView: View {
     @Binding var isChecked: Bool
     let isEnabled: Bool
     var locale: String = "en"
+    var variant: Form.CheckboxVariant = .card
 
     private var strings: XenditStrings {
         XenditStrings(locale: locale)
+    }
+
+    private var labelText: String {
+        switch variant {
+        case .card:
+            return strings.string(for: .paymentSaveCheckboxLabel)
+        case .eWallet(let brandName, let businessName):
+            return strings.ewalletSaveCheckboxLabel(brandName: brandName, businessName: businessName)
+        }
     }
 
     var body: some View {
@@ -29,7 +39,7 @@ struct CheckboxFieldView: View {
                     )
                     .font(.title3)
 
-                Text(strings.string(for: .paymentSaveCheckboxLabel))
+                Text(labelText)
                     .font(.labelLgRegular)
                     .foregroundColor(isEnabled ? .primary : .secondary)
 

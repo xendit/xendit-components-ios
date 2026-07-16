@@ -47,6 +47,11 @@ enum LocalizationKey: String {
 
     case actionQrCodeAmountToPay = "session::action_qr_code.amount_to_pay"
     case actionQrCodeDownloadQr = "session::action_qr_code.download_qr"
+    case actionQrCodeNmid = "session::action_qr_code.nmid"
+    case actionQrCodeScanToPay = "session::action_qr_code.scan_to_pay"
+    case actionQrCodeSaved = "session::action_qr_code.saved"
+    case actionQrCodeSaveFailed = "session::action_qr_code.save_failed"
+    case actionQrCodeUnableToGenerate = "session::action_qr_code.unable_to_generate"
 
     // MARK: Action — Redirect
 
@@ -217,6 +222,7 @@ enum LocalizationKey: String {
     // MARK: Payment
 
     case paymentSaveCheckboxLabel = "session::payment.save_checkbox_label"
+    case paymentEwalletSaveCheckboxLabel = "session::payment.ewallet_save_checkbox_label"
 
     // MARK: Payment Items
 
@@ -239,7 +245,7 @@ enum LocalizationKey: String {
     case paymentMethodsChannelDisabledAmountTooLarge = "session::payment_methods.channel_disabled_amount_too_large"
     case paymentMethodsChannelDisabledAmountTooSmall = "session::payment_methods.channel_disabled_amount_too_small"
     case paymentMethodsDigitalWalletOr = "session::payment_methods.digital_wallet_or"
-    case paymentMethodsHeader = "session::payment_methods.header"
+    case paymentMethodsHeader = "session::payment_methods.header_2"
     case paymentMethodsNoAvailablePaymentMethods = "session::payment_methods.no_available_payment_methods"
     case paymentMethodsNoAvailablePaymentMethodsSubtext = "session::payment_methods.no_available_payment_methods_subtext"
     case paymentMethodsPayWith = "session::payment_methods.pay_with"

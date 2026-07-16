@@ -16,7 +16,27 @@ struct BottomSheetPickerFieldView: View {
     @Binding var value: String
     var isDisabled: Bool = false
     var searchEnabled: Bool = false
+    var showIconDivider: Bool = false
+    var iconSize: CGSize = CGSize(width: 16, height: 16)
+    var iconClipShape: IconClipShape = .circle
     var onChanged: (() -> Void)?
+
+    enum IconClipShape: Shape {
+        case circle
+        case roundedRectangle(cornerRadius: CGFloat)
+        case rectangle
+
+        func path(in rect: CGRect) -> Path {
+            switch self {
+            case .circle:
+                return Circle().path(in: rect)
+            case .roundedRectangle(let cornerRadius):
+                return RoundedRectangle(cornerRadius: cornerRadius).path(in: rect)
+            case .rectangle:
+                return Rectangle().path(in: rect)
+            }
+        }
+    }
 
     @State private var isPresented: Bool = false
 
@@ -28,6 +48,7 @@ struct BottomSheetPickerFieldView: View {
         let subtitle: String?
         let value: String
         var iconUrl: String? = nil
+        var isDisabled: Bool = false
     }
 
     // MARK: - Body
@@ -43,19 +64,30 @@ struct BottomSheetPickerFieldView: View {
                 HStack(spacing: Spacing.s2) {
                     if let iconUrl = selectedOption?.iconUrl {
                         RemoteImage(url: URL(string: iconUrl))
-                            .frame(width: 16, height: 16)
-                            .clipShape(Circle())
+                            .frame(width: iconSize.width, height: iconSize.height)
+                            .clipShape(iconClipShape)
+                        if showIconDivider {
+                            Rectangle()
+                                .fill(XenditComponents.appearance.resolvedBorder)
+                                .frame(width: 1)
+                                .frame(maxHeight: .infinity)
+                                .padding(.vertical, Spacing.s2)
+                        }
                     }
                     Text(selectedOption?.label ?? placeholder)
                         .font(.labelLgRegular)
                         .foregroundColor(value.isEmpty
                             ? XenditComponents.appearance.resolvedTextPlaceholder
                             : XenditComponents.appearance.resolvedText)
+
                     Spacer()
-                    Image(systemName: "chevron.down")
-                        .font(.labelLgRegular)
-                        .foregroundColor(.Text.default)
+                    if !isDisabled {
+                        Image(systemName: "chevron.down")
+                            .font(.labelLgRegular)
+                            .foregroundColor(.Text.default)
+                    }
                 }
+                .contentShape(Rectangle())
                 .padding(.horizontal, Spacing.s3)
                 .frame(height: 44)
                 .xenditFieldBorder()
@@ -169,6 +201,7 @@ struct XenditPickerSheet: View {
     private func optionRow(_ option: BottomSheetPickerFieldView.PickerOption) -> some View {
         let isSelected = option.value == value
         return Button {
+            guard !option.isDisabled else { return }
             onSelected(option.value)
             dismiss()
         } label: {
@@ -176,28 +209,31 @@ struct XenditPickerSheet: View {
                 if let iconUrl = option.iconUrl {
                     RemoteImage(url: URL(string: iconUrl))
                         .frame(width: 24, height: 24)
-                        .clipShape(Circle())
+                        .opacity(option.isDisabled ? 0.5 : 1.0)
                 }
-                HStack(spacing: Spacing.s1) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(option.label)
                         .font(.labelLgRegular)
-                        .foregroundColor(.Text.default)
+                        .foregroundColor(option.isDisabled ? .secondary : .Text.default)
                     if let subtitle = option.subtitle {
                         Text(subtitle)
-                            .font(.labelMdRegular)
+                            .font(.labelSmRegular)
                             .foregroundColor(.Text.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 Spacer()
-                if isSelected {
+                if isSelected && !option.isDisabled {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(XenditComponents.appearance.resolvedPrimary)
                 }
             }
+            .contentShape(Rectangle())
             .padding(.horizontal, Spacing.s4)
             .padding(.vertical, Spacing.s3)
         }
         .buttonStyle(.plain)
+        .disabled(option.isDisabled)
     }
 }
 

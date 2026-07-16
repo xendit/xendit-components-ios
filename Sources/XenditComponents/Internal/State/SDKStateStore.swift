@@ -11,6 +11,7 @@ import SwiftUI
 @MainActor
 final class SDKStateStore: ObservableObject {
     @Published var session: Session?
+    @Published var businessName: String?
     @Published var customer: Customer?
     @Published var channels: [SessionResponse.Channel] = []
     @Published var channelUiGroups: [SessionResponse.ChannelUIGroup] = []
@@ -26,6 +27,10 @@ final class SDKStateStore: ObservableObject {
 
     @Published var phoneCountryCode: String = ""
     @Published var activeAction: PaymentAction?
+    @Published var pendingDeeplinkUrl: URL?
+    @Published var awaitingPaymentAction: AwaitingPaymentAction? = nil
+    @Published var expandedGroupId: String? = nil
+    @Published var channelVariants: [String: ChannelVariants] = [:]
     @Published var installmentPlans: [InstallmentPlan]?
     @Published var selectedInstallmentPlan: InstallmentPlan?
 
@@ -33,19 +38,27 @@ final class SDKStateStore: ObservableObject {
     var rawSession: SessionResponse.Session?
 
     var isFormValid: Bool {
-        guard let channel = currentChannel else { return false }
+        guard let displayChannel = currentChannel else { return false }
+        let effectiveChannel: SessionResponse.Channel
+        if savePaymentMethod, let variants = channelVariants[displayChannel.channelCode] {
+            effectiveChannel = variants.saveChannel
+        } else {
+            effectiveChannel = displayChannel
+        }
+
         let sessionType: SessionResponse.Session.SessionType = session?.sessionType == .pay ? .pay : .save
         let fieldsValid = FormValidator.channelPropertiesAreValid(
-            fields: channel.form,
+            fields: effectiveChannel.form,
             channelProperties: channelProperties,
             sessionType: sessionType,
             showBillingDetails: cardDetails?.requireBillingInformation ?? false
         )
+        
         guard fieldsValid else { return false }
 
         // Block submission if the API-confirmed card scheme is not in the allowed brands list.
         // If cardDetails has not arrived yet, skip the check and allow submission to proceed.
-        if let allowedBrands = channel.card?.brands, !allowedBrands.isEmpty,
+        if let allowedBrands = effectiveChannel.card?.brands, !allowedBrands.isEmpty,
            let scheme = cardDetails?.schemes.first,
            !allowedBrands.contains(where: { $0.name.caseInsensitiveCompare(scheme) == .orderedSame }) {
             return false
@@ -60,4 +73,9 @@ final class SDKStateStore: ObservableObject {
         case active
         case fatalError(String)
     }
+}
+
+enum AwaitingPaymentAction {
+    case deeplink
+    case emptyPaymentActions
 }

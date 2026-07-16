@@ -14,10 +14,10 @@ enum SessionResponse {}
 extension SessionResponse {
     struct Response: Decodable {
         let session: Session
-        let business: Business
-        let customer: Customer
-        let channels: [Channel]
-        let channelUiGroups: [ChannelUIGroup]
+        let business: Business?
+        let customer: Customer?
+        let channels: [Channel]?
+        let channelUiGroups: [ChannelUIGroup]?
         
         enum CodingKeys: String, CodingKey {
             case session, business, customer, channels

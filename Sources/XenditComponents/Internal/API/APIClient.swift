@@ -123,7 +123,9 @@ final class APIClient {
             return publisherForError(.noInternet)
         }
         
-        var urlRequest = request.getURLRequest(config: config, settings: settings, token: token, options: options)
+        guard var urlRequest = request.getURLRequest(config: config, settings: settings, token: token, options: options) else {
+            return publisherForError(.invalidInput)
+        }
         urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         
         guard let urlString = urlRequest.url?.absoluteString else {
@@ -235,16 +237,6 @@ extension APIClient {
 
     func delete<T: Decodable>(_ endPoint: APIRequest.EndPoint, headers: [APIRequest.Header] = [], options: APIClient.Options = .init()) -> AnyPublisher<T, APIClientError> {
         perform(APIRequest(method: .delete, endPoint: endPoint, extraHeaders: headers), options: options)
-    }
-
-    func uploadToAmazon(data: Data, url: URL) -> AnyPublisher<APIResponse.Empty, APIClientError> {
-        let request = APIRequest(method: .put, endPoint: .url(url), parameter: .imageData(.jpeg, data))
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-        return session.dataTaskPublisher(for: request.getURLRequest(config: config, settings: settings))
-            .map { _ in APIResponse.Empty() }
-            .mapError(APIResponse.toAPIClientError)
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
     }
 
     // Below methods are to be used when responce is an array of objects.

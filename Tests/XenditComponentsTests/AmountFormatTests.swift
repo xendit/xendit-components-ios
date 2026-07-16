@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AmountFormatTests.swift
 //  XenditComponents
 //
 //  Created by Ahmad X on 05/06/2026.
@@ -83,9 +83,9 @@ final class AmountFormatTests: XCTestCase {
     // MARK: - format — 3-decimal currencies
 
     func testFormatKWD() {
-        // KWD has 3 decimal places; .500 stripped to .50
+        // KWD has 3 decimal places, all shown (minimumFractionDigits = currency decimals)
         let result = AmountFormat.format(amount: Decimal(string: "10.500")!, currency: "KWD")
-        XCTAssertEqual(result, "KWD 10.50")
+        XCTAssertEqual(result, "KWD 10.500")
     }
 
     func testFormatBHD() {

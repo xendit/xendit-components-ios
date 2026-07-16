@@ -12,6 +12,8 @@ struct PaymentAction: Identifiable, Hashable {
     let id: String
     let type: ActionType
     let value: String
+    let isQrString: Bool
+    let isDeeplink: Bool
     let title: String?
     let subtitle: String?
     let graphic: String?
@@ -38,6 +40,8 @@ extension PaymentAction {
                 id: data.value,
                 type: .redirectCustomer,
                 value: data.value,
+                isQrString: false,
+                isDeeplink: data.descriptor == .deeplinkUrl,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
@@ -49,6 +53,8 @@ extension PaymentAction {
                 id: data.value,
                 type: .presentToCustomer,
                 value: data.value,
+                isQrString: data.descriptor == .qrString,
+                isDeeplink: false,
                 title: data.actionTitle,
                 subtitle: data.actionSubtitle,
                 graphic: data.actionGraphic,
@@ -60,6 +66,8 @@ extension PaymentAction {
                 id: data.value,
                 type: .presentToCustomer,
                 value: data.value,
+                isQrString: false,
+                isDeeplink: false,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,

@@ -69,8 +69,9 @@ extension Form {
         /// Save payment method checkbox.
         /// - isChecked: initial checked state (true when FORCED, false when OPTIONAL)
         /// - isEnabled: whether the user can toggle the checkbox (false when FORCED)
-        case checkbox(isChecked: Bool, isEnabled: Bool)
-        
+        /// - variant: determines the label shown (card static vs eWallet dynamic with brand/business names)
+        case checkbox(isChecked: Bool, isEnabled: Bool, variant: CheckboxVariant)
+
         // Special type
         case country // Can be either text or selection
         case province // Can be either text or selection
@@ -95,6 +96,10 @@ extension Form {
         }
     }
 
+    enum CheckboxVariant: Hashable {
+        case card
+        case eWallet(brandName: String, businessName: String)
+    }
     
     struct RegexValidator: Hashable {
         let regex: String

@@ -70,6 +70,7 @@ extension XenditComponents {
         switch result {
         case .paymentRequest(let pr):
             dispatch(.paymentRequestCreated(paymentRequestId: pr.paymentRequestId))
+            lastPaymentRequestId = pr.paymentRequestId
             tokenRequestId = pr.sessionTokenRequestId
             actions = pr.actions
             switch pr.status {
@@ -77,7 +78,7 @@ extension XenditComponents {
                 return handleFinalPaymentRequestStatus(pr)
             case .requiresAction:
                 handleRequiresAction(actions)
-            case .unknown:
+            case .pending, .unknown:
                 break
             }
 
@@ -104,9 +105,16 @@ extension XenditComponents {
             if case .presentToCustomer(let d) = $0 { return !d.value.isEmpty }
             return false
         })
-        guard let action, let paymentAction = PaymentAction.from(action) else { return }
-        stateStore.activeAction = paymentAction
-        dispatch(.actionBegin)
+        if let action, let paymentAction = PaymentAction.from(action) {
+            if paymentAction.isDeeplink, let url = URL(string: paymentAction.value) {
+                stateStore.pendingDeeplinkUrl = url
+            } else {
+                stateStore.activeAction = paymentAction
+            }
+            dispatch(.actionBegin)
+        } else {
+            stateStore.awaitingPaymentAction = .emptyPaymentActions
+        }
     }
 
     private func handleFinalPaymentRequestStatus(_ pr: PaymentRequestResponse) -> AnyPublisher<Void, Error> {
@@ -153,7 +161,7 @@ extension XenditComponents {
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_EXPIRED")
             )))
 
-        case .requiresAction, .unknown:
+        case .requiresAction, .pending, .unknown:
             break
         }
 
@@ -272,6 +280,31 @@ extension XenditComponents {
                 developerError: .init(type: .failure, code: errorCode)
             )))
         }
+    }
+    
+    // MARK: - Simulate payment
+
+    func simulatePaymentIfNeeded() -> AnyPublisher<Void, Error> {
+        guard stateStore.session?.sessionType == .pay else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        guard parsedKey?.hostId != "pl" else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        guard let key = parsedKey,
+              let prId = lastPaymentRequestId,
+              let channelCode = stateStore.currentChannel?.channelCode else { return Result.success(()).publisher.eraseToAnyPublisher() }
+        return Future<Void, Error> { [weak self] promise in
+            guard let self else {
+                promise(.failure(URLError(.cancelled)))
+                return
+            }
+            checkoutAPI.simulatePayment(
+                sessionAuthKey: key.sessionAuthKey,
+                paymentRequestId: prId,
+                channelCode: channelCode
+            ).sink(receiveCompletion: { _ in
+                promise(.success(()))
+            }, receiveValue: { _ in }
+            )
+        }
+        .eraseToAnyPublisher()
     }
 }
 

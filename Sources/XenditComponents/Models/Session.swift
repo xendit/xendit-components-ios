@@ -62,6 +62,7 @@ public struct Session {
 
     public enum Status: Equatable {
         case active
+        case pending
         case canceled
         case expired
         case completed

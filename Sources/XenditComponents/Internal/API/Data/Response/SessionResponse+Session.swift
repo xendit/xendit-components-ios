@@ -83,6 +83,7 @@ extension SessionResponse.Session {
         case completed = "COMPLETED"
         case expired = "EXPIRED"
         case canceled = "CANCELED"
+        case pending = "PENDING"
         /// Received when the backend introduces a status not yet known to this SDK version.
         case unknown
 
@@ -198,6 +199,7 @@ private extension SessionResponse.Session.SessionStatus {
     func toModel() -> Session.Status {
         switch self {
         case .active: return .active
+        case .pending: return .pending
         case .completed: return .completed
         case .expired: return .expired
         case .canceled: return .canceled

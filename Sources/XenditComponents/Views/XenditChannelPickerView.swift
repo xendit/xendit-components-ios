@@ -60,8 +60,9 @@ struct XenditChannelPickerView: View {
                     channels: groupChannels,
                     session: session,
                     selectedChannelCode: state.currentChannel?.channelCode,
-                    isRoundedRectangle: index == visibleGroups.count - 1, stateStore: state,
-                    sdk: sdk,
+                    isLastInGroup: index == visibleGroups.count - 1,
+                    stateStore: state,
+                    onPropertiesChanged: { sdk?.updateChannelProperties($0) },
                     onChannelSelected: { channel in
                         sdk?.setCurrentResponseChannel(channel)
                     }
@@ -80,18 +81,30 @@ private struct AccordionGroupView: View {
     let channels: [SessionResponse.Channel]
     let session: Session
     let selectedChannelCode: String?
-    let isRoundedRectangle: Bool
+    let isLastInGroup: Bool
     @ObservedObject var stateStore: SDKStateStore
-    weak var sdk: XenditComponents?
+    let onPropertiesChanged: (ChannelProperties) -> Void
     var onChannelSelected: ((SessionResponse.Channel) -> Void)?
 
     @State private var isManuallyCollapsed: Bool = false
     @State private var showChannelPicker: Bool = false
+    @State private var isMultiChannelExpanded: Bool = false
 
     private var isSingleChannel: Bool { channels.count == 1 }
 
+    /// `true` for multi-bank groups (eWallet, Virtual Account, Bank Transfer) that expand
+    /// inline to show a channel picker, rather than opening a bottom sheet.
+    private var isExpandableMultiChannel: Bool {
+        guard channels.count > 1 else { return false }
+        switch channels.first?.pmType {
+        case .ewallet, .virtualAccount, .bankTransfer: return true
+        default: return false
+        }
+    }
+
     private var isSelected: Bool {
-        channels.contains { $0.channelCode == selectedChannelCode }
+        let hasChannel = channels.contains { $0.channelCode == selectedChannelCode }
+        return isExpandableMultiChannel ? (isMultiChannelExpanded || hasChannel) : hasChannel
     }
 
     private var selectedChannel: SessionResponse.Channel? {
@@ -102,8 +115,20 @@ private struct AccordionGroupView: View {
         isSingleChannel ? channels.first : selectedChannel
     }
 
+    private var isGroupDisabled: Bool {
+        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        return channels.allSatisfy { !$0.isInAmountRange(for: sessionType, amount: session.amount) }
+    }
+
+    private var groupDisabledReason: String? {
+        guard isGroupDisabled, let first = channels.first else { return nil }
+        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        return first.amountDisabledReason(for: sessionType, amount: session.amount, locale: stateStore.session?.locale ?? "en")
+    }
+    
     private var shouldBeOpen: Bool {
-        isSelected && !isManuallyCollapsed
+        guard !isManuallyCollapsed else { return false }
+        return isExpandableMultiChannel ? (isMultiChannelExpanded || isSelected) : isSelected
     }
 
     private var localChannelIconName: String? {
@@ -128,7 +153,7 @@ private struct AccordionGroupView: View {
         .cornerRadius(8)
         .overlay(
             Group {
-                if isRoundedRectangle {
+                if isLastInGroup {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(XenditComponents.appearance.resolvedBorder, lineWidth: 1)
                 } else {
@@ -138,8 +163,23 @@ private struct AccordionGroupView: View {
             }
         )
         .animation(.easeInOut(duration: 0.2), value: shouldBeOpen)
-        .onChange(of: selectedChannelCode) { _ in
+        .onChange(of: selectedChannelCode) { newCode in
             isManuallyCollapsed = false
+            guard isExpandableMultiChannel else { return }
+            if let code = newCode {
+                if !channels.contains(where: { $0.channelCode == code }) {
+                    isMultiChannelExpanded = false
+                }
+            } else {
+                if stateStore.expandedGroupId != group.id {
+                    isMultiChannelExpanded = false
+                }
+            }
+        }
+        .onChange(of: stateStore.expandedGroupId) { activeId in
+            if isExpandableMultiChannel, activeId != group.id {
+                isMultiChannelExpanded = false
+            }
         }
         .sheet(isPresented: $showChannelPicker) {
             ChannelPickerSheet(
@@ -147,6 +187,7 @@ private struct AccordionGroupView: View {
                 channels: channels,
                 session: session,
                 selectedChannelCode: selectedChannelCode,
+                locale: stateStore.session?.locale ?? "en",
                 onChannelSelected: { channel in
                     onChannelSelected?(channel)
                     showChannelPicker = false
@@ -192,25 +233,26 @@ private struct AccordionGroupView: View {
                                 ? XenditComponents.appearance.resolvedPrimary
                                 : XenditComponents.appearance.resolvedText
                         )
-
-                    // For multi-channel, show the selected channel name as a subtitle.
-                    if !isSingleChannel, let ch = selectedChannel {
-                        Text(ch.brandName)
-                            .font(.caption)
-                            .foregroundColor(XenditComponents.appearance.resolvedText)
+                    if let reason = groupDisabledReason {
+                        Text(reason)
+                            .font(.labelMdRegular)
+                            .foregroundColor(.secondary)
                     }
                 }
 
                 Spacer()
 
-                Image(systemName: shouldBeOpen ? "chevron.up" : "chevron.down")
-                    .font(.subheadline)
-                    .foregroundColor(XenditComponents.appearance.resolvedText)
+                if !isGroupDisabled {
+                    Image(systemName: shouldBeOpen ? "chevron.up" : "chevron.down")
+                        .font(.subheadline)
+                        .foregroundColor(XenditComponents.appearance.resolvedText)
+                }
             }
             .padding(.horizontal, Spacing.s4)
             .padding(.top, Spacing.s6)
-            .padding(.bottom, isRoundedRectangle ? Spacing.s6 : 32)
+            .padding(.bottom, isLastInGroup ? Spacing.s6 : 32)
             .contentShape(Rectangle())
+            .opacity(isGroupDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
     }
@@ -219,35 +261,16 @@ private struct AccordionGroupView: View {
 
     @ViewBuilder
     private var inlineContent: some View {
-        if let channel = activeChannel, let session = stateStore.session, let sdk = sdk {
-            VStack(alignment: .leading, spacing: Spacing.s1) {
-                if !channel.form.isEmpty {
-                    ChannelFormView(
-                        channel: channel,
-                        session: session,
-                        locale: session.locale,
-                        stateStore: stateStore,
-                        channelProperties: Binding(
-                            get: { stateStore.channelProperties },
-                            set: { stateStore.channelProperties = $0 }
-                        ),
-                        onPropertiesChanged: { properties in
-                            sdk.updateChannelProperties(properties)
-                        }
-                    )
-                }
-
-                if let instructions = channel.instructions, !instructions.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
-                        ForEach(instructions, id: \.self) { instruction in
-                            Text("• \(instruction)")
-                                .font(InterFont.captionRegular)
-                                .foregroundColor(XenditComponents.appearance.resolvedTextSecondary)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-            }
+        if let session = stateStore.session {
+            ChannelGroupContentBuilder.make(
+                channels: channels,
+                group: group,
+                selectedChannel: activeChannel,
+                session: session,
+                stateStore: stateStore,
+                onPropertiesChanged: onPropertiesChanged,
+                onChannelSelected: onChannelSelected ?? { _ in }
+            )
             .padding(.horizontal, Spacing.s4)
             .padding(.bottom, Spacing.s4)
         }
@@ -256,11 +279,26 @@ private struct AccordionGroupView: View {
     // MARK: Actions
 
     private func handleHeaderTap() {
+        guard !isGroupDisabled else { return }
         if isSingleChannel {
             if isSelected {
                 isManuallyCollapsed.toggle()
             } else {
                 onChannelSelected?(channels[0])
+            }
+        } else if isExpandableMultiChannel {
+            if shouldBeOpen {
+                isMultiChannelExpanded = false
+                isManuallyCollapsed = true
+                stateStore.expandedGroupId = nil
+            } else {
+                let hasChannelAlready = channels.contains { $0.channelCode == selectedChannelCode }
+                isMultiChannelExpanded = true
+                isManuallyCollapsed = false
+                stateStore.expandedGroupId = group.id
+                if !hasChannelAlready {
+                    stateStore.currentChannel = nil
+                }
             }
         } else {
             showChannelPicker = true
@@ -275,6 +313,7 @@ private struct ChannelPickerSheet: View {
     let channels: [SessionResponse.Channel]
     let session: Session
     let selectedChannelCode: String?
+    let locale: String
     var onChannelSelected: ((SessionResponse.Channel) -> Void)?
 
     var body: some View {
@@ -295,7 +334,8 @@ private struct ChannelPickerSheet: View {
     private func channelRow(_ channel: SessionResponse.Channel) -> some View {
         let isSelected = channel.channelCode == selectedChannelCode
         let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
-        let isDisabled = !channel.isInAmountRange(for: sessionType, amount: session.amount)
+        let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: locale)
+        let isDisabled = reason != nil
 
         return Button(action: {
             guard !isDisabled else { return }
@@ -309,20 +349,28 @@ private struct ChannelPickerSheet: View {
                 }
                 .frame(width: 40, height: 40)
                 .cornerRadius(6)
+                .opacity(isDisabled ? 0.5 : 1.0)
 
-                Text(channel.brandName)
-                    .font(InterFont.bodyMd)
-                    .foregroundColor(isDisabled ? .secondary : .primary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(channel.brandName)
+                        .font(.bodyMd)
+                        .foregroundColor(isDisabled ? .secondary : .primary)
+                    if let reason {
+                        Text(reason)
+                            .font(.labelSmRegular)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
 
                 Spacer()
 
-                if isSelected {
+                if isSelected && !isDisabled {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(XenditComponents.appearance.resolvedPrimary)
                 }
             }
             .padding(.vertical, 12)
-            .opacity(isDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
@@ -342,3 +390,4 @@ struct SheetDetentsModifier: ViewModifier {
         }
     }
 }
+

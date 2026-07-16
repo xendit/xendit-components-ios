@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UIKit
 
 struct XenditSheetView: View {
     private let sdk: XenditComponents
@@ -45,8 +46,24 @@ struct XenditSheetView: View {
                 }
             }
 
-            if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil {
+            if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil && stateStore.awaitingPaymentAction == nil {
                 submitLoadingOverlay
+            }
+            
+            if let awaitingAction = stateStore.awaitingPaymentAction {
+                AwaitingPaymentView(
+                    action: awaitingAction,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    locale: stateStore.session?.locale ?? "en",
+                    onClose: {
+                        stateStore.awaitingPaymentAction = nil
+                        stateStore.isPolling = false
+                        stateStore.isSubmitting = false
+                        sdk.poller.stopPolling()
+                    }
+                )
+                .ignoresSafeArea()
             }
         }
         .background(XenditComponents.appearance.resolvedBackground)
@@ -56,6 +73,12 @@ struct XenditSheetView: View {
                 message: alert.message.map { Text($0) },
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .onChange(of: stateStore.pendingDeeplinkUrl) { url in
+            guard let url else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            stateStore.pendingDeeplinkUrl = nil
+            stateStore.awaitingPaymentAction = .deeplink
         }
         .onAppear {
             Country.warmUp()
@@ -91,22 +114,30 @@ struct XenditSheetView: View {
         }
         .fullScreenCover(item: $stateStore.activeAction) { action in
             if action.type == .redirectCustomer {
-                XenditActionWebView(urlString: action.value, strings: strings) {
-                    stateStore.activeAction = nil
-                    stateStore.isSubmitting = false
-                    if !sdk.poller.isPolling {
-                        stateStore.isPolling = true
-                    }
-                    sdk.poller.resumePolling()
-                }
+                XenditActionWebView(
+                    urlString: action.value,
+                    strings: strings,
+                    onDismiss: { dismissAction() },
+                    onChallengeCompleted: { resumePolling() }
+                )
             } else if action.type == .presentToCustomer {
                 XenditQrView(
                     action: action,
-                    channelName: stateStore.currentChannel?.brandName ?? "QR Code",
+                    businessName: stateStore.businessName,
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
                     amount: stateStore.session?.amount,
                     currency: stateStore.session?.currency,
-                    onDismiss: { stateStore.activeAction = nil }
+                    locale: stateStore.session?.locale ?? "en",
+                    onDismiss: { dismissAction() },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in
+                                resumePolling()
+                            }, receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
                 )
+
             }
         }
     }
@@ -222,5 +253,20 @@ struct XenditSheetView: View {
                 break
             }
         }
+    }
+    
+    private func resumePolling() {
+        dismissAction()
+        if !sdk.poller.isPolling || !stateStore.isPolling {
+            stateStore.isPolling = true
+        }
+        sdk.poller.stopPolling()
+        sdk.poller.resumePolling()
+    }
+    
+    private func dismissAction() {
+        stateStore.activeAction = nil
+        stateStore.isSubmitting = false
+        stateStore.isPolling = false
     }
 }

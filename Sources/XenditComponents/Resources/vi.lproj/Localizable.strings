@@ -124,6 +124,7 @@
 "session::page_title.pay" = "Thanh toán tại {{merchantName}}";
 "session::page_title.save" = "Thêm phương thức thanh toán tại {{merchantName}}";
 "session::payment.save_checkbox_label" = "Lưu phương thức thanh toán này cho các thanh toán định kỳ";
+"session::payment.ewallet_save_checkbox_label" = "Liên kết {{brandName}} với {{businessName}} cho các lần mua hàng tiếp theo";
 "session::payment_items.description" = "Ghi chú:";
 "session::payment_items.subscription_billing_interval_day_one" = "";
 "session::payment_items.subscription_billing_interval_day_other" = "";
@@ -141,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "Không khả dụng cho khoản thanh toán này";
 "session::payment_methods.digital_wallet_or" = "";
 "session::payment_methods.header" = "Phương thức Thanh toán";
+"session::payment_methods.header_2" = "Chọn phương thức thanh toán";
 "session::payment_methods.no_available_payment_methods" = "";
 "session::payment_methods.no_available_payment_methods_subtext" = "";
 "session::payment_methods.pay_with" = "Thanh toán bằng";

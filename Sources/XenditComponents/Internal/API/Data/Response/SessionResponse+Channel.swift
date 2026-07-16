@@ -245,7 +245,7 @@ extension SessionResponse.Channel.FormField.FieldType {
 }
 
 extension SessionResponse.Channel {
-    func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?) -> Form.Page {
+    func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?, businessName: String? = nil, hasSaveVariant: Bool = false) -> Form.Page {
         var sections: [Form.Section] = []
         var currentTitle: String? = nil
         var currentComponents: [Form.Component] = []
@@ -356,12 +356,18 @@ extension SessionResponse.Channel {
         }
 
         // Append save payment method checkbox at the bottom if applicable
-        if let allowSave = allowSavePaymentMethod, allowSave != .disabled {
-            let isChecked = allowSave == .forced
-            let isEnabled = allowSave == .optional
+        if (allowSave || hasSaveVariant), allowSavePaymentMethod != .disabled {
+            let isChecked = allowSavePaymentMethod == .forced
+            let isEnabled = allowSavePaymentMethod == .optional
+            let checkboxVariant: Form.CheckboxVariant
+            if pmType == .ewallet {
+                checkboxVariant = .eWallet(brandName: brandName, businessName: businessName ?? "")
+            } else {
+                checkboxVariant = .card
+            }
             let checkboxField = Form.InputField(
                 id: "allow_save_payment_method",
-                type: .checkbox(isChecked: isChecked, isEnabled: isEnabled),
+                type: .checkbox(isChecked: isChecked, isEnabled: isEnabled, variant: checkboxVariant),
                 label: nil,
                 placeholder: nil,
                 required: false,
@@ -436,6 +442,15 @@ extension SessionResponse.Channel {
         if let min = minAmount, amount < min { return false }
         if let max = maxAmount, amount > max { return false }
         return true
+    }
+    
+    func amountDisabledReason(for sessionType: SessionResponse.Session.SessionType, amount: Decimal, locale: String) -> String? {
+        guard !isInAmountRange(for: sessionType, amount: amount) else { return nil }
+        let strings = XenditStrings(locale: locale)
+        if let min = minAmount, amount < min {
+            return strings.string(for: .paymentMethodsChannelDisabledAmountTooSmall)
+        }
+        return strings.string(for: .paymentMethodsChannelDisabledAmountTooLarge)
     }
 }
 

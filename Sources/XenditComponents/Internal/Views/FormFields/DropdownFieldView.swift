@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct DropdownFieldView: View {
     let label: String
@@ -15,43 +14,38 @@ struct DropdownFieldView: View {
     @Binding var value: String
     var isDisabled: Bool = false
     var onChanged: (() -> Void)?
+    var showIconDivider: Bool = false
+    var iconSize: CGSize = CGSize(width: 34, height: 24)
+
 
     struct Option: Identifiable {
         var id: String { value }
         let label: String
         let value: String
         let subtitle: String?
-    }
-
-    private var selectedLabel: String {
-        options.first(where: { $0.value == value })?.label ?? placeholder
+        var iconUrl: String? = nil
+        var isDisabled: Bool = false
     }
 
     var body: some View {
-        XenditLabeledField(label: label) {
-            Menu {
-                ForEach(options) { option in
-                    Button(action: {
-                        value = option.value
-                        onChanged?()
-                    }) {
-                        Text(option.label)
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(selectedLabel)
-                        .foregroundColor(value.isEmpty ? Color(UIColor.placeholderText) : .primary)
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                }
-                .padding(.horizontal, Spacing.s3)
-                .frame(height: 44)
-                .xenditFieldBorder()
-            }
-            .disabled(isDisabled)
-        }
+        BottomSheetPickerFieldView(
+            label: label,
+            placeholder: placeholder,
+            options: options.map {
+                BottomSheetPickerFieldView.PickerOption(
+                    label: $0.label,
+                    subtitle: $0.subtitle,
+                    value: $0.value,
+                    iconUrl: $0.iconUrl,
+                    isDisabled: $0.isDisabled
+                )
+            },
+            value: $value,
+            isDisabled: isDisabled,
+            showIconDivider: showIconDivider,
+            iconSize: iconSize,
+            iconClipShape: .rectangle,
+            onChanged: onChanged
+        )
     }
 }
