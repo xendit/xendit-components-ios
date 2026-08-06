@@ -142,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "Tidak tersedia untuk pembayaran ini";
 "session::payment_methods.digital_wallet_or" = "atau";
 "session::payment_methods.header" = "Metode Pembayaran";
+"session::payment_methods.header_2" = "Pilih Metode Pembayaran";
 "session::payment_methods.no_available_payment_methods" = "Tidak ada metode pembayaran yang tersedia";
 "session::payment_methods.no_available_payment_methods_subtext" = "Hubungi penjual untuk mendapatkan bantuan dalam menyelesaikan pembayaran Anda.";
 "session::payment_methods.pay_with" = "Bayar dengan";

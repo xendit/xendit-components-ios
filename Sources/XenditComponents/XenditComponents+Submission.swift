@@ -47,7 +47,7 @@ extension XenditComponents {
                 .mapError { $0 as Error }
                 .eraseToAnyPublisher()
 
-        case .save:
+        case .save, .subscription:
             let query = PaymentTokenQuery(
                 sessionId: parsedKey.sessionAuthKey,
                 channelCode: channelCode,
@@ -57,6 +57,9 @@ extension XenditComponents {
                 .map { SubmissionResult.paymentToken($0) }
                 .mapError { $0 as Error }
                 .eraseToAnyPublisher()
+            
+        default:
+            return Fail(error: URLError(.unsupportedURL)).eraseToAnyPublisher()
         }
     }
 

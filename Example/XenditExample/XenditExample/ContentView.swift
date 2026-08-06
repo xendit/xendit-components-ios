@@ -2,7 +2,7 @@ import SwiftUI
 import XenditComponents
 
 struct ContentView: View {
-    @State private var sdkKey = "session-fe2db62a6a2cb7af67eebccc18d0de6e-pd-MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEGR0SZ7ECwXh771mgXBJCuDbg+b269bEb671TYwbqEQizagfmT3IRxg/YdcoE7OAAAbHGe/foQ+wPLn1zH4wgOXX5wVQTVk6Pm++5xwZTaa3uab3FxLgd0WXXH0tUCc6X-oMB9/OIW+aWbY1++cK9OLMXtpt+WFODDKRwFuFuwzvnEdp9QHw7tFowb1gD9orQoUB+R6DZQCeaW7rGv6kMyX6PEFJHoSiy0CSDz9lxgXdA843ACcb1YP1IlUcC84IRB"
+    @State private var sdkKey = "components_sdk_key here"
     @State private var selectedTheme: AppTheme = .default
     @State private var resultMessage: String?
     @State private var showingResult = false
@@ -64,7 +64,8 @@ struct ContentView: View {
         XenditComponents.initialize(appearance: selectedTheme.appearance)
         XenditComponents.present(
             from: rootViewController,
-            componentsSdkKey: sdkKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            componentsSdkKey: sdkKey.trimmingCharacters(in: .whitespacesAndNewlines),
+//            merchantPreferredPaymentMethod: [.ewallet, .cards]
         ) { result in
             handleResult(result)
         }

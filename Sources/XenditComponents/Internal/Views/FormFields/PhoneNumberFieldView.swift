@@ -113,6 +113,9 @@ struct PhoneNumberFieldView: View {
                 }
             }
         }
+        if !externalCountryCode.isEmpty {
+                   selectedCountryCode = externalCountryCode
+               }
         localNumber = value
     }
 

@@ -8,59 +8,35 @@
 import Foundation
 
 /// Represents a Xendit payment session.
-public struct Session {
-    /// Session ID with prefix `ps-`.
-    public let id: String
+struct Session {
+    let id: String
+    let description: String?
+    let sessionType: SessionType
+    let mode: Mode
+    let referenceId: String
+    let country: String
+    let currency: String
+    let amount: Decimal
+    let expiresAt: Date
+    let locale: String
+    let status: Status
+    let allowSavePaymentMethod: AllowSavePaymentMethod?
+    let captureMethod: CaptureMethod?
+    let items: [Item]?
+    let subscription: Subscription?
 
-    /// Description provided by merchant on session creation.
-    public let description: String?
-
-    /// The type of session: PAY creates a payment request, SAVE creates a payment token.
-    public let sessionType: SessionType
-
-    /// The kind of session. Only COMPONENT sessions can be used with the components SDK.
-    public let mode: Mode
-
-    /// Merchant-provided identifier for the session.
-    public let referenceId: String
-
-    /// ISO 3166-1 alpha-2 country code.
-    public let country: String
-
-    /// ISO 4217 currency code.
-    public let currency: String
-
-    /// Amount to be collected (0 for SAVE sessions).
-    public let amount: Decimal
-
-    /// When the session will expire.
-    public let expiresAt: Date
-
-    /// Locale code for the session.
-    public let locale: String
-
-    /// Current session status.
-    public let status: Status
-
-    /// Whether the customer is allowed to save their payment method.
-    public let allowSavePaymentMethod: AllowSavePaymentMethod?
-
-    /// Whether payment is captured automatically or manually.
-    public let captureMethod: CaptureMethod?
-
-    /// Line items associated with the session.
-    public let items: [Item]?
-
-    public enum SessionType: Equatable {
+    enum SessionType: Equatable {
         case pay
         case save
+        case subscription
+        case unknown
     }
 
-    public enum Mode: Equatable {
+    enum Mode: Equatable {
         case components
     }
 
-    public enum Status: Equatable {
+    enum Status: Equatable {
         case active
         case pending
         case canceled
@@ -68,28 +44,43 @@ public struct Session {
         case completed
     }
 
-    public enum AllowSavePaymentMethod: Equatable {
+    enum AllowSavePaymentMethod: Equatable {
         case disabled
         case optional
         case forced
     }
 
-    public enum CaptureMethod: Equatable {
+    enum CaptureMethod: Equatable {
         case automatic
         case manual
     }
 
-    public struct Item {
-        public let type: String
-        public let referenceId: String?
-        public let name: String
-        public let netUnitAmount: Double
-        public let quantity: Int
-        public let url: String?
-        public let imageUrl: String?
-        public let category: String?
-        public let subcategory: String?
-        public let description: String?
-        public let metadata: [String: String]?
+    struct Item {
+        let type: String
+        let referenceId: String?
+        let name: String
+        let netUnitAmount: Double
+        let quantity: Int
+        let url: String?
+        let imageUrl: String?
+        let category: String?
+        let subcategory: String?
+        let description: String?
+        let metadata: [String: String]?
+    }
+
+    struct Subscription {
+        let immediatePayment: Bool?
+        let schedule: Schedule?
+
+        struct Schedule {
+            let anchorDate: String
+            let interval: String
+            let intervalCount: Int
+            let retryInterval: String?
+            let retryIntervalCount: Int?
+            let totalRecurrence: Int?
+            let totalRetry: Int?
+        }
     }
 }

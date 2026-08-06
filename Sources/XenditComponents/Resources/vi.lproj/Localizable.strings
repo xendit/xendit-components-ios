@@ -142,6 +142,7 @@
 "session::payment_methods.channel_disabled_amount_too_small" = "Không khả dụng cho khoản thanh toán này";
 "session::payment_methods.digital_wallet_or" = "";
 "session::payment_methods.header" = "Phương thức Thanh toán";
+"session::payment_methods.header_2" = "Chọn phương thức thanh toán";
 "session::payment_methods.no_available_payment_methods" = "";
 "session::payment_methods.no_available_payment_methods_subtext" = "";
 "session::payment_methods.pay_with" = "Thanh toán bằng";

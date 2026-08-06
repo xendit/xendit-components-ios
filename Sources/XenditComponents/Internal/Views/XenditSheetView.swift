@@ -297,12 +297,17 @@ struct XenditSheetView: View {
     }
     
     private func resumePolling() {
-        stateStore.activeAction = nil
-        stateStore.isSubmitting = false
-        if !sdk.poller.isPolling {
+        dismissAction()
+        if !sdk.poller.isPolling || !stateStore.isPolling {
             stateStore.isPolling = true
         }
         sdk.poller.stopPolling()
         sdk.poller.resumePolling()
+    }
+    
+    private func dismissAction() {
+        stateStore.activeAction = nil
+        stateStore.isSubmitting = false
+        stateStore.isPolling = false
     }
 }

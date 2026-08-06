@@ -29,6 +29,17 @@ import UIKit
 /// }
 /// ```
 ///
+/// To restrict and order which payment methods are shown, pass `merchantPreferredPaymentMethod`:
+/// ```swift
+/// XenditComponents.present(
+///     from: viewController,
+///     componentsSdkKey: "your-key",
+///     merchantPreferredPaymentMethod: [.ewallet, .cards]
+/// ) { result in ... }
+/// ```
+/// Only the specified types will appear, in the order listed. Pass `nil` (the default) to show
+/// payment methods in the server's default order.
+///
 /// ## SwiftUI
 /// Create an instance, embed `XenditSheetView`, and call `initialize()` in `.task`:
 /// ```swift
@@ -70,13 +81,17 @@ public final class XenditComponents: ObservableObject {
     /// - Parameters:
     ///   - viewController: The view controller from which to present the sheet.
     ///   - componentsSdkKey: Session-scoped key obtained from your backend.
+    ///   - merchantPreferredPaymentMethod: Optional list of payment method types to display.
+    ///     When provided, only the listed types are shown and they appear in the given order.
+    ///     Pass `nil` (the default) to show available payment methods in the server's order.
     ///   - onResult: Invoked on the main thread with the final payment outcome.
     public static func present(
         from viewController: UIViewController,
         componentsSdkKey: String,
+        merchantPreferredPaymentMethod: [XenditPaymentMethod]? = nil,
         onResult: @escaping (XenditPaymentResult) -> Void
     ) {
-        let sdk = XenditComponents(componentsSdkKey: componentsSdkKey)
+        let sdk = XenditComponents(componentsSdkKey: componentsSdkKey, merchantPreferredPaymentMethod: merchantPreferredPaymentMethod)
         activeSDK = sdk
 
         let sheetView = XenditSheetView(sdk: sdk) { result in
@@ -107,6 +122,7 @@ public final class XenditComponents: ObservableObject {
     // These are `internal` (not `private`) so that private extensions in separate files
     // can access them without requiring `fileprivate`.
     let componentsSdkKey: String
+    let merchantPreferredPaymentMethod: [XenditPaymentMethod]?
     var parsedKey: ParsedSdkKey?
     var lastPaymentRequestId: String?
     let checkoutAPI: CheckoutAPI
@@ -116,8 +132,9 @@ public final class XenditComponents: ObservableObject {
 
     // MARK: - Initializer
 
-    private init(componentsSdkKey: String) {
+    private init(componentsSdkKey: String, merchantPreferredPaymentMethod: [XenditPaymentMethod]? = nil) {
         self.componentsSdkKey = componentsSdkKey
+        self.merchantPreferredPaymentMethod = merchantPreferredPaymentMethod
         self.stateStore = SDKStateStore()
         self.checkoutAPI = CheckoutAPI()
         setupCardNumberObservation()
@@ -176,7 +193,10 @@ public final class XenditComponents: ObservableObject {
                 self.stateStore.channels = pairing.channels
                 self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups ?? []
-                
+                self.stateStore.phoneCountryCode = response.session.country
+
+                self.applyMerchantPreferences()
+
                 switch response.session.status {
                 case.completed:
                     self.dispatch(.sessionComplete)
@@ -204,6 +224,32 @@ public final class XenditComponents: ObservableObject {
             })
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
+    }
+
+    private func applyMerchantPreferences() {
+        let preferred: [SessionResponse.Channel.PaymentMethod] = (merchantPreferredPaymentMethod ?? []).map {
+            switch $0 {
+            case .cards:          return .cards
+            case .ewallet:        return .ewallet
+            case .qrCode:         return .qrCode
+            case .bankTransfer:   return .bankTransfer
+            case .directDebit:    return .directDebit
+            case .virtualAccount: return .virtualAccount
+            case .overTheCounter: return .overTheCounter
+            }
+        }
+        guard !preferred.isEmpty else { return }
+
+        stateStore.channels = stateStore.channels.filter {
+            $0.pmType.map { preferred.contains($0) } ?? false
+        }
+
+        let channelsByGroup = Dictionary(grouping: stateStore.channels, by: \.uiGroup)
+        stateStore.channelUiGroups = stateStore.channelUiGroups.sorted { a, b in
+            let aIdx = channelsByGroup[a.id]?.first?.pmType.flatMap { preferred.firstIndex(of: $0) } ?? Int.max
+            let bIdx = channelsByGroup[b.id]?.first?.pmType.flatMap { preferred.firstIndex(of: $0) } ?? Int.max
+            return aIdx < bIdx
+        }
     }
 
     /// Registers a listener that receives all SDK lifecycle and payment events.
