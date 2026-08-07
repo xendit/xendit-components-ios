@@ -111,13 +111,13 @@ private struct AccordionGroupView: View {
     }
 
     private var isGroupDisabled: Bool {
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return channels.allSatisfy { !$0.isInAmountRange(for: sessionType, amount: session.amount) }
     }
 
     private var groupDisabledReason: String? {
         guard isGroupDisabled, let first = channels.first else { return nil }
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return first.amountDisabledReason(for: sessionType, amount: session.amount, locale: stateStore.session?.locale ?? "en")
     }
     
@@ -335,7 +335,7 @@ private struct ChannelPickerSheet: View {
 
     private func channelRow(_ channel: SessionResponse.Channel) -> some View {
         let isSelected = channel.channelCode == selectedChannelCode
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: locale)
         let isDisabled = reason != nil
 

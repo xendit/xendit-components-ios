@@ -233,7 +233,10 @@ extension FormValidator {
         showBillingDetails: Bool
     ) -> [SessionResponse.Channel.FormField] {
         fields.filter { field in
-            if field.flags?.requireBillingInformation == true, !showBillingDetails { return false }
+            if field.flags?.requireBillingInformation == true {
+                if sessionType != .pay { return false }
+                if !showBillingDetails { return false }
+            }
             return evaluateDisplayIf(field.displayIf, channelProperties: channelProperties)
         }
     }

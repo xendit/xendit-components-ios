@@ -170,6 +170,12 @@ extension SessionResponse.Session {
 // MARK: - Subscription
 
 extension SessionResponse.Session {
+    enum Interval: String, Codable {
+            case day = "DAY"
+            case week = "WEEK"
+            case month = "MONTH"
+        }
+
     struct Subscription: Decodable {
         let immediatePayment: Bool?
         let schedule: Schedule?
@@ -181,9 +187,9 @@ extension SessionResponse.Session {
 
         struct Schedule: Decodable {
             let anchorDate: String
-            let interval: String
+            let interval: Interval
             let intervalCount: Int
-            let retryInterval: String?
+            let retryInterval: Interval?
             let retryIntervalCount: Int?
             let totalRecurrence: Int?
             let totalRetry: Int?
@@ -216,7 +222,7 @@ extension SessionResponse.Session {
         Session(
             id: paymentSessionId,
             description: description,
-            sessionType: sessionType == .pay ? .pay : .save,
+            sessionType: sessionType.toModel(),
             mode: .components,
             referenceId: referenceId,
             country: country,
@@ -233,6 +239,26 @@ extension SessionResponse.Session {
     }
 }
 
+extension SessionResponse.Session.SessionType {
+    init(_ publicType: Session.SessionType) {
+        switch publicType {
+        case .pay: self = .pay
+        case .subscription: self = .subscription
+        case .save, .unknown: self = .save
+        }
+    }
+}
+
+private extension SessionResponse.Session.SessionType {
+    func toModel() -> Session.SessionType {
+        switch self {
+        case .pay: return .pay
+        case .subscription: return .subscription
+        case .save, .authorization, .unknown: return .save
+        }
+    }
+}
+
 private extension SessionResponse.Session.Subscription {
     func toModel() -> Session.Subscription {
         Session.Subscription(
@@ -240,15 +266,25 @@ private extension SessionResponse.Session.Subscription {
             schedule: schedule.map {
                 Session.Subscription.Schedule(
                     anchorDate: $0.anchorDate,
-                    interval: $0.interval,
+                    interval: $0.interval.toModel(),
                     intervalCount: $0.intervalCount,
-                    retryInterval: $0.retryInterval,
+                    retryInterval: $0.retryInterval?.toModel(),
                     retryIntervalCount: $0.retryIntervalCount,
                     totalRecurrence: $0.totalRecurrence,
                     totalRetry: $0.totalRetry
                 )
             }
         )
+    }
+}
+
+private extension SessionResponse.Session.Interval {
+    func toModel() -> Session.Interval {
+        switch self {
+        case .day: return .day
+        case .week: return .week
+        case .month: return .month
+        }
     }
 }
 

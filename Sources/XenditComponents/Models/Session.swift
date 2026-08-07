@@ -68,6 +68,12 @@ struct Session {
         let description: String?
         let metadata: [String: String]?
     }
+    
+    enum Interval: Equatable {
+        case day
+        case week
+        case month
+    }
 
     struct Subscription {
         let immediatePayment: Bool?
@@ -75,9 +81,9 @@ struct Session {
 
         struct Schedule {
             let anchorDate: String
-            let interval: String
+            let interval: Interval
             let intervalCount: Int
-            let retryInterval: String?
+            let retryInterval: Interval?
             let retryIntervalCount: Int?
             let totalRecurrence: Int?
             let totalRetry: Int?

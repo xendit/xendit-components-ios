@@ -251,11 +251,14 @@ struct XenditSheetView: View {
             return "Processing..."
         }
 
-        if stateStore.session?.sessionType == .save {
+        switch stateStore.session?.sessionType {
+        case .save:
             return strings.string(for: .paymentMethodsSubmitAddPaymentMethod)
+        case .subscription:
+            return strings.string(for: .channelSelectionConfirmSubscription)
+        default:
+            return strings.string(for: .paymentMethodsSubmitPay)
         }
-
-        return strings.string(for: .paymentMethodsSubmitPay)
     }
 
     private var headerTitle: String {
