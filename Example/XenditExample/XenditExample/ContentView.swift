@@ -20,6 +20,7 @@ struct ContentView: View {
                         .frame(minHeight: 120)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .accessibilityIdentifier("session_id_input")
                 }
 
                 Section(header: Text("Theme")) {
@@ -43,6 +44,7 @@ struct ContentView: View {
                         }
                     }
                     .disabled(sdkKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityIdentifier("launch_payment_button")
                 }
             }
             .navigationTitle("Xendit SDK Example")
