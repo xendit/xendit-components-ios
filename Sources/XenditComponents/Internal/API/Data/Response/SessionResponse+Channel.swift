@@ -307,7 +307,7 @@ extension SessionResponse.Channel {
                 // views on every re-render due to changing UUIDs.
                 id: field.channelProperty.primaryKey,
                 type: mapInputType(field.type),
-                label: field.label.isEmpty ? nil : field.label,
+                label: (field.label.isEmpty || field.label == currentTitle) ? nil : field.label,
                 placeholder: field.placeholder.isEmpty ? nil : field.placeholder,
                 required: field.required,
                 isDisabled: field.disabled ?? false,

@@ -57,7 +57,7 @@ struct BottomSheetPickerFieldView: View {
         guard !value.isEmpty else { return nil }
         return options.first(where: { $0.value == value })
     }
-
+    
     var body: some View {
         XenditLabeledField(label: label) {
             Button(action: { if !isDisabled { isPresented = true } }) {
@@ -77,9 +77,9 @@ struct BottomSheetPickerFieldView: View {
                     Text(selectedOption?.label ?? placeholder)
                         .font(.labelLgRegular)
                         .foregroundColor(value.isEmpty
-                            ? XenditComponents.appearance.resolvedTextPlaceholder
-                            : XenditComponents.appearance.resolvedText)
-
+                                         ? XenditComponents.appearance.resolvedTextPlaceholder
+                                         : XenditComponents.appearance.resolvedText)
+                    
                     Spacer()
                     if !isDisabled {
                         Image(systemName: "chevron.down")
@@ -93,8 +93,6 @@ struct BottomSheetPickerFieldView: View {
                 .xenditFieldBorder()
             }
             .buttonStyle(.plain)
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
         }
         .sheet(isPresented: $isPresented) {
             XenditPickerSheet(
@@ -209,12 +207,11 @@ struct XenditPickerSheet: View {
                 if let iconUrl = option.iconUrl {
                     RemoteImage(url: URL(string: iconUrl))
                         .frame(width: 24, height: 24)
-                        .opacity(option.isDisabled ? 0.5 : 1.0)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(option.label)
                         .font(.labelLgRegular)
-                        .foregroundColor(option.isDisabled ? .secondary : .Text.default)
+                        .foregroundColor(.Text.default)
                     if let subtitle = option.subtitle {
                         Text(subtitle)
                             .font(.labelSmRegular)
