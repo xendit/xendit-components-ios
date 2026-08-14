@@ -245,6 +245,11 @@ extension SessionResponse.Channel.FormField.FieldType {
 }
 
 extension SessionResponse.Channel {
+    var isDeprecated: Bool { Self.deprecatedCodes.contains(channelCode) }
+    private static let deprecatedCodes: Set<String> = ["BRI_DIRECT_DEBIT"]
+}
+
+extension SessionResponse.Channel {
     func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?, businessName: String? = nil, hasSaveVariant: Bool = false) -> Form.Page {
         var sections: [Form.Section] = []
         var currentTitle: String? = nil
