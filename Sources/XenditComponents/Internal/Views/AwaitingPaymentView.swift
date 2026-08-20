@@ -37,6 +37,7 @@ struct AwaitingPaymentView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(a.resolvedTextSecondary)
                 }
+                .accessibilityIdentifier(XenditA11yIds.awaitingPaymentDialogClose)
             }
 
             ZStack {

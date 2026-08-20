@@ -12,6 +12,7 @@ struct CreditCardCvnFieldView: View {
     let placeholder: String
     @Binding var value: String
     var isDisabled: Bool = false
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
@@ -27,7 +28,8 @@ struct CreditCardCvnFieldView: View {
                 characterFilter: \.isNumber,
                 maxLength: 4,
                 onChanged: onChanged,
-                onEditingEnded: onEditingEnded
+                onEditingEnded: onEditingEnded,
+                accessibilityIdentifier: a11yId
             )
             .padding(.horizontal, Spacing.s3)
             .frame(height: 44)

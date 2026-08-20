@@ -10,6 +10,7 @@ struct ProvinceFieldView: View {
     let selectedCountry: String
     @Binding var value: String
     var isDisabled: Bool = false
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
 
     /// Always current — recomputed from selectedCountry on every render.
@@ -32,6 +33,11 @@ struct ProvinceFieldView: View {
                         value: $value,
                         isDisabled: isDisabled,
                         searchEnabled: true,
+                        a11yIdTrigger: a11yId.isEmpty ? "" : XenditA11yIds.formDropdownPrefix + a11yId,
+                        a11yIdSheet: XenditA11yIds.provincePickerSheet,
+                        a11yIdClose: XenditA11yIds.provincePickerSheetClose,
+                        a11yIdSearch: XenditA11yIds.provincePickerSearch,
+                        a11yIdItemPrefix: XenditA11yIds.optionPrefix,
                         onChanged: onChanged
                     )
                     .transition(.opacity)

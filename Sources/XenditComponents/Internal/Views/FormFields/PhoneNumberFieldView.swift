@@ -16,6 +16,7 @@ struct PhoneNumberFieldView: View {
     /// Direct country-code override (e.g. "CA"). When non-empty, applied immediately
     /// without guessing from the dial-code prefix, which is ambiguous for shared codes like +1.
     var externalCountryCode: String = ""
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
@@ -59,6 +60,7 @@ struct PhoneNumberFieldView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(isDisabled)
+                .accessibilityIdentifier(XenditA11yIds.phoneCountryCodeTrigger)
 
                 TextField(placeholder, text: $localNumber)
                     .font(.labelLgRegular)
@@ -69,6 +71,7 @@ struct PhoneNumberFieldView: View {
                     .xenditFieldBorder()
                     .onChange(of: localNumber) { _ in updateFullValue() }
                     .onSubmit { onEditingEnded?() }
+                    .accessibilityIdentifierIfSet(a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId)
             }
         }
         .onAppear {
@@ -93,6 +96,10 @@ struct PhoneNumberFieldView: View {
                     option.label.localizedCaseInsensitiveContains(query) ||
                     (option.subtitle ?? "").contains(query)
                 },
+                a11yIdSheet: XenditA11yIds.countryPickerSheet,
+                a11yIdClose: XenditA11yIds.countryPickerSheetClose,
+                a11yIdSearch: XenditA11yIds.countryPickerSearch,
+                a11yIdItemPrefix: XenditA11yIds.optionPrefix,
                 onSelected: { code in
                     selectedCountryCode = code
                     updateFullValue()
@@ -114,8 +121,8 @@ struct PhoneNumberFieldView: View {
             }
         }
         if !externalCountryCode.isEmpty {
-                   selectedCountryCode = externalCountryCode
-               }
+            selectedCountryCode = externalCountryCode
+        }
         localNumber = value
     }
 

@@ -120,7 +120,7 @@ private struct AccordionGroupView: View {
         let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return first.amountDisabledReason(for: sessionType, amount: session.amount, locale: stateStore.session?.locale ?? "en")
     }
-    
+
     private var shouldBeOpen: Bool {
         guard !isManuallyCollapsed else { return false }
         return isExpandableMultiChannel ? (isMultiChannelExpanded || isSelected) : isSelected
@@ -256,6 +256,7 @@ private struct AccordionGroupView: View {
             .opacity(isGroupDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(XenditA11yIds.channelPrefix + group.id)
     }
 
     // MARK: Inline content
@@ -376,6 +377,7 @@ private struct ChannelPickerSheet: View {
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
+        .accessibilityIdentifier(XenditA11yIds.channelPrefix + channel.channelCode)
     }
 }
 

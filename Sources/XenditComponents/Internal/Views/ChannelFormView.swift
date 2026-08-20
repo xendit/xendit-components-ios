@@ -280,6 +280,7 @@ struct ChannelFormView: View {
             installmentPlans: field.type == .installmentPlan ? stateStore.installmentPlans : nil,
             selectedCountry: field.type == .province ? selectedCountryValue() : "",
             phoneCountryCode: field.type == .phoneNumber ? stateStore.phoneCountryCode : "",
+            a11yId: field.channelProperty.primaryKey,
             onChanged: {
                 if case .creditCardNumber = field.type {
                     XenditComponents.activeSDK?.stateStore.cardNumber = binding.wrappedValue

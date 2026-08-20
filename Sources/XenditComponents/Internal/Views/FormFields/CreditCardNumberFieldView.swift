@@ -15,6 +15,7 @@ struct CreditCardNumberFieldView: View {
     @Binding var value: String
     var isDisabled: Bool = false
     var cardType: CreditCardType? = nil
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
@@ -54,7 +55,8 @@ struct CreditCardNumberFieldView: View {
                         return (display: formatCardNumber(digits), stored: digits)
                     },
                     onChanged: onChanged,
-                    onEditingEnded: onEditingEnded
+                    onEditingEnded: onEditingEnded,
+                    accessibilityIdentifier: a11yId
                 )
                 .padding(.horizontal, Spacing.s3)
                 .padding(.trailing, trailingIconWidth)

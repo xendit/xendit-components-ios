@@ -49,7 +49,7 @@ struct XenditSheetView: View {
             if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil && stateStore.awaitingPaymentAction == nil {
                 submitLoadingOverlay
             }
-            
+
             if let awaitingAction = stateStore.awaitingPaymentAction {
                 AwaitingPaymentView(
                     action: awaitingAction,
@@ -67,6 +67,7 @@ struct XenditSheetView: View {
             }
         }
         .background(XenditComponents.appearance.resolvedBackground)
+        .accessibilityIdentifier(XenditA11yIds.paymentSheet)
         .alert(item: $submissionAlert) { alert in
             Alert(
                 title: Text(alert.title),
@@ -93,6 +94,7 @@ struct XenditSheetView: View {
             Button(action: { onResult(.dismissed) }) {
                 Image("xdt_arrow_left_24", bundle: .module)
             }
+            .accessibilityIdentifier(XenditA11yIds.genericHeaderLeadingButton)
             Text(headerTitle)
                 .font(.headingH3)
             Spacer()
@@ -124,9 +126,7 @@ struct XenditSheetView: View {
                     locale: stateStore.session?.locale ?? "en",
                     showSimulateButton: sdk.parsedKey?.hostId != "pl",
                     brandColor: stateStore.currentChannel?.brandColor ?? "",
-                    onDismiss: {
-                        resumePolling()
-                    },
+                    onDismiss: { dismissAction() },
                     onPaymentMade: {
                         sdk.simulatePaymentIfNeeded()
                             .sink(receiveCompletion: { _ in resumePolling() },
@@ -145,9 +145,7 @@ struct XenditSheetView: View {
                     locale: stateStore.session?.locale ?? "en",
                     showSimulateButton: sdk.parsedKey?.hostId != "pl",
                     brandColor: stateStore.currentChannel?.brandColor ?? "",
-                    onDismiss: {
-                        resumePolling()
-                    },
+                    onDismiss: { dismissAction() },
                     onPaymentMade: {
                         sdk.simulatePaymentIfNeeded()
                             .sink(receiveCompletion: { _ in resumePolling() },
@@ -156,9 +154,12 @@ struct XenditSheetView: View {
                     }
                 )
             } else if action.type == .redirectCustomer {
-                XenditActionWebView(urlString: action.value, strings: strings) {
-                    resumePolling()
-                }
+                XenditActionWebView(
+                    urlString: action.value,
+                    strings: strings,
+                    onDismiss: { dismissAction() },
+                    onChallengeCompleted: { resumePolling() }
+                )
             } else if action.type == .presentToCustomer {
                 XenditQrView(
                     action: action,
@@ -167,9 +168,7 @@ struct XenditSheetView: View {
                     amount: stateStore.session?.amount,
                     currency: stateStore.session?.currency,
                     locale: stateStore.session?.locale ?? "en",
-                    onDismiss: {
-                        resumePolling()
-                    },
+                    onDismiss: { dismissAction() },
                     onPaymentMade: {
                         sdk.simulatePaymentIfNeeded()
                             .sink(receiveCompletion: { _ in
@@ -178,7 +177,6 @@ struct XenditSheetView: View {
                             .store(in: &cancellables)
                     }
                 )
-
             }
         }
     }
@@ -213,6 +211,7 @@ struct XenditSheetView: View {
                 .cornerRadius(XenditComponents.appearance.resolvedRadius)
             }
             .disabled(isPayButtonDisabled)
+            .accessibilityIdentifier(XenditA11yIds.dialogSubmitButton)
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
@@ -237,6 +236,7 @@ struct XenditSheetView: View {
             Button("Close") {
                 onResult(.dismissed)
             }
+            .accessibilityIdentifier(XenditA11yIds.dialogErrorCloseButton)
             .padding()
             Spacer()
         }

@@ -48,5 +48,6 @@ struct CheckboxFieldView: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+        .accessibilityIdentifier(XenditA11yIds.saveCardCheckbox)
     }
 }
