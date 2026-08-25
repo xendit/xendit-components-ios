@@ -176,6 +176,15 @@ enum LocalizationKey: String {
     case failureCodeUserDeviceUnreachable = "session::failure_code.user_device_unreachable"
     case failureCodeUserDidNotAuthorize = "session::failure_code.user_did_not_authorize"
     case failureCodeUnknown = "session::failure_code_unknown"
+    
+    // MARK: Apple Pay Errors
+
+    case applePayErrorsMerchantValidationFailedMessage = "session::apple_pay_errors.merchant_validation_failed.message"
+    case applePayErrorsMerchantValidationFailedTitle = "session::apple_pay_errors.merchant_validation_failed.title"
+    case applePayErrorsNetworkErrorMessage = "session::apple_pay_errors.network_error.message"
+    case applePayErrorsNetworkErrorTitle = "session::apple_pay_errors.network_error.title"
+    case applePayErrorsUnknownErrorMessage = "session::apple_pay_errors.unknown_error.message"
+    case applePayErrorsUnknownErrorTitle = "session::apple_pay_errors.unknown_error.title"
 
     // MARK: Google Pay Errors
 

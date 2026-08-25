@@ -312,6 +312,99 @@ extension XenditComponents {
     }
 }
 
+// MARK: - Apple Pay submission
+
+extension XenditComponents {
+    func performApplePaySubmission(
+        channel: SessionResponse.Channel,
+        channelProperties: [String: Any],
+        parsedKey: ParsedSdkKey
+    ) -> AnyPublisher<SubmissionResult, Error> {
+        let query = PaymentRequestQuery(
+            sessionId: parsedKey.sessionAuthKey,
+            channelCode: channel.channelCode,
+            channelProperties: channelProperties
+        )
+        return checkoutAPI.createPaymentRequest(query: query)
+            .map { SubmissionResult.paymentRequest($0) }
+            .mapError { $0 as Error }
+            .eraseToAnyPublisher()
+    }
+
+    func submitApplePay(channelProperties: [String: Any]) {
+        let strings = XenditStrings(locale: stateStore.session?.locale ?? "en")
+
+        func failWith(_ code: String) {
+            dispatch(.submissionEnd(.init(
+                reason: "APPLE_PAY_FAILED",
+                userErrorMessages: [
+                    strings.string(for: .applePayErrorsUnknownErrorTitle),
+                    strings.string(for: .applePayErrorsUnknownErrorMessage)
+                ],
+                developerError: .init(type: .failure, code: code)
+            )))
+        }
+
+        guard let channel = stateStore.channels.first(where: { $0.pmType == .cards }) else {
+            return failWith("APPLE_PAY_NO_CARDS_CHANNEL")
+        }
+        guard let parsedKey, stateStore.session != nil else {
+            return failWith("APPLE_PAY_NOT_INITIALIZED")
+        }
+
+        stateStore.isSubmitting = true
+        dispatch(.submissionBegin)
+
+        performApplePaySubmission(channel: channel, channelProperties: channelProperties, parsedKey: parsedKey)
+            .flatMap { [weak self] result -> AnyPublisher<Void, Error> in
+                guard let self else { return Fail(error: URLError(.cancelled)).eraseToAnyPublisher() }
+                return self.handleSubmissionResult(result, parsedKey: parsedKey)
+            }
+            .handleEvents(receiveCompletion: { [weak self] completion in
+                guard case .failure(let error) = completion else { return }
+                self?.stateStore.isSubmitting = false
+                if let clientError = error as? APIClientError, clientError.type == .noInternet {
+                    self?.dispatch(.submissionEnd(.init(
+                        reason: "REQUEST_FAILED",
+                        userErrorMessages: [
+                            strings.string(for: .networkErrorTitle),
+                            strings.string(for: .networkErrorSubtext)
+                        ],
+                        developerError: .init(type: .networkError, code: clientError.errorCode)
+                    )))
+                } else if let clientError = error as? APIClientError,
+                          let backendError = clientError.backendError {
+                    if let content = backendError.errorContent {
+                        self?.dispatch(.submissionEnd(.init(
+                            reason: "REQUEST_FAILED",
+                            userErrorMessages: [content.title, content.message1, content.message2].compactMap { $0 },
+                            developerError: .init(type: .failure, code: backendError.code)
+                        )))
+                    } else {
+                        self?.dispatch(.submissionEnd(.init(
+                            reason: "REQUEST_FAILED",
+                            userErrorMessages: [strings.string(for: .defaultErrorTitle), backendError.message],
+                            developerError: .init(type: .failure, code: backendError.code)
+                        )))
+                    }
+                } else {
+                    self?.dispatch(.submissionEnd(.init(
+                        reason: "REQUEST_FAILED",
+                        userErrorMessages: [
+                            strings.string(for: .applePayErrorsUnknownErrorTitle),
+                            strings.string(for: .applePayErrorsUnknownErrorMessage)
+                        ],
+                        developerError: .init(type: .networkError, code: "NETWORK_ERROR")
+                    )))
+                }
+            })
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            .store(in: &cancellables)
+    }
+}
+
+
 // MARK: - SubmissionResult
 
 enum SubmissionResult {

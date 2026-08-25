@@ -18,10 +18,12 @@ extension SessionResponse {
         let customer: Customer?
         let channels: [Channel]?
         let channelUiGroups: [ChannelUIGroup]?
+        let digitalWallets: DigitalWallets?
         
         enum CodingKeys: String, CodingKey {
             case session, business, customer, channels
             case channelUiGroups = "channel_ui_groups"
+            case digitalWallets = "digital_wallets"
         }
     }
 }

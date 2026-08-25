@@ -34,6 +34,8 @@ final class SDKStateStore: ObservableObject {
     @Published var installmentPlans: [InstallmentPlan]?
     @Published var selectedInstallmentPlan: InstallmentPlan?
 
+    @Published var digitalWallets: SessionResponse.DigitalWallets?
+
     /// Raw session response, kept for use in marshal functions.
     var rawSession: SessionResponse.Session?
 

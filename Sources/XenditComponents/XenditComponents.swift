@@ -128,6 +128,7 @@ public final class XenditComponents: ObservableObject {
     let checkoutAPI: CheckoutAPI
     var eventListeners: [XenditEventListener] = []
     var poller = SessionPoller()
+    var applePayController: ApplePayController?
     var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
@@ -195,6 +196,7 @@ public final class XenditComponents: ObservableObject {
                 self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups ?? []
                 self.stateStore.phoneCountryCode = response.session.country
+                self.stateStore.digitalWallets = response.digitalWallets
 
                 self.applyMerchantPreferences()
 
@@ -225,6 +227,20 @@ public final class XenditComponents: ObservableObject {
             })
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
+    }
+    
+    func presentApplePay() {
+        guard let applePay = stateStore.digitalWallets?.applePay,
+              let session = stateStore.session,
+              let parsedKey else { return }
+        let controller = ApplePayController(
+            sdk: self,
+            applePayData: applePay,
+            session: session,
+            parsedKey: parsedKey
+        )
+        applePayController = controller
+        controller.present()
     }
 
     private func applyMerchantPreferences() {

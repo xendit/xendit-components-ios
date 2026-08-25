@@ -52,6 +52,7 @@
 		21790E232FA60E1C00DD4407 /* PlayfairDisplay-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.ttf"; sourceTree = "<group>"; };
 		21790E242FA60E1C00DD4407 /* PlayfairDisplay-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.ttf"; sourceTree = "<group>"; };
 		21790E262FA60E1C00DD4407 /* PlayfairFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayfairFont.swift; sourceTree = "<group>"; };
+		21B3ED47303C4AD6009B1E76 /* XenditExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XenditExample.entitlements; sourceTree = "<group>"; };
 		B30200000000000000000001 /* XenditExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XenditExampleApp.swift; sourceTree = "<group>"; };
 		B30200000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B30200000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -102,6 +103,7 @@
 		B30400000000000000000002 /* XenditExample */ = {
 			isa = PBXGroup;
 			children = (
+				21B3ED47303C4AD6009B1E76 /* XenditExample.entitlements */,
 				B30200000000000000000001 /* XenditExampleApp.swift */,
 				21790E252FA60E1C00DD4407 /* Fonts */,
 				21790E262FA60E1C00DD4407 /* PlayfairFont.swift */,
@@ -343,8 +345,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = XenditExample/XenditExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -357,7 +361,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExample;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.example.swiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -370,8 +374,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = XenditExample/XenditExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YTAZRVVYUC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -384,7 +390,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.XenditExample;
+				PRODUCT_BUNDLE_IDENTIFIER = co.xendit.example.swiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

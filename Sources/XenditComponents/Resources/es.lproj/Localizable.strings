@@ -130,7 +130,6 @@
 "session::network_error.title" = "No se puede conectar";
 "session::page_title.pay" = "Checkout en {{merchantName}}";
 "session::page_title.save" = "Agregar método de pago en {{merchantName}}";
-"session::payment.ewallet_save_checkbox_label" = "";
 "session::payment.save_checkbox_label" = "Guarda este método de pago para pagos recurrentes";
 "session::payment_items.description" = "Nota:";
 "session::payment_items.subscription_billing_interval_day_one" = "Todos los días";

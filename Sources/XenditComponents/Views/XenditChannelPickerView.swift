@@ -52,6 +52,12 @@ struct XenditChannelPickerView: View {
             state.channels.contains { $0.uiGroup == group.id }
         }
 
+        if let sdk {
+            ApplePayButtonView(sdk: sdk)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+        }
+
         VStack(spacing: -8) {
             ForEach(Array(visibleGroups.enumerated()), id: \.element.id) { index, group in
                 let groupChannels = state.channels.filter { $0.uiGroup == group.id }
