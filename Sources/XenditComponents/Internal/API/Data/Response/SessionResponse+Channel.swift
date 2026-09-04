@@ -362,7 +362,7 @@ extension SessionResponse.Channel {
         }
 
         // Append save payment method checkbox at the bottom if applicable
-        if (allowSave || hasSaveVariant), allowSavePaymentMethod != .disabled {
+        if (allowSave || hasSaveVariant), allowSavePaymentMethod == .optional {
             let isChecked = allowSavePaymentMethod == .forced
             let isEnabled = allowSavePaymentMethod == .optional
             let checkboxVariant: Form.CheckboxVariant
