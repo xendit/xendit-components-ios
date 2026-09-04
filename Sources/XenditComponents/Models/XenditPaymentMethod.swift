@@ -13,6 +13,7 @@ public enum XenditPaymentMethod {
     case ewallet
     case qrCode
     case bankTransfer
+    case onlineBanking
     case directDebit
     case virtualAccount
     case overTheCounter

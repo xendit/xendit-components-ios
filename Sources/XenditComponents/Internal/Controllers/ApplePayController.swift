@@ -114,8 +114,6 @@ final class ApplePayController: NSObject {
     // MARK: - Token serialization
 
     private func buildChannelProperties(from payment: PKPayment) -> [String: Any]? {
-        print("payment \(payment.description)")
-        print("payment token \(payment.token.description)")
         guard let tokenData = try? JSONSerialization.jsonObject(with: payment.token.paymentData) else {
             return nil
         }

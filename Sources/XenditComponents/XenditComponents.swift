@@ -188,6 +188,8 @@ public final class XenditComponents: ObservableObject {
                     || $0.pmType == .qrCode
                     || $0.pmType == .ewallet
                     || $0.pmType == .virtualAccount
+                    || $0.pmType == .bankTransfer
+                    || $0.pmType == .onlineBanking
                     || $0.pmType == .directDebit
                     || $0.pmType == .overTheCounter)
                 }
@@ -250,6 +252,7 @@ public final class XenditComponents: ObservableObject {
             case .ewallet:        return .ewallet
             case .qrCode:         return .qrCode
             case .bankTransfer:   return .bankTransfer
+            case .onlineBanking:  return .onlineBanking
             case .directDebit:    return .directDebit
             case .virtualAccount: return .virtualAccount
             case .overTheCounter: return .overTheCounter

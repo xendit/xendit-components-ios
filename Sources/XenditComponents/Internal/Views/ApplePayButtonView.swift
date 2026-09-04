@@ -24,6 +24,9 @@ struct ApplePayButtonView: View {
     private var isAvailable: Bool {
         guard state.session?.sessionType == .pay else { return false }
         guard let applePay = state.digitalWallets?.applePay else { return false }
+        guard let amount = state.session?.amount,
+              let cardsChannel = state.channels.first(where: { $0.pmType == .cards }),
+              cardsChannel.isInAmountRange(for: .pay, amount: amount) else { return false }
         let networks = ApplePayController.pkNetworks(from: applePay.applePayPaymentRequest.supportedNetworks)
         return PKPaymentAuthorizationController.canMakePayments(usingNetworks: networks)
     }

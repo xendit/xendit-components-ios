@@ -345,7 +345,10 @@ extension XenditComponents {
             )))
         }
 
-        guard let channel = stateStore.channels.first(where: { $0.pmType == .cards }) else {
+        guard let channel = stateStore.channels.first(where: {
+            $0.pmType == .cards &&
+            $0.isInAmountRange(for: .pay, amount: stateStore.session?.amount ?? 0)
+        }) else {
             return failWith("APPLE_PAY_NO_CARDS_CHANNEL")
         }
         guard let parsedKey, stateStore.session != nil else {

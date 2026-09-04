@@ -300,39 +300,3 @@ enum CreditCardType: String {
         }
     }
 }
-/// Validates a credit card number string using the Luhn algorithm.
-/// - Parameter input: Raw card number string; whitespace and dashes are stripped before processing.
-/// - Returns: `true` if the number passes the Luhn check.
-func validateCreditCard(_ input: String) -> Bool {
-    let digits = input.filter { $0.isNumber }
-    return passesLuhn(digits)
-}
-
-// MARK: - Luhn algorithm
-
-/// Returns `true` when the digit string satisfies the Luhn (Mod 10) checksum.
-///
-/// Steps:
-///   1. Convert each character to its numeric value.
-///   2. From the rightmost digit, double every second digit (positions 2, 4, 6, …).
-///   3. If doubling produces a value ≥ 10, subtract 9 (equivalent to summing the two digits).
-///   4. Sum all values; the card is valid when the total is divisible by 10.
-private func passesLuhn(_ digits: String) -> Bool {
-    var total = 0
-    let reversed = digits.reversed()
-
-    for (offset, character) in reversed.enumerated() {
-        guard let digit = character.wholeNumberValue else { return false }
-
-        if offset % 2 == 1 {
-            // Every second digit from the right — double it.
-            let doubled = digit * 2
-            // If doubling overshoots 9, subtract 9 to get the digit-sum equivalent.
-            total += doubled > 9 ? doubled - 9 : doubled
-        } else {
-            total += digit
-        }
-    }
-
-    return total % 10 == 0
-}
