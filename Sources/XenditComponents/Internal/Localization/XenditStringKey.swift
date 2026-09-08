@@ -66,6 +66,11 @@ enum LocalizationKey: String {
     case actionVaCopyAmount = "session::action_va.copy_amount"
     case actionVaCopyNumber = "session::action_va.copy_number"
     case actionVaVirtualAccountNumber = "session::action_va.virtual_account_number"
+    case actionVaMerchantName = "session::action_va.merchant_name"
+    case actionVaTransferTo = "session::action_va.transfer_to"
+    case actionVaExpiresAt = "session::action_va.expires_at"
+    case actionVaDone = "session::action_va.done"
+    case actionVaWaiting = "session::action_va.waiting_for_payment"
 
     // MARK: Channel Selection
 
@@ -171,6 +176,15 @@ enum LocalizationKey: String {
     case failureCodeUserDeviceUnreachable = "session::failure_code.user_device_unreachable"
     case failureCodeUserDidNotAuthorize = "session::failure_code.user_did_not_authorize"
     case failureCodeUnknown = "session::failure_code_unknown"
+    
+    // MARK: Apple Pay Errors
+
+    case applePayErrorsMerchantValidationFailedMessage = "session::apple_pay_errors.merchant_validation_failed.message"
+    case applePayErrorsMerchantValidationFailedTitle = "session::apple_pay_errors.merchant_validation_failed.title"
+    case applePayErrorsNetworkErrorMessage = "session::apple_pay_errors.network_error.message"
+    case applePayErrorsNetworkErrorTitle = "session::apple_pay_errors.network_error.title"
+    case applePayErrorsUnknownErrorMessage = "session::apple_pay_errors.unknown_error.message"
+    case applePayErrorsUnknownErrorTitle = "session::apple_pay_errors.unknown_error.title"
 
     // MARK: Google Pay Errors
 

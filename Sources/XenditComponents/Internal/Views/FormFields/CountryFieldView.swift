@@ -12,6 +12,7 @@ struct CountryFieldView: View {
     let placeholder: String
     @Binding var value: String
     var isDisabled: Bool = false
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
 
     private static let options: [BottomSheetPickerFieldView.PickerOption] = Country.countries.map {
@@ -26,6 +27,11 @@ struct CountryFieldView: View {
             value: $value,
             isDisabled: isDisabled,
             searchEnabled: true,
+            a11yIdTrigger: a11yId.isEmpty ? "" : XenditA11yIds.formDropdownPrefix + a11yId,
+            a11yIdSheet: XenditA11yIds.countryPickerSheet,
+            a11yIdClose: XenditA11yIds.countryPickerSheetClose,
+            a11yIdSearch: XenditA11yIds.countryPickerSearch,
+            a11yIdItemPrefix: XenditA11yIds.optionPrefix,
             onChanged: onChanged
         )
     }

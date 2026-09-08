@@ -12,6 +12,7 @@ struct CreditCardExpiryFieldView: View {
     let placeholder: String
     @Binding var value: String
     var isDisabled: Bool = false
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
@@ -34,7 +35,8 @@ struct CreditCardExpiryFieldView: View {
                     return (display: digits, stored: digits)
                 },
                 onChanged: onChanged,
-                onEditingEnded: onEditingEnded
+                onEditingEnded: onEditingEnded,
+                accessibilityIdentifier: a11yId
             )
             .padding(.horizontal, Spacing.s3)
             .frame(height: 44)

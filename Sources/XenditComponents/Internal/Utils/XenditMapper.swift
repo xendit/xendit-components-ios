@@ -64,7 +64,19 @@ struct XenditMapper {
             }
         }
 
-        return unflatten(flatMap.compactMapValues { $0 })
+        var processed = [String: Any]()
+        for (key, value) in flatMap {
+            guard let value else { continue }
+            if key.hasSuffix("[]") {
+                let cleanKey = String(key.dropLast(2))
+                var arr = processed[cleanKey] as? [Any] ?? []
+                arr.append(value)
+                processed[cleanKey] = arr
+            } else {
+                processed[key] = value
+            }
+        }
+        return unflatten(processed)
     }
 
     private static func isSensitiveField(_ field: SessionResponse.Channel.FormField) -> Bool {

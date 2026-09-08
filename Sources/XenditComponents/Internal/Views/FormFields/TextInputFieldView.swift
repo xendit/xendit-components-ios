@@ -14,6 +14,7 @@ struct TextInputFieldView: View {
     @Binding var value: String
     var keyboardType: UIKeyboardType = .default
     var isDisabled: Bool = false
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onEditingEnded: (() -> Void)?
 
@@ -28,6 +29,7 @@ struct TextInputFieldView: View {
                 .xenditFieldBorder()
                 .onChange(of: value) { _ in onChanged?() }
                 .onSubmit { onEditingEnded?() }
+                .accessibilityIdentifierIfSet(a11yId)
         }
     }
 }

@@ -234,7 +234,7 @@ struct XenditQrView: View {
 
 // MARK: - UIActivityViewController bridge
 
-private struct ActivityViewController: UIViewControllerRepresentable {
+struct ActivityViewController: UIViewControllerRepresentable {
     let activityItems: [Any]
 
     func makeUIViewController(context: Context) -> UIActivityViewController {

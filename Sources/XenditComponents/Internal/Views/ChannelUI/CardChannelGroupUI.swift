@@ -19,7 +19,12 @@ struct CardChannelGroupUI: View {
                 ChannelFormContent(channel: channel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged)
             }
             if let instructions = channel.instructions, !instructions.isEmpty {
-                BulletInstructionsView(instructions: instructions)
+                ChannelInstructionsView(instructions: instructions) {
+                    Image("xdt_icon_phone", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 40)
+                }
             }
         }
     }

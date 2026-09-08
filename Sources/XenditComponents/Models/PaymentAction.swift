@@ -8,16 +8,23 @@
 import Foundation
 
 /// UI model representing a payment action that requires user interaction.
-struct PaymentAction: Identifiable, Hashable {
+struct PaymentAction: Identifiable {
     let id: String
     let type: ActionType
     let value: String
+    /// `true` when the value is a raw QR_STRING to be rendered client-side.
     let isQrString: Bool
+    /// `true` when the action presents a Virtual Account number for bank transfer.
+    let isVirtualAccount: Bool
+    /// `true` when the action presents a  CODE-128 barcode (PAYMENT_CODE) to be rendered client-side.
+    let isBarcode: Bool
     let isDeeplink: Bool
     let title: String?
     let subtitle: String?
     let graphic: String?
     let otp: OtpInfo?
+    /// Rich step-by-step instructions returned by the backend (VA, barcode, etc.).
+    let instructions: [PaymentResponse.InstructionsTab]?
 
     enum ActionType: Hashable {
         case redirectCustomer
@@ -28,6 +35,12 @@ struct PaymentAction: Identifiable, Hashable {
         let title: String
         let instructions: String
     }
+}
+
+// Custom Hashable: instructions contains non-Hashable types; identity is sufficient.
+extension PaymentAction: Hashable {
+    static func == (lhs: PaymentAction, rhs: PaymentAction) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 extension PaymentAction {
@@ -41,11 +54,14 @@ extension PaymentAction {
                 type: .redirectCustomer,
                 value: data.value,
                 isQrString: false,
+                isVirtualAccount: false,
+                isBarcode: false,
                 isDeeplink: data.descriptor == .deeplinkUrl,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: nil
+                otp: nil,
+                instructions: nil
             )
         case .presentToCustomer(let data):
             guard !data.value.isEmpty else { return nil }
@@ -54,11 +70,14 @@ extension PaymentAction {
                 type: .presentToCustomer,
                 value: data.value,
                 isQrString: data.descriptor == .qrString,
+                isVirtualAccount: data.descriptor == .virtualAccountNumber,
+                isBarcode: data.descriptor == .paymentCode,
                 isDeeplink: false,
                 title: data.actionTitle,
                 subtitle: data.actionSubtitle,
                 graphic: data.actionGraphic,
-                otp: nil
+                otp: nil,
+                instructions: data.instructions
             )
         case .apiPostRequest(let data):
             let otpInfo = data.otp.map { OtpInfo(title: $0.title, instructions: $0.instructions) }
@@ -67,11 +86,14 @@ extension PaymentAction {
                 type: .presentToCustomer,
                 value: data.value,
                 isQrString: false,
+                isVirtualAccount: false,
+                isBarcode: false,
                 isDeeplink: false,
                 title: nil,
                 subtitle: nil,
                 graphic: nil,
-                otp: otpInfo
+                otp: otpInfo,
+                instructions: nil
             )
         case .unknown:
             return nil

@@ -10,6 +10,7 @@ A drop-in payment UI SDK for iOS that lets you accept payments through Xendit wi
 ## Features
 
 - **Pre-built payment sheet** — Full-screen payment UI with channel selection, form validation, and error handling out of the box.
+- **Apple Pay** — Native Apple Pay sheet, automatically shown when the session has Apple Pay enabled. No additional code required in the host app beyond the entitlement.
 - **3DS & redirect handling** — Built-in WebView for 3D Secure challenges and redirect-based payment flows.
 - **Customizable appearance** — Configure colors, fonts, and corner radius to match your brand.
 - **SwiftUI & UIKit** — Works with both UI frameworks.
@@ -123,6 +124,10 @@ The following values are supported:
 - `.cards`
 - `.ewallet`
 - `.qrCode`
+- `.virtualAccount`
+- `.bankTransfer`
+- `.directDebit`
+- `.overTheCounter`
 
 ### Swift
 
@@ -159,6 +164,18 @@ XenditComponents.present(
     }
 }];
 ```
+
+## Apple Pay
+
+Apple Pay is enabled server-side via the session configuration. When the session response includes Apple Pay data, the SDK automatically presents a native Apple Pay button. No changes are required in the host app's `present(...)` call.
+
+### Requirements
+
+1. **Apple Pay entitlement** — Add the Apple Pay capability to your app target in Xcode (Signing & Capabilities → + Capability → Apple Pay) and include your merchant ID.
+
+2. **Merchant identifier** — The merchant ID is provided by Xendit and is embedded in the session response. You do not pass it to the SDK directly.
+
+The Apple Pay button is only shown on devices where the user has a card configured for the presented networks. On simulators or devices without an eligible wallet, the button does not appear.
 
 ## Appearance Customization
 
@@ -350,7 +367,7 @@ class CheckoutViewController: UIViewController {
    ```
    https://github.com/xendit/xendit-components-ios.git
    ```
-3. Select **Up to Next Major Version** with `1.0.0`.
+3. Select **Up to Next Major Version** with `1.1.0`.
 4. Add `XenditComponents` to your app target.
 
 #### Package.swift
@@ -359,7 +376,7 @@ Add the dependency to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/xendit/xendit-components-ios.git", from: "1.0.0")
+    .package(url: "https://github.com/xendit/xendit-components-ios.git", from: "1.1.0")
 ]
 ```
 
@@ -382,6 +399,12 @@ Then add `XenditComponents` to your target's dependencies:
 | [SwiftUI Example](Example/XenditExample) | Sample SwiftUI app demonstrating SDK integration. |
 | [UIKit Example](Example/XenditExampleUIKit) | Sample UIKit app demonstrating SDK integration. |
 | [Obj-C Example](Example/XenditExampleObjC) | Sample Objective-C app using the SDK bridge. |
+
+## Security
+
+The SDK sends card data to Xendit over TLS, protected by [App Transport Security (ATS)](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity), which is enabled by default and enforces TLS 1.2+ with forward secrecy.
+
+> **Do not weaken App Transport Security for Xendit traffic.** In your app's `Info.plist`, do not set `NSAllowsArbitraryLoads` (or `NSAllowsArbitraryLoadsInWebContent`) to `true`, and do not add an `NSExceptionDomains` entry for Xendit hosts that sets `NSExceptionAllowsInsecureHTTPLoads` or lowers `NSExceptionMinimumTLSVersion`. Any of these re-enables downgrade and interception of the payment session.
 
 ## Privacy
 

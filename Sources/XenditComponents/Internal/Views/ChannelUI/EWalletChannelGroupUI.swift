@@ -68,7 +68,7 @@ struct EWalletChannelGroupUI: View {
     // MARK: - Helpers
 
     private var ewalletPickerOptions: [DropdownFieldView.Option] {
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return channels.map { channel in
             let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: session.locale)
             return DropdownFieldView.Option(

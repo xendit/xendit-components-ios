@@ -245,6 +245,11 @@ extension SessionResponse.Channel.FormField.FieldType {
 }
 
 extension SessionResponse.Channel {
+    var isDeprecated: Bool { Self.deprecatedCodes.contains(channelCode) }
+    private static let deprecatedCodes: Set<String> = ["BRI_DIRECT_DEBIT"]
+}
+
+extension SessionResponse.Channel {
     func parse(allowSavePaymentMethod: SessionResponse.Session.AllowSavePaymentMethod?, businessName: String? = nil, hasSaveVariant: Bool = false) -> Form.Page {
         var sections: [Form.Section] = []
         var currentTitle: String? = nil
@@ -307,14 +312,15 @@ extension SessionResponse.Channel {
                 // views on every re-render due to changing UUIDs.
                 id: field.channelProperty.primaryKey,
                 type: mapInputType(field.type),
-                label: field.label.isEmpty ? nil : field.label,
+                label: (field.label.isEmpty || field.label == currentTitle) ? nil : field.label,
                 placeholder: field.placeholder.isEmpty ? nil : field.placeholder,
                 required: field.required,
                 isDisabled: field.disabled ?? false,
                 initialValue: field.initialValue,
                 channelProperty: mapChannelProperty(field.channelProperty),
                 flags: Form.Flags(requireBillingInformation: field.flags?.requireBillingInformation),
-                join: field.join ?? false
+                join: field.join ?? false,
+                displayIf: field.displayIf
             )
             let component = Form.Component.inputField(field: inputField)
 
@@ -356,7 +362,7 @@ extension SessionResponse.Channel {
         }
 
         // Append save payment method checkbox at the bottom if applicable
-        if (allowSave || hasSaveVariant), allowSavePaymentMethod != .disabled {
+        if (allowSave || hasSaveVariant), allowSavePaymentMethod == .optional {
             let isChecked = allowSavePaymentMethod == .forced
             let isEnabled = allowSavePaymentMethod == .optional
             let checkboxVariant: Form.CheckboxVariant
@@ -375,7 +381,8 @@ extension SessionResponse.Channel {
                 initialValue: nil,
                 channelProperty: .single("allow_save_payment_method"),
                 flags: Form.Flags(requireBillingInformation: nil),
-                join: false
+                join: false,
+                displayIf: nil
             )
             sections.append(Form.Section(
                 id: "section_save_payment_method",
@@ -429,7 +436,8 @@ extension SessionResponse.Channel {
         return .inputField(field: Form.InputField(
             id: f.id, type: f.type, label: f.label, placeholder: f.placeholder,
             required: f.required, isDisabled: f.isDisabled, initialValue: f.initialValue,
-            channelProperty: f.channelProperty, flags: f.flags, join: true
+            channelProperty: f.channelProperty, flags: f.flags, join: true,
+            displayIf: f.displayIf
         ))
     }
 }

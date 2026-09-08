@@ -18,8 +18,16 @@ struct GenericChannelGroupUI: View {
             if hasFormContent(channel, session: session) {
                 ChannelFormContent(channel: channel, session: session, stateStore: stateStore, onPropertiesChanged: onPropertiesChanged)
             }
+            if let banner = channel.banner, !banner.imageUrl.isEmpty {
+                ChannelBannerView(banner: banner)
+            }
             if let instructions = channel.instructions, !instructions.isEmpty {
-                BulletInstructionsView(instructions: instructions)
+                ChannelInstructionsView(instructions: instructions) {
+                    Image("xdt_icon_phone", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 40)
+                }
             }
         }
     }

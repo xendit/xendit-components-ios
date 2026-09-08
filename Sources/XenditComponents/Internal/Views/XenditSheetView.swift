@@ -49,7 +49,7 @@ struct XenditSheetView: View {
             if (stateStore.isSubmitting || stateStore.isPolling) && stateStore.activeAction == nil && stateStore.awaitingPaymentAction == nil {
                 submitLoadingOverlay
             }
-            
+
             if let awaitingAction = stateStore.awaitingPaymentAction {
                 AwaitingPaymentView(
                     action: awaitingAction,
@@ -67,6 +67,7 @@ struct XenditSheetView: View {
             }
         }
         .background(XenditComponents.appearance.resolvedBackground)
+        .accessibilityIdentifier(XenditA11yIds.paymentSheet)
         .alert(item: $submissionAlert) { alert in
             Alert(
                 title: Text(alert.title),
@@ -93,6 +94,7 @@ struct XenditSheetView: View {
             Button(action: { onResult(.dismissed) }) {
                 Image("xdt_arrow_left_24", bundle: .module)
             }
+            .accessibilityIdentifier(XenditA11yIds.genericHeaderLeadingButton)
             Text(headerTitle)
                 .font(.headingH3)
             Spacer()
@@ -113,7 +115,45 @@ struct XenditSheetView: View {
             footerView
         }
         .fullScreenCover(item: $stateStore.activeAction) { action in
-            if action.type == .redirectCustomer {
+            if action.isVirtualAccount {
+                VirtualAccountActionView(
+                    action: action,
+                    businessName: stateStore.businessName,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    amount: stateStore.session?.amount,
+                    currency: stateStore.session?.currency,
+                    locale: stateStore.session?.locale ?? "en",
+                    showSimulateButton: sdk.parsedKey?.hostId != "pl",
+                    brandColor: stateStore.currentChannel?.brandColor ?? "",
+                    onDismiss: { dismissAction() },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in resumePolling() },
+                                  receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
+                )
+            } else if action.isBarcode {
+                XenditBarcodeView(
+                    action: action,
+                    businessName: stateStore.businessName,
+                    channelName: stateStore.currentChannel?.brandName ?? "",
+                    channelLogoUrl: stateStore.currentChannel?.brandLogoUrl,
+                    amount: stateStore.session?.amount,
+                    currency: stateStore.session?.currency,
+                    locale: stateStore.session?.locale ?? "en",
+                    showSimulateButton: sdk.parsedKey?.hostId != "pl",
+                    brandColor: stateStore.currentChannel?.brandColor ?? "",
+                    onDismiss: { dismissAction() },
+                    onPaymentMade: {
+                        sdk.simulatePaymentIfNeeded()
+                            .sink(receiveCompletion: { _ in resumePolling() },
+                                  receiveValue: { _ in })
+                            .store(in: &cancellables)
+                    }
+                )
+            } else if action.type == .redirectCustomer {
                 XenditActionWebView(
                     urlString: action.value,
                     strings: strings,
@@ -137,7 +177,6 @@ struct XenditSheetView: View {
                             .store(in: &cancellables)
                     }
                 )
-
             }
         }
     }
@@ -172,6 +211,7 @@ struct XenditSheetView: View {
                 .cornerRadius(XenditComponents.appearance.resolvedRadius)
             }
             .disabled(isPayButtonDisabled)
+            .accessibilityIdentifier(XenditA11yIds.dialogSubmitButton)
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
@@ -196,6 +236,7 @@ struct XenditSheetView: View {
             Button("Close") {
                 onResult(.dismissed)
             }
+            .accessibilityIdentifier(XenditA11yIds.dialogErrorCloseButton)
             .padding()
             Spacer()
         }
@@ -210,11 +251,14 @@ struct XenditSheetView: View {
             return "Processing..."
         }
 
-        if stateStore.session?.sessionType == .save {
+        switch stateStore.session?.sessionType {
+        case .save:
             return strings.string(for: .paymentMethodsSubmitAddPaymentMethod)
+        case .subscription:
+            return strings.string(for: .channelSelectionConfirmSubscription)
+        default:
+            return strings.string(for: .paymentMethodsSubmitPay)
         }
-
-        return strings.string(for: .paymentMethodsSubmitPay)
     }
 
     private var headerTitle: String {

@@ -19,6 +19,11 @@ struct BottomSheetPickerFieldView: View {
     var showIconDivider: Bool = false
     var iconSize: CGSize = CGSize(width: 16, height: 16)
     var iconClipShape: IconClipShape = .circle
+    var a11yIdTrigger: String = ""
+    var a11yIdSheet: String = ""
+    var a11yIdClose: String = ""
+    var a11yIdSearch: String = ""
+    var a11yIdItemPrefix: String = ""
     var onChanged: (() -> Void)?
 
     enum IconClipShape: Shape {
@@ -57,7 +62,7 @@ struct BottomSheetPickerFieldView: View {
         guard !value.isEmpty else { return nil }
         return options.first(where: { $0.value == value })
     }
-
+    
     var body: some View {
         XenditLabeledField(label: label) {
             Button(action: { if !isDisabled { isPresented = true } }) {
@@ -77,9 +82,9 @@ struct BottomSheetPickerFieldView: View {
                     Text(selectedOption?.label ?? placeholder)
                         .font(.labelLgRegular)
                         .foregroundColor(value.isEmpty
-                            ? XenditComponents.appearance.resolvedTextPlaceholder
-                            : XenditComponents.appearance.resolvedText)
-
+                                         ? XenditComponents.appearance.resolvedTextPlaceholder
+                                         : XenditComponents.appearance.resolvedText)
+                    
                     Spacer()
                     if !isDisabled {
                         Image(systemName: "chevron.down")
@@ -93,8 +98,7 @@ struct BottomSheetPickerFieldView: View {
                 .xenditFieldBorder()
             }
             .buttonStyle(.plain)
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.5 : 1)
+            .accessibilityIdentifierIfSet(a11yIdTrigger)
         }
         .sheet(isPresented: $isPresented) {
             XenditPickerSheet(
@@ -102,6 +106,10 @@ struct BottomSheetPickerFieldView: View {
                 options: options,
                 value: $value,
                 searchEnabled: searchEnabled,
+                a11yIdSheet: a11yIdSheet,
+                a11yIdClose: a11yIdClose,
+                a11yIdSearch: a11yIdSearch,
+                a11yIdItemPrefix: a11yIdItemPrefix,
                 onSelected: { selected in
                     value = selected
                     onChanged?()
@@ -125,6 +133,10 @@ struct XenditPickerSheet: View {
     /// Custom per-item filter predicate. Receives the search query and option; return true to include.
     /// Defaults to case-insensitive label match when nil.
     var searchFilter: ((String, BottomSheetPickerFieldView.PickerOption) -> Bool)? = nil
+    var a11yIdSheet: String = ""
+    var a11yIdClose: String = ""
+    var a11yIdSearch: String = ""
+    var a11yIdItemPrefix: String = ""
     let onSelected: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -144,7 +156,7 @@ struct XenditPickerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            sheetHeader(title: title)
+            sheetHeader(title: title, closeButtonA11yId: a11yIdClose)
 
             Divider()
 
@@ -176,6 +188,7 @@ struct XenditPickerSheet: View {
             }
         }
         .background(XenditComponents.appearance.resolvedBackground)
+        .accessibilityIdentifierIfSet(a11yIdSheet)
         .onDisappear { searchTask?.cancel() }
     }
 
@@ -185,6 +198,7 @@ struct XenditPickerSheet: View {
                 .foregroundColor(.secondary)
             TextField(searchPlaceholder, text: $searchText)
                 .font(InterFont.bodyMd)
+                .accessibilityIdentifierIfSet(a11yIdSearch)
             if !searchText.isEmpty {
                 Button { searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -209,12 +223,11 @@ struct XenditPickerSheet: View {
                 if let iconUrl = option.iconUrl {
                     RemoteImage(url: URL(string: iconUrl))
                         .frame(width: 24, height: 24)
-                        .opacity(option.isDisabled ? 0.5 : 1.0)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(option.label)
                         .font(.labelLgRegular)
-                        .foregroundColor(option.isDisabled ? .secondary : .Text.default)
+                        .foregroundColor(.Text.default)
                     if let subtitle = option.subtitle {
                         Text(subtitle)
                             .font(.labelSmRegular)
@@ -234,13 +247,14 @@ struct XenditPickerSheet: View {
         }
         .buttonStyle(.plain)
         .disabled(option.isDisabled)
+        .accessibilityIdentifierIfSet(a11yIdItemPrefix.isEmpty ? "" : a11yIdItemPrefix + option.value)
     }
 }
 
 // MARK: - Shared sheet header
 
 @MainActor
-func sheetHeader(title: String) -> some View {
+func sheetHeader(title: String, closeButtonA11yId: String = "") -> some View {
     ZStack {
         Text(title)
             .font(.headingH3)
@@ -249,7 +263,7 @@ func sheetHeader(title: String) -> some View {
             .frame(maxWidth: .infinity)
         HStack {
             Spacer()
-            DismissButton()
+            DismissButton(a11yId: closeButtonA11yId)
         }
     }
     .padding(.horizontal, Spacing.s4)
@@ -259,6 +273,7 @@ func sheetHeader(title: String) -> some View {
 
 private struct DismissButton: View {
     @Environment(\.dismiss) private var dismiss
+    var a11yId: String = ""
 
     var body: some View {
         Button { dismiss() } label: {
@@ -267,5 +282,6 @@ private struct DismissButton: View {
                 .foregroundColor(.secondary)
                 .padding(Spacing.s2)
         }
+        .accessibilityIdentifierIfSet(a11yId)
     }
 }

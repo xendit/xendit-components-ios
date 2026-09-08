@@ -13,6 +13,9 @@ struct DropdownFieldView: View {
     let options: [Option]
     @Binding var value: String
     var isDisabled: Bool = false
+    var a11yIdAnchor: String = ""
+    var a11yIdSheet: String = ""
+    var a11yIdItemPrefix: String = ""
     var onChanged: (() -> Void)?
     var showIconDivider: Bool = false
     var iconSize: CGSize = CGSize(width: 34, height: 24)
@@ -45,6 +48,9 @@ struct DropdownFieldView: View {
             showIconDivider: showIconDivider,
             iconSize: iconSize,
             iconClipShape: .rectangle,
+            a11yIdTrigger: a11yIdAnchor,
+            a11yIdSheet: a11yIdSheet,
+            a11yIdItemPrefix: a11yIdItemPrefix,
             onChanged: onChanged
         )
     }

@@ -15,6 +15,7 @@ struct FormFieldView: View {
     var installmentPlans: [InstallmentPlan]? = nil
     var selectedCountry: String = ""
     var phoneCountryCode: String = ""
+    var a11yId: String = ""
     var onChanged: (() -> Void)?
     var onValidationChanged: ((String?) -> Void)? = nil
 
@@ -85,6 +86,7 @@ struct FormFieldView: View {
                 value: $value,
                 isDisabled: field.isDisabled,
                 cardType: cardType,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -96,6 +98,7 @@ struct FormFieldView: View {
                 value: $value,
                 keyboardType: .emailAddress,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -107,6 +110,7 @@ struct FormFieldView: View {
                 value: $value,
                 isDisabled: field.isDisabled,
                 externalCountryCode: phoneCountryCode,
+                a11yId: a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -118,6 +122,7 @@ struct FormFieldView: View {
                 value: $value,
                 keyboardType: numeric == true ? .numberPad : .default,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -129,6 +134,7 @@ struct FormFieldView: View {
                 value: $value,
                 keyboardType: .numbersAndPunctuation,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -139,6 +145,7 @@ struct FormFieldView: View {
                 placeholder: field.placeholder ?? "",
                 value: $value,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -149,6 +156,7 @@ struct FormFieldView: View {
                 placeholder: field.placeholder ?? "",
                 value: $value,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )
@@ -160,6 +168,9 @@ struct FormFieldView: View {
                 options: options.map { DropdownFieldView.Option(label: $0.label, value: $0.value, subtitle: $0.subtitle) },
                 value: $value,
                 isDisabled: field.isDisabled,
+                a11yIdAnchor: a11yId.isEmpty ? "" : XenditA11yIds.formDropdownPrefix + a11yId,
+                a11yIdSheet: XenditA11yIds.dropdownMenu,
+                a11yIdItemPrefix: XenditA11yIds.dropdownMenuItemPrefix,
                 onChanged: handleChanged
             )
 
@@ -169,6 +180,7 @@ struct FormFieldView: View {
                 placeholder: field.placeholder ?? "",
                 value: $value,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId,
                 onChanged: handleChanged
             )
 
@@ -179,6 +191,7 @@ struct FormFieldView: View {
                 selectedCountry: selectedCountry,
                 value: $value,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId,
                 onChanged: handleChanged
             )
 
@@ -201,6 +214,8 @@ struct FormFieldView: View {
                     options: options,
                     value: $value,
                     isDisabled: field.isDisabled,
+                    a11yIdTrigger: XenditA11yIds.installmentPlanTrigger,
+                    a11yIdItemPrefix: XenditA11yIds.dropdownMenuItemPrefix,
                     onChanged: handleChanged
                 )
             }
@@ -229,6 +244,7 @@ struct FormFieldView: View {
                 value: $value,
                 keyboardType: .default,
                 isDisabled: field.isDisabled,
+                a11yId: a11yId.isEmpty ? "" : XenditA11yIds.formFieldPrefix + a11yId,
                 onChanged: handleChanged,
                 onEditingEnded: { isTouched = true }
             )

@@ -51,6 +51,7 @@ extension Form {
         let flags: Flags
         /// When true: hide this field's label and collapse the gap between this field and the previous one.
         let join: Bool
+        let displayIf: [[String]]?
     }
     
     enum InputType: Hashable {

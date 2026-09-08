@@ -29,6 +29,7 @@ extension SessionResponse {
         let allowSavePaymentMethod: AllowSavePaymentMethod?
         let componentsSdkKey: String?
         let componentsConfiguration: ComponentsConfiguration
+        let subscription: Subscription?
 
         enum CodingKeys: String, CodingKey {
             case paymentSessionId = "payment_session_id"
@@ -46,6 +47,7 @@ extension SessionResponse {
             case allowSavePaymentMethod = "allow_save_payment_method"
             case componentsSdkKey = "components_sdk_key"
             case componentsConfiguration = "components_configuration"
+            case subscription
         }
     }
 }
@@ -55,6 +57,7 @@ extension SessionResponse.Session {
     enum SessionType: String, Decodable {
         case pay = "PAY"
         case save = "SAVE"
+        case subscription = "SUBSCRIPTION"
         case authorization = "AUTHORIZATION"
         /// Received when the backend introduces a session type not yet known to this SDK version.
         case unknown
@@ -164,6 +167,46 @@ extension SessionResponse.Session {
     }
 }
 
+// MARK: - Subscription
+
+extension SessionResponse.Session {
+    enum Interval: String, Codable {
+            case day = "DAY"
+            case week = "WEEK"
+            case month = "MONTH"
+        }
+
+    struct Subscription: Decodable {
+        let immediatePayment: Bool?
+        let schedule: Schedule?
+
+        enum CodingKeys: String, CodingKey {
+            case immediatePayment = "immediate_payment"
+            case schedule
+        }
+
+        struct Schedule: Decodable {
+            let anchorDate: String
+            let interval: Interval
+            let intervalCount: Int
+            let retryInterval: Interval?
+            let retryIntervalCount: Int?
+            let totalRecurrence: Int?
+            let totalRetry: Int?
+
+            enum CodingKeys: String, CodingKey {
+                case anchorDate = "anchor_date"
+                case interval
+                case intervalCount = "interval_count"
+                case retryInterval = "retry_interval"
+                case retryIntervalCount = "retry_interval_count"
+                case totalRecurrence = "total_recurrence"
+                case totalRetry = "total_retry"
+            }
+        }
+    }
+}
+
 // MARK: - Components Configuration
 
 extension SessionResponse.Session {
@@ -179,7 +222,7 @@ extension SessionResponse.Session {
         Session(
             id: paymentSessionId,
             description: description,
-            sessionType: sessionType == .pay ? .pay : .save,
+            sessionType: sessionType.toModel(),
             mode: .components,
             referenceId: referenceId,
             country: country,
@@ -190,8 +233,58 @@ extension SessionResponse.Session {
             status: status.toModel(),
             allowSavePaymentMethod: allowSavePaymentMethod.map { $0.toModel() },
             captureMethod: captureMethod == .manual ? .manual : .automatic,
-            items: items?.map { $0.toModel() }
+            items: items?.map { $0.toModel() },
+            subscription: subscription?.toModel()
         )
+    }
+}
+
+extension SessionResponse.Session.SessionType {
+    init(_ publicType: Session.SessionType) {
+        switch publicType {
+        case .pay: self = .pay
+        case .subscription: self = .subscription
+        case .save, .unknown: self = .save
+        }
+    }
+}
+
+private extension SessionResponse.Session.SessionType {
+    func toModel() -> Session.SessionType {
+        switch self {
+        case .pay: return .pay
+        case .subscription: return .subscription
+        case .save, .authorization, .unknown: return .save
+        }
+    }
+}
+
+private extension SessionResponse.Session.Subscription {
+    func toModel() -> Session.Subscription {
+        Session.Subscription(
+            immediatePayment: immediatePayment,
+            schedule: schedule.map {
+                Session.Subscription.Schedule(
+                    anchorDate: $0.anchorDate,
+                    interval: $0.interval.toModel(),
+                    intervalCount: $0.intervalCount,
+                    retryInterval: $0.retryInterval?.toModel(),
+                    retryIntervalCount: $0.retryIntervalCount,
+                    totalRecurrence: $0.totalRecurrence,
+                    totalRetry: $0.totalRetry
+                )
+            }
+        )
+    }
+}
+
+private extension SessionResponse.Session.Interval {
+    func toModel() -> Session.Interval {
+        switch self {
+        case .day: return .day
+        case .week: return .week
+        case .month: return .month
+        }
     }
 }
 

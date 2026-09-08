@@ -34,6 +34,8 @@ final class SDKStateStore: ObservableObject {
     @Published var installmentPlans: [InstallmentPlan]?
     @Published var selectedInstallmentPlan: InstallmentPlan?
 
+    @Published var digitalWallets: SessionResponse.DigitalWallets?
+
     /// Raw session response, kept for use in marshal functions.
     var rawSession: SessionResponse.Session?
 
@@ -46,7 +48,7 @@ final class SDKStateStore: ObservableObject {
             effectiveChannel = displayChannel
         }
 
-        let sessionType: SessionResponse.Session.SessionType = session?.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session?.sessionType ?? .unknown)
         let fieldsValid = FormValidator.channelPropertiesAreValid(
             fields: effectiveChannel.form,
             channelProperties: channelProperties,

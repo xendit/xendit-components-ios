@@ -128,6 +128,7 @@ public final class XenditComponents: ObservableObject {
     let checkoutAPI: CheckoutAPI
     var eventListeners: [XenditEventListener] = []
     var poller = SessionPoller()
+    var applePayController: ApplePayController?
     var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
@@ -181,12 +182,23 @@ public final class XenditComponents: ObservableObject {
                 self.stateStore.session = response.session.toModel()
                 self.stateStore.businessName = response.business?.name
                 self.stateStore.customer = response.customer?.toModel()
-                let filtered = response.channels?.filter { $0.pmType == .cards || $0.pmType == .qrCode || $0.pmType == .ewallet }
+                let filtered = response.channels?.filter {
+                    !$0.isDeprecated
+                    && ($0.pmType == .cards
+                    || $0.pmType == .qrCode
+                    || $0.pmType == .ewallet
+                    || $0.pmType == .virtualAccount
+                    || $0.pmType == .bankTransfer
+                    || $0.pmType == .onlineBanking
+                    || $0.pmType == .directDebit
+                    || $0.pmType == .overTheCounter)
+                }
                 let pairing = CombinedChannelsResult.combining(filtered)
                 self.stateStore.channels = pairing.channels
                 self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups ?? []
                 self.stateStore.phoneCountryCode = response.session.country
+                self.stateStore.digitalWallets = response.digitalWallets
 
                 self.applyMerchantPreferences()
 
@@ -218,6 +230,20 @@ public final class XenditComponents: ObservableObject {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
+    
+    func presentApplePay() {
+        guard let applePay = stateStore.digitalWallets?.applePay,
+              let session = stateStore.session,
+              let parsedKey else { return }
+        let controller = ApplePayController(
+            sdk: self,
+            applePayData: applePay,
+            session: session,
+            parsedKey: parsedKey
+        )
+        applePayController = controller
+        controller.present()
+    }
 
     private func applyMerchantPreferences() {
         let preferred: [SessionResponse.Channel.PaymentMethod] = (merchantPreferredPaymentMethod ?? []).map {
@@ -225,6 +251,11 @@ public final class XenditComponents: ObservableObject {
             case .cards:          return .cards
             case .ewallet:        return .ewallet
             case .qrCode:         return .qrCode
+            case .bankTransfer:   return .bankTransfer
+            case .onlineBanking:  return .onlineBanking
+            case .directDebit:    return .directDebit
+            case .virtualAccount: return .virtualAccount
+            case .overTheCounter: return .overTheCounter
             }
         }
         guard !preferred.isEmpty else { return }

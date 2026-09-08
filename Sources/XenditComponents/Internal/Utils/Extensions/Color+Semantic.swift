@@ -10,6 +10,10 @@ import UIKit
 
 // MARK: - Primitive hex initializer
 
+extension Color {
+    init(hex: String) { self.init(UIColor(hex: hex)) }
+}
+
 private extension UIColor {
     convenience init(hex: String) {
         var hex = hex.trimmingCharacters(in: .whitespacesAndNewlines)

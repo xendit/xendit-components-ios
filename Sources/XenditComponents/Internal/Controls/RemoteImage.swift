@@ -13,6 +13,7 @@ import SwiftUI
 struct RemoteImage: View {
     let url: URL?
     var localFallback: String? = nil
+    var contentMode: ContentMode = .fit
 
     var body: some View {
         if url?.isSVG == true {
@@ -22,7 +23,8 @@ struct RemoteImage: View {
             AsyncImage(url: url) { phase in
                 switch phase {
                 case .success(let image):
-                    image.resizable().scaledToFit()
+                    image.resizable()
+                        .aspectRatio(contentMode: contentMode)
                 case .failure:
                     fallbackView
                 default:

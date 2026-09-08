@@ -41,6 +41,7 @@ struct XenditTextField: UIViewRepresentable {
     var transform: ((String) -> (display: String, stored: String))? = nil
     var onChanged: (() -> Void)? = nil
     var onEditingEnded: (() -> Void)? = nil
+    var accessibilityIdentifier: String = ""
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -53,6 +54,9 @@ struct XenditTextField: UIViewRepresentable {
     }
 
     func updateUIView(_ tf: UITextField, context: Context) {
+        if !accessibilityIdentifier.isEmpty {
+            tf.accessibilityIdentifier = accessibilityIdentifier
+        }
         let display = transform?(text).display ?? text
         if tf.text != display { tf.text = display }
         tf.attributedPlaceholder = NSAttributedString(

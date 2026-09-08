@@ -52,6 +52,12 @@ struct XenditChannelPickerView: View {
             state.channels.contains { $0.uiGroup == group.id }
         }
 
+        if let sdk {
+            ApplePayButtonView(sdk: sdk)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+        }
+
         VStack(spacing: -8) {
             ForEach(Array(visibleGroups.enumerated()), id: \.element.id) { index, group in
                 let groupChannels = state.channels.filter { $0.uiGroup == group.id }
@@ -92,14 +98,9 @@ private struct AccordionGroupView: View {
 
     private var isSingleChannel: Bool { channels.count == 1 }
 
-    /// `true` for multi-bank groups (eWallet, Virtual Account, Bank Transfer) that expand
-    /// inline to show a channel picker, rather than opening a bottom sheet.
+    /// `true` for groups that expand inline to show a channel picker, rather than opening a bottom sheet.
     private var isExpandableMultiChannel: Bool {
-        guard channels.count > 1 else { return false }
-        switch channels.first?.pmType {
-        case .ewallet, .virtualAccount, .bankTransfer: return true
-        default: return false
-        }
+        channels.count > 1 && ChannelGroupContentBuilder.usesPicker(for: channels.first?.pmType)
     }
 
     private var isSelected: Bool {
@@ -116,16 +117,16 @@ private struct AccordionGroupView: View {
     }
 
     private var isGroupDisabled: Bool {
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return channels.allSatisfy { !$0.isInAmountRange(for: sessionType, amount: session.amount) }
     }
 
     private var groupDisabledReason: String? {
         guard isGroupDisabled, let first = channels.first else { return nil }
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         return first.amountDisabledReason(for: sessionType, amount: session.amount, locale: stateStore.session?.locale ?? "en")
     }
-    
+
     private var shouldBeOpen: Bool {
         guard !isManuallyCollapsed else { return false }
         return isExpandableMultiChannel ? (isMultiChannelExpanded || isSelected) : isSelected
@@ -136,6 +137,9 @@ private struct AccordionGroupView: View {
         case .cards:        return "xdt_channel_card"
         case .ewallet:      return "xdt_channel_ewallet"
         case .qrCode:       return "xdt_channel_qr"
+        case .overTheCounter:       return "xdt_channel_over_counter"
+        case .bankTransfer, .virtualAccount:       return "xdt_channel_bank_transfer"
+        case .onlineBanking, .directDebit:       return "xdt_channel_online_banking"
         default:            return nil
         }
     }
@@ -171,12 +175,15 @@ private struct AccordionGroupView: View {
                     isMultiChannelExpanded = false
                 }
             } else {
+                // currentChannel was cleared — collapse unless we are the group that triggered it.
                 if stateStore.expandedGroupId != group.id {
                     isMultiChannelExpanded = false
                 }
             }
         }
         .onChange(of: stateStore.expandedGroupId) { activeId in
+            // Collapse this group when a different expandable group becomes active.
+            // Covers the nil→nil case where selectedChannelCode never changes.
             if isExpandableMultiChannel, activeId != group.id {
                 isMultiChannelExpanded = false
             }
@@ -255,6 +262,7 @@ private struct AccordionGroupView: View {
             .opacity(isGroupDisabled ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(XenditA11yIds.channelPrefix + group.id)
     }
 
     // MARK: Inline content
@@ -292,6 +300,7 @@ private struct AccordionGroupView: View {
                 isManuallyCollapsed = true
                 stateStore.expandedGroupId = nil
             } else {
+                // Capture before mutating isMultiChannelExpanded — isSelected depends on it.
                 let hasChannelAlready = channels.contains { $0.channelCode == selectedChannelCode }
                 isMultiChannelExpanded = true
                 isManuallyCollapsed = false
@@ -333,7 +342,7 @@ private struct ChannelPickerSheet: View {
 
     private func channelRow(_ channel: SessionResponse.Channel) -> some View {
         let isSelected = channel.channelCode == selectedChannelCode
-        let sessionType: SessionResponse.Session.SessionType = session.sessionType == .pay ? .pay : .save
+        let sessionType = SessionResponse.Session.SessionType(session.sessionType)
         let reason = channel.amountDisabledReason(for: sessionType, amount: session.amount, locale: locale)
         let isDisabled = reason != nil
 
@@ -374,6 +383,7 @@ private struct ChannelPickerSheet: View {
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
+        .accessibilityIdentifier(XenditA11yIds.channelPrefix + channel.channelCode)
     }
 }
 
