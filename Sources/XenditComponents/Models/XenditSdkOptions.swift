@@ -34,6 +34,13 @@ struct ParsedSdkKey {
         "sd": "https://checkout-ui-gateway-dev.stg.tidnex.dev"
     ]
 
+    static let telemetryHosts: [String: String] = [
+        "pl": "https://log.xendit.co",
+        "pd": "https://log-dev.xendit.co",
+        "sl": "https://log.stg.tidnex.dev",
+        "sd": "https://log-dev.stg.tidnex.dev"
+    ]
+
     static func parse(_ componentsSdkKey: String) throws -> ParsedSdkKey {
         guard !componentsSdkKey.isEmpty else {
             throw XenditAPIError.invalidSDKKey("The componentsSdkKey option is missing.")
@@ -67,6 +74,10 @@ struct ParsedSdkKey {
 
     var baseURL: URL {
         URL(string: Self.knownHosts[hostId]!)!
+    }
+
+    var telemetryURL: URL {
+        URL(string: Self.telemetryHosts[hostId]!)!
     }
 }
 

@@ -11,6 +11,7 @@ import PassKit
 struct ApplePayButtonView: View {
     private weak var sdk: XenditComponents?
     @ObservedObject private var state: SDKStateStore
+    @State private var didFireLoadedTelemetry = false
 
     init(sdk: XenditComponents) {
         self.sdk = sdk
@@ -53,6 +54,11 @@ struct ApplePayButtonView: View {
                 }
             }
             .padding(.bottom, 4)
+            .onAppear {
+                guard !didFireLoadedTelemetry else { return }
+                didFireLoadedTelemetry = true
+                sdk.telemetry?.append(TelemetryEvents.digitalWalletLoaded(success: true, digitalWallet: "APPLE_PAY"))
+            }
         }
     }
 }

@@ -91,7 +91,12 @@ struct XenditSheetView: View {
 
     private var headerView: some View {
         HStack(spacing: Spacing.s4) {
-            Button(action: { onResult(.dismissed) }) {
+            Button(action: {
+                if !sdk.sessionReachedTerminalState {
+                    sdk.telemetry?.append(TelemetryEvents.abandon(success: true))
+                }
+                onResult(.dismissed)
+            }) {
                 Image("xdt_arrow_left_24", bundle: .module)
             }
             .accessibilityIdentifier(XenditA11yIds.genericHeaderLeadingButton)
@@ -126,6 +131,9 @@ struct XenditSheetView: View {
                     locale: stateStore.session?.locale ?? "en",
                     showSimulateButton: sdk.parsedKey?.hostId != "pl",
                     brandColor: stateStore.currentChannel?.brandColor ?? "",
+                    onCopy: { fieldName in
+                        sdk.telemetry?.append(TelemetryEvents.actionCopyText(success: true, fieldName: fieldName))
+                    },
                     onDismiss: { dismissAction() },
                     onPaymentMade: {
                         sdk.simulatePaymentIfNeeded()

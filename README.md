@@ -367,7 +367,7 @@ class CheckoutViewController: UIViewController {
    ```
    https://github.com/xendit/xendit-components-ios.git
    ```
-3. Select **Up to Next Major Version** with `1.1.0`.
+3. Select **Up to Next Major Version** with `1.2.0`.
 4. Add `XenditComponents` to your app target.
 
 #### Package.swift
@@ -376,7 +376,7 @@ Add the dependency to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/xendit/xendit-components-ios.git", from: "1.1.0")
+    .package(url: "https://github.com/xendit/xendit-components-ios.git", from: "1.2.0")
 ]
 ```
 
