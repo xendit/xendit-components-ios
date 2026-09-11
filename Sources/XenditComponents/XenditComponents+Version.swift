@@ -9,5 +9,5 @@ import Foundation
 
 extension XenditComponents {
     /// The current version of the Xendit Components iOS SDK.
-    public static let sdkVersion = "v1.1.0"
+    public static let sdkVersion = "v1.2.0"
 }

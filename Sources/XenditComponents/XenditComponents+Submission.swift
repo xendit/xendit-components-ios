@@ -57,7 +57,7 @@ extension XenditComponents {
                 .map { SubmissionResult.paymentToken($0) }
                 .mapError { $0 as Error }
                 .eraseToAnyPublisher()
-            
+
         default:
             return Fail(error: URLError(.unsupportedURL)).eraseToAnyPublisher()
         }
@@ -76,6 +76,7 @@ extension XenditComponents {
             lastPaymentRequestId = pr.paymentRequestId
             tokenRequestId = pr.sessionTokenRequestId
             actions = pr.actions
+            attemptPRScope = telemetry?.appendAndPushScope(TelemetryEvents.attemptPR(success: true, paymentRequestId: pr.paymentRequestId))
             switch pr.status {
             case .succeeded, .authorized, .acceptingPayments, .failed, .canceled, .expired:
                 return handleFinalPaymentRequestStatus(pr)
@@ -89,6 +90,7 @@ extension XenditComponents {
             dispatch(.paymentTokenCreated(paymentTokenId: pt.paymentTokenId))
             tokenRequestId = pt.sessionTokenRequestId
             actions = pt.actions
+            attemptPRScope = telemetry?.appendAndPushScope(TelemetryEvents.attemptPT(success: true, paymentTokenId: pt.paymentTokenId))
             switch pt.status {
             case .active, .failed, .canceled, .expired:
                 return handleFinalPaymentTokenStatus(pt)
@@ -115,6 +117,7 @@ extension XenditComponents {
                 stateStore.activeAction = paymentAction
             }
             dispatch(.actionBegin)
+            actionTelemetryScope = telemetry?.appendAndPushScope(TelemetryEvents.actionBegin(success: true))
         } else {
             stateStore.awaitingPaymentAction = .emptyPaymentActions
         }
@@ -126,40 +129,55 @@ extension XenditComponents {
 
         switch pr.status {
         case .succeeded, .authorized, .acceptingPayments:
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.sessionComplete)
 
         case .failed:
-            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+            let failureCode = pr.failureCode?.rawValue
+            telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: failureCode))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: failureCode))
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
+            let failedMessage = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_FAILED",
                 userErrorMessages: [
                     strings.string(for: .paymentRequestStatusFailedTitle),
-                    message
+                    failedMessage
                 ],
-                developerError: .init(type: .failure, code: pr.failureCode?.rawValue ?? "UNKNOWN")
+                developerError: .init(type: .failure, code: failureCode ?? "UNKNOWN")
             )))
 
         case .canceled:
-            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+            telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: "PAYMENT_REQUEST_CANCELED"))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: "PAYMENT_REQUEST_CANCELED"))
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
+            let canceledMessage = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentRequestStatusCanceledSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_CANCELED",
                 userErrorMessages: [
                     strings.string(for: .paymentRequestStatusCanceledTitle),
-                    message
+                    canceledMessage
                 ],
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_CANCELED")
             )))
 
         case .expired:
-            let message = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
+            telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: "PAYMENT_REQUEST_EXPIRED"))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: "PAYMENT_REQUEST_EXPIRED"))
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
+            let expiredMessage = pr.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentRequestStatusExpiredSubtext)
             dispatch(.submissionEnd(.init(
                 reason: "PAYMENT_REQUEST_EXPIRED",
                 userErrorMessages: [
                     strings.string(for: .paymentRequestStatusExpiredTitle),
-                    message
+                    expiredMessage
                 ],
                 developerError: .init(type: .failure, code: "PAYMENT_REQUEST_EXPIRED")
             )))
@@ -177,18 +195,26 @@ extension XenditComponents {
 
         switch pt.status {
         case .active:
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.sessionComplete)
 
         case .failed, .canceled, .expired:
+            let failureCode = pt.failureCode?.rawValue
+            let reason = "PAYMENT_TOKEN_\(pt.status)"
+            telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: failureCode ?? reason))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: failureCode ?? reason))
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             let message = pt.failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentTokenStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
-                reason: "PAYMENT_TOKEN_\(pt.status)",
+                reason: reason,
                 userErrorMessages: [
                     strings.string(for: .paymentTokenStatusFailedTitle),
                     message
                 ],
-                developerError: .init(type: .failure, code: pt.failureCode?.rawValue ?? "UNKNOWN")
+                developerError: .init(type: .failure, code: failureCode ?? "UNKNOWN")
             )))
 
         case .requiresAction, .pending, .unknown:
@@ -226,22 +252,34 @@ extension XenditComponents {
     }
 
     private func handlePollResult(_ result: PollResult) {
+        if let scope = actionTelemetryScope {
+            telemetry?.append(TelemetryEvents.actionClose(success: true))
+            telemetry?.popScope(scope)
+            actionTelemetryScope = nil
+        }
         dispatch(.actionEnd)
-        stateStore.awaitingPaymentAction = nil
         let locale = stateStore.session?.locale ?? "en"
         let strings = XenditStrings(locale: locale)
 
         switch result {
-        case .sessionComplete:
+        case .sessionComplete, .paymentRequestCreated, .paymentTokenCreated:
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.sessionComplete)
         case .sessionExpired:
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.sessionExpired)
         case .sessionCanceled:
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.sessionCanceled)
-        case .paymentRequestCreated:
-            dispatch(.sessionComplete)
 
         case .paymentRequestFailed(_, let failureCode):
+            let code = failureCode?.rawValue
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: code))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             let message = failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
@@ -250,13 +288,14 @@ extension XenditComponents {
                     strings.string(for: .paymentRequestStatusFailedTitle),
                     message
                 ],
-                developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
+                developerError: .init(type: .failure, code: code ?? "UNKNOWN")
             )))
 
-        case .paymentTokenCreated:
-            dispatch(.sessionComplete)
-
         case .paymentTokenFailed(_, let failureCode):
+            let code = failureCode?.rawValue
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: code))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             let message = failureCode.flatMap { strings.failureMessage(forCode: $0.rawValue) }
                 ?? strings.string(for: .paymentRequestStatusFailedSubtext)
             dispatch(.submissionEnd(.init(
@@ -265,7 +304,7 @@ extension XenditComponents {
                     strings.string(for: .paymentTokenStatusFailedTitle),
                     message
                 ],
-                developerError: .init(type: .failure, code: failureCode?.rawValue ?? "UNKNOWN")
+                developerError: .init(type: .failure, code: code ?? "UNKNOWN")
             )))
 
         case .continuePolling:
@@ -275,6 +314,9 @@ extension XenditComponents {
             break
 
         case .pollFailed(let errorCode, let message):
+            telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: errorCode))
+            if let scope = attemptPRScope { telemetry?.popScope(scope); attemptPRScope = nil }
+            if let scope = attemptTelemetryScope { telemetry?.popScope(scope); attemptTelemetryScope = nil }
             dispatch(.submissionEnd(.init(
                 reason: "POLL_FAILED",
                 userErrorMessages: [
@@ -285,7 +327,7 @@ extension XenditComponents {
             )))
         }
     }
-    
+
     // MARK: - Simulate payment
 
     func simulatePaymentIfNeeded() -> AnyPublisher<Void, Error> {
@@ -406,7 +448,6 @@ extension XenditComponents {
             .store(in: &cancellables)
     }
 }
-
 
 // MARK: - SubmissionResult
 
