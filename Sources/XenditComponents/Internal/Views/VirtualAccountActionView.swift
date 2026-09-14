@@ -17,6 +17,7 @@ struct VirtualAccountActionView: View {
     let locale: String
     var showSimulateButton: Bool = false
     var brandColor: String = ""
+    var onCopy: ((String) -> Void)?
     let onDismiss: () -> Void
     let onPaymentMade: () -> Void
 
@@ -120,7 +121,7 @@ struct VirtualAccountActionView: View {
                 }
             }
             Spacer()
-            copyButton(value: action.value, label: strings.string(for: .actionVaCopyNumber), appearance: appearance)
+            copyButton(value: action.value, label: strings.string(for: .actionVaCopyNumber), fieldName: "va_number", appearance: appearance)
         }
         .padding(Spacing.s4)
     }
@@ -141,6 +142,7 @@ struct VirtualAccountActionView: View {
             copyButton(
                 value: amount?.description ?? "",
                 label: strings.string(for: .actionVaCopyAmount),
+                fieldName: "amount",
                 appearance: appearance
             )
         }
@@ -173,8 +175,8 @@ struct VirtualAccountActionView: View {
 
     // MARK: - Copy button
 
-    private func copyButton(value: String, label: String, appearance: XenditAppearance) -> some View {
-        Button(action: { copyToClipboard(value) }) {
+    private func copyButton(value: String, label: String, fieldName: String, appearance: XenditAppearance) -> some View {
+        Button(action: { copyToClipboard(value, fieldName: fieldName) }) {
             Text(label)
                 .font(.labelMdSemiBold)
                 .foregroundColor(appearance.resolvedText)
@@ -238,8 +240,9 @@ struct VirtualAccountActionView: View {
 
     // MARK: - Actions
 
-    private func copyToClipboard(_ value: String) {
+    private func copyToClipboard(_ value: String, fieldName: String) {
         UIPasteboard.general.string = value
+        onCopy?(fieldName)
         withAnimation { toastMessage = strings.string(for: .copiedToClipboard) }
     }
 }

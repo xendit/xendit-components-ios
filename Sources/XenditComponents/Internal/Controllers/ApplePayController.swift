@@ -14,6 +14,8 @@ final class ApplePayController: NSObject {
     private let applePayData: SessionResponse.DigitalWallets.ApplePay
     private let parsedKey: ParsedSdkKey
     private var pkController: PKPaymentAuthorizationController?
+    var digitalWalletTelemetryScope: SessionTelemetryScope?
+    private var didCompletePayment = false
 
     init(
         sdk: XenditComponents,
@@ -192,6 +194,7 @@ extension ApplePayController: PKPaymentAuthorizationControllerDelegate {
         }
         // Signal success immediately — mirrors web's completePayment(STATUS_SUCCESS) before submission
         handler(PKPaymentAuthorizationResult(status: .success, errors: nil))
+        didCompletePayment = true
         Task { @MainActor in
             self.sdk?.submitApplePay(channelProperties: channelProperties)
         }
@@ -199,7 +202,11 @@ extension ApplePayController: PKPaymentAuthorizationControllerDelegate {
 
     func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
         controller.dismiss(completion: nil)
+        let completed = didCompletePayment
+        let scope = digitalWalletTelemetryScope
         Task { @MainActor in
+            self.sdk?.telemetry?.append(TelemetryEvents.digitalWalletClose(success: completed))
+            if let s = scope { self.sdk?.telemetry?.popScope(s) }
             self.sdk?.applePayController = nil
         }
     }

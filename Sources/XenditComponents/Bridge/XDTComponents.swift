@@ -135,7 +135,7 @@ public final class XDTComponents: NSObject {
 
     // MARK: - Read-only access
 
-    /// The current SDK version string (e.g. `"v1.1.0"`).
+    /// The current SDK version string (e.g. `"v1.2.0"`).
     @objc public static var sdkVersion: String {
         XenditComponents.sdkVersion
     }

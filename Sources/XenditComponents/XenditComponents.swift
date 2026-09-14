@@ -131,6 +131,16 @@ public final class XenditComponents: ObservableObject {
     var applePayController: ApplePayController?
     var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Telemetry
+    var telemetry: SessionTelemetry?
+    var currentChannelTelemetryScope: SessionTelemetryScope?
+    var channelGroupTelemetryScope: SessionTelemetryScope?
+    var attemptTelemetryScope: SessionTelemetryScope?
+    var attemptPRScope: SessionTelemetryScope?
+    var actionTelemetryScope: SessionTelemetryScope?
+    var firedFormInputKeys: Set<String> = []
+    var sessionReachedTerminalState = false
+
     // MARK: - Initializer
 
     private init(componentsSdkKey: String, merchantPreferredPaymentMethod: [XenditPaymentMethod]? = nil) {
@@ -139,6 +149,7 @@ public final class XenditComponents: ObservableObject {
         self.stateStore = SDKStateStore()
         self.checkoutAPI = CheckoutAPI()
         setupCardNumberObservation()
+        self.telemetry = SessionTelemetry(sdk: self)
     }
 
     // MARK: - Instance API
@@ -157,6 +168,7 @@ public final class XenditComponents: ObservableObject {
             let message = error.localizedDescription
             stateStore.sdkStatus = .fatalError(message)
             dispatch(.fatalError(message: message))
+            telemetry?.append(TelemetryEvents.loaded(success: false))
             return Fail(error: error).eraseToAnyPublisher()
         }
 
@@ -173,6 +185,7 @@ public final class XenditComponents: ObservableObject {
                     let msg = "Session mode must be COMPONENTS"
                     self.stateStore.sdkStatus = .fatalError(msg)
                     self.dispatch(.fatalError(message: msg))
+                    self.telemetry?.append(TelemetryEvents.loaded(success: false))
                     return Fail(
                         error: XenditAPIError.serverError(code: "INVALID_MODE", message: msg, content: nil)
                     ).eraseToAnyPublisher()
@@ -194,6 +207,7 @@ public final class XenditComponents: ObservableObject {
                     || $0.pmType == .overTheCounter)
                 }
                 let pairing = CombinedChannelsResult.combining(filtered)
+                let allSelectableChannelCodes = pairing.channels.map { $0.channelCode }
                 self.stateStore.channels = pairing.channels
                 self.stateStore.channelVariants = pairing.variants
                 self.stateStore.channelUiGroups = response.channelUiGroups ?? []
@@ -203,19 +217,25 @@ public final class XenditComponents: ObservableObject {
                 self.applyMerchantPreferences()
 
                 switch response.session.status {
-                case.completed:
+                case .completed:
+                    self.telemetry?.appendAndPushScope(TelemetryEvents.loaded(success: true, channels: allSelectableChannelCodes))
                     self.dispatch(.sessionComplete)
                     return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
                 case .canceled:
+                    self.telemetry?.appendAndPushScope(TelemetryEvents.loaded(success: true, channels: allSelectableChannelCodes))
                     self.dispatch(.sessionCanceled)
                     return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
                 case .expired:
+                    self.telemetry?.appendAndPushScope(TelemetryEvents.loaded(success: true, channels: allSelectableChannelCodes))
                     self.dispatch(.sessionExpired)
                     return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
-                case .active, .pending, .unknown:
-                    break
+                case .pending:
+                    self.telemetry?.appendAndPushScope(TelemetryEvents.loaded(success: true, channels: allSelectableChannelCodes))
+                    self.telemetry?.append(TelemetryEvents.pending(success: true))
+                case .active, .unknown:
+                    self.telemetry?.appendAndPushScope(TelemetryEvents.loaded(success: true, channels: allSelectableChannelCodes))
                 }
-                
+
                 self.stateStore.sdkStatus = .active
                 self.dispatch(.initialized)
                 return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
@@ -226,11 +246,12 @@ public final class XenditComponents: ObservableObject {
                 self?.stateStore.sdkStatus = .fatalError(message)
                 let errorCode = (error as? APIClientError)?.errorCode
                 self?.dispatch(.fatalError(message: message, errorCode: errorCode))
+                self?.telemetry?.append(TelemetryEvents.loaded(success: false))
             })
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-    
+
     func presentApplePay() {
         guard let applePay = stateStore.digitalWallets?.applePay,
               let session = stateStore.session,
@@ -242,6 +263,9 @@ public final class XenditComponents: ObservableObject {
             parsedKey: parsedKey
         )
         applePayController = controller
+        controller.digitalWalletTelemetryScope = telemetry?.appendAndPushScope(
+            TelemetryEvents.digitalWalletBegin(success: true, digitalWallet: "APPLE_PAY")
+        )
         controller.present()
     }
 
@@ -301,6 +325,7 @@ public final class XenditComponents: ObservableObject {
 
         stateStore.isSubmitting = true
         dispatch(.submissionBegin)
+        attemptTelemetryScope = telemetry?.appendAndPushScope(TelemetryEvents.attemptBegin(success: true))
 
         let effectiveChannel: SessionResponse.Channel
         if stateStore.savePaymentMethod,
@@ -323,6 +348,11 @@ public final class XenditComponents: ObservableObject {
                 let strings = XenditStrings(locale: session.locale)
                 if let clientError = error as? APIClientError,
                    clientError.type == .noInternet {
+                    let code = clientError.errorCode
+                    self?.telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: code))
+                    self?.telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: code))
+                    if let scope = self?.attemptTelemetryScope { self?.telemetry?.popScope(scope) }
+                    self?.attemptTelemetryScope = nil
                     self?.dispatch(.submissionEnd(.init(
                         reason: "REQUEST_FAILED",
                         userErrorMessages: [
@@ -333,11 +363,16 @@ public final class XenditComponents: ObservableObject {
                     )))
                 } else if let clientError = error as? APIClientError,
                           let backendError = clientError.backendError {
+                    let code = backendError.code
+                    self?.telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: code))
+                    self?.telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: code))
+                    if let scope = self?.attemptTelemetryScope { self?.telemetry?.popScope(scope) }
+                    self?.attemptTelemetryScope = nil
                     if let errorContent = backendError.errorContent {
                         self?.dispatch(.submissionEnd(.init(
                             reason: "REQUEST_FAILED",
                             userErrorMessages: [errorContent.title, errorContent.message1, errorContent.message2].compactMap { $0 },
-                            developerError: .init(type: .failure, code: backendError.code)
+                            developerError: .init(type: .failure, code: code)
                         )))
                     } else {
                         self?.dispatch(.submissionEnd(.init(
@@ -346,10 +381,14 @@ public final class XenditComponents: ObservableObject {
                                 strings.string(for: .defaultErrorTitle),
                                 backendError.message
                             ],
-                            developerError: .init(type: .failure, code: backendError.code)
+                            developerError: .init(type: .failure, code: code)
                         )))
                     }
                 } else {
+                    self?.telemetry?.append(TelemetryEvents.attemptError(success: false, errorCode: "NETWORK_ERROR"))
+                    self?.telemetry?.append(TelemetryEvents.attemptDiscard(success: false, failureCode: "NETWORK_ERROR"))
+                    if let scope = self?.attemptTelemetryScope { self?.telemetry?.popScope(scope) }
+                    self?.attemptTelemetryScope = nil
                     self?.dispatch(.submissionEnd(.init(
                         reason: "REQUEST_FAILED",
                         userErrorMessages: [
@@ -367,6 +406,11 @@ public final class XenditComponents: ObservableObject {
 
     /// Updates the active channel and resets all channel-specific form state.
     func setCurrentResponseChannel(_ channel: SessionResponse.Channel) {
+        if let prev = currentChannelTelemetryScope { telemetry?.popScope(prev) }
+        currentChannelTelemetryScope = telemetry?.appendAndPushScope(
+            TelemetryEvents.channel(success: true, paymentChannel: channel.channelCode)
+        )
+        firedFormInputKeys = []
         stateStore.currentChannel = channel
         stateStore.channelProperties = [:]
         stateStore.installmentPlans = nil
@@ -376,14 +420,41 @@ public final class XenditComponents: ObservableObject {
 
     /// Persists updated form field values and notifies listeners of the current submission readiness.
     func updateChannelProperties(_ properties: ChannelProperties) {
+        for key in properties.keys where !firedFormInputKeys.contains(key) {
+            firedFormInputKeys.insert(key)
+            telemetry?.append(TelemetryEvents.channelFormInput(success: true, fieldName: key))
+        }
         stateStore.channelProperties = properties
         guard let channel = stateStore.currentChannel else { return }
         dispatchReadinessEvent(channelCode: channel.channelCode)
     }
 
+    func handleChannelGroupTapped(_ groupName: String) {
+        if let prev = channelGroupTelemetryScope { telemetry?.popScope(prev) }
+        let groupChannelCodes = stateStore.channels
+            .filter { $0.uiGroup == groupName }
+            .map { $0.channelCode }
+        channelGroupTelemetryScope = telemetry?.appendAndPushScope(
+            TelemetryEvents.channelGroup(success: true, groupName: groupName, channels: groupChannelCodes)
+        )
+    }
+
     // MARK: - Event dispatch
 
     func dispatch(_ event: XenditEvent) {
+        switch event {
+        case .sessionComplete:
+            sessionReachedTerminalState = true
+            telemetry?.append(TelemetryEvents.end(success: true, status: "succeeded"))
+        case .sessionCanceled:
+            sessionReachedTerminalState = true
+            telemetry?.append(TelemetryEvents.end(success: false, status: "canceled"))
+        case .sessionExpired:
+            sessionReachedTerminalState = true
+            telemetry?.append(TelemetryEvents.end(success: false, status: "expired"))
+        default:
+            break
+        }
         eventListeners.forEach { $0(event) }
     }
 

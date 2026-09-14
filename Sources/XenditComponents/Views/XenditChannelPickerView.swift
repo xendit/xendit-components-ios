@@ -71,6 +71,9 @@ struct XenditChannelPickerView: View {
                     onPropertiesChanged: { sdk?.updateChannelProperties($0) },
                     onChannelSelected: { channel in
                         sdk?.setCurrentResponseChannel(channel)
+                    },
+                    onGroupTapped: { groupName in
+                        sdk?.handleChannelGroupTapped(groupName)
                     }
                 )
             }
@@ -91,6 +94,7 @@ private struct AccordionGroupView: View {
     @ObservedObject var stateStore: SDKStateStore
     let onPropertiesChanged: (ChannelProperties) -> Void
     var onChannelSelected: ((SessionResponse.Channel) -> Void)?
+    var onGroupTapped: ((String) -> Void)?
 
     @State private var isManuallyCollapsed: Bool = false
     @State private var showChannelPicker: Bool = false
@@ -308,9 +312,11 @@ private struct AccordionGroupView: View {
                 if !hasChannelAlready {
                     stateStore.currentChannel = nil
                 }
+                onGroupTapped?(group.id)
             }
         } else {
             showChannelPicker = true
+            onGroupTapped?(group.id)
         }
     }
 }
@@ -400,4 +406,3 @@ struct SheetDetentsModifier: ViewModifier {
         }
     }
 }
-
