@@ -7,6 +7,8 @@ A drop-in payment UI SDK for iOS that lets you accept payments through Xendit wi
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-iOS%2015%2B-orange)](https://developer.apple.com/ios/)
 
+> 💡 **Migrating from `xendit-sdk-ios`?** Check out our [Migration Guide](MIGRATION_GUIDE.md) for step-by-step instructions.
+
 ## Features
 
 - **Pre-built payment sheet** — Full-screen payment UI with channel selection, form validation, and error handling out of the box.
@@ -395,6 +397,7 @@ Then add `XenditComponents` to your target's dependencies:
 
 | Resource | Description |
 |----------|-------------|
+| [Migration Guide](MIGRATION_GUIDE.md) | Guide for migrating from legacy `xendit-sdk-ios` to Components SDK. |
 | [API Reference](https://developers.xendit.co) | Full API documentation for session creation and payment flows. |
 | [SwiftUI Example](Example/XenditExample) | Sample SwiftUI app demonstrating SDK integration. |
 | [UIKit Example](Example/XenditExampleUIKit) | Sample UIKit app demonstrating SDK integration. |
