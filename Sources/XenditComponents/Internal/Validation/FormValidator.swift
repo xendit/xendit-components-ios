@@ -251,6 +251,7 @@ typealias ChannelProperties = [String: String]
 extension FormValidator {
     static func validateCreditCard(_ input: String) -> Bool {
         let digits = input.filter { $0.isNumber }
+        guard digits.count >= 13 && digits.count <= 19 else { return false }
         return passesLuhn(digits)
     }
 

@@ -46,6 +46,17 @@ final class ValidationTests: XCTestCase {
         XCTAssertNotEqual(FormValidator.validatePostalCode("   "), .valid)
     }
 
+    // MARK: - Credit Card Validation
+
+    func testValidateCreditCard() {
+        XCTAssertFalse(FormValidator.validateCreditCard(""))
+        XCTAssertFalse(FormValidator.validateCreditCard("0"))
+        XCTAssertFalse(FormValidator.validateCreditCard("   "))
+        XCTAssertFalse(FormValidator.validateCreditCard("123"))
+        XCTAssertFalse(FormValidator.validateCreditCard("49927398716")) // 11 digits < 13
+        XCTAssertTrue(FormValidator.validateCreditCard("4111111111111111")) // Standard valid 16-digit Visa test card
+    }
+
     // MARK: - Text Validation
 
     func testTextLengthValidation() {
