@@ -50,7 +50,7 @@ struct XenditMapper {
                     ? try XenditEncryption.encrypt(data: value, serverPublicKeyBase64: publicKey, sessionId: sessionId)
                     : value
             case .installmentPlan:
-                guard keys.count >= 2 else { continue }
+                guard keys.count >= 3 else { continue }
                 let term = formValues[keys[0]]
                 let interval = formValues[keys[1]]
                 let code = formValues[keys[2]]

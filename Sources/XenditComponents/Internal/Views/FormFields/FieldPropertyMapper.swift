@@ -53,9 +53,7 @@ struct InstallmentPlanFieldMapper: FieldPropertyMapper {
         properties[keys[0]] = Int(terms).map { String($0) } ?? terms
         properties[keys[1]] = parts.count > 1 ? parts[1] : ""
         let code = parts.count > 2 ? parts[2] : ""
-        if !code.isEmpty {
-            properties[keys[2]] = code
-        }
+        properties[keys[2]] = code
     }
 }
 
